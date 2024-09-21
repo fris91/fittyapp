@@ -1,0 +1,17 @@
+spring:
+  cloud:
+    gateway:
+      discovery:
+        locator:
+          enabled: true
+      routes:
+        - id: user-service
+          uri: lb:http://USER-SERVICE
+          predicates:
+            - Path=/api/v1/user-service/**
+        - id: meal-service
+          uri: lb:http://MEAL-SERVICE
+          predicates:
+            - Path=/api/v1/meal-service/**
+server:
+  port: 8222

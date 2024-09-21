@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Architectural Diagrams with Mermaid.js</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+        .diagram-title {
+            text-align: center;
+            font-weight: bold;
+            margin-top: 40px;
+        }
+        .section {
+            margin: 60px 0;
+        }
+        .mermaid {
+            margin: 20px;
+        }
+        .explanation {
+            margin: 0 20px 40px 20px;
+            font-size: 16px;
+            line-height: 1.5;
+        }
+        h2 {
+            color: #2E86C1;
+        }
+        h3 {
+            color: #2874A6;
+        }
+        .microservice-section {
+            border: 1px solid #D5D8DC;
+            padding: 20px;
+            margin: 20px;
+            border-radius: 8px;
+        }
+    </style>
+    <!-- Include Mermaid.js -->
+    <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+    <script>
+        // Initialize Mermaid
+        mermaid.initialize({ startOnLoad: true, theme: 'default' });
+    </script>
+</head>
+<body>
+
+<!-- Introduction -->
+<div class="section">
+    <h1 class="diagram-title">Architectural Overview</h1>
+    <p class="explanation">
+        This document presents the architectural diagrams of our web application designed to offer users functionalities such as AI-based diet creation, meal logging through barcode scanning or meal photos, and synchronization of physical activities from various fitness providers. The application also offers PRO features like consultations with nutritionists and personal trainers. The architecture ensures high scalability and resilience, utilizing microservices, centralized configuration, and service discovery.
+    </p>
+</div>
+
+<!-- Diagrams Section -->
+<div class="section">
+    <h2 class="diagram-title">System Diagrams</h2>
+
+    <!-- Component Diagram -->
+    <h3>Component Diagram</h3>
+    <div class="mermaid">
+        graph TD
+            %% Define nodes with colors and styles
+            style A fill:#E3F2FD,stroke:#2196F3,stroke-width:2px
+            style B fill:#BBDEFB,stroke:#1976D2,stroke-width:2px
+            style C fill:#BBDEFB,stroke:#1976D2,stroke-width:2px
+            style D fill:#BBDEFB,stroke:#1976D2,stroke-width:2px
+            style E fill:#BBDEFB,stroke:#1976D2,stroke-width:2px
+            style F fill:#BBDEFB,stroke:#1976D2,stroke-width:2px
+            style G fill:#BBDEFB,stroke:#1976D2,stroke-width:2px
+            style H fill:#BBDEFB,stroke:#1976D2,stroke-width:2px
+            style I fill:#BBDEFB,stroke:#1976D2,stroke-width:2px
+            style J fill:#BBDEFB,stroke:#1976D2,stroke-width:2px
+            style K fill:#BBDEFB,stroke:#1976D2,stroke-width:2px
+            style L fill:#BBDEFB,stroke:#1976D2,stroke-width:2px
+            style M fill:#BBDEFB,stroke:#1976D2,stroke-width:2px
+            style N fill:#E8F5E9,stroke:#43A047,stroke-width:2px
+            style O fill:#E8F5E9,stroke:#43A047,stroke-width:2px
+            style P fill:#E8F5E9,stroke:#43A047,stroke-width:2px
+            style Q fill:#E8F5E9,stroke:#43A047,stroke-width:2px
+
+            %% Define nodes
+            A["Client App<br>(Flutter)"]
+            B["API Gateway<br>(Spring Cloud Gateway)"]
+            C["Subscription Service<br>(Spring Boot)"]
+            D["User Service<br>(Spring Boot)"]
+            E["Meal Service<br>(Spring Boot)"]
+            F["Activity Service<br>(Spring Boot)"]
+            G["PRO Service<br>(Spring Boot)"]
+            H["AI Service<br>(Spring Boot)"]
+            I["Payment Service<br>(Spring Boot)"]
+            J["Notification Service<br>(Spring Boot)"]
+            K["Keycloak<br>(Identity Provider)"]
+            L["Discovery Service<br>(Eureka Server)"]
+            M["Config Server<br>(Spring Cloud Config)"]
+            N["MongoDB"]
+            O["PostgreSQL"]
+            P["Redis<br>(Cache)"]
+            Q["Kafka<br>(Message Broker)"]
+
+            %% Define subgraphs
+            subgraph "Client"
+                A
+            end
+
+            subgraph "Server"
+                B
+                C
+                D
+                E
+                F
+                G
+                H
+                I
+                J
+                K
+                L
+                M
+            end
+
+            subgraph "Database"
+                N
+                O
+                P
+                Q
+            end
+
+            %% Connections with arrows and labels
+            A -->|HTTPS| B
+            B --> C
+            C --> D
+            C --> E
+            C --> F
+            C --> G
+            C --> H
+            C --> I
+            C --> J
+            B --> K
+
+            D --> N
+            E --> N
+            F --> N
+
+            G --> O
+            I --> O
+
+            D --> P
+            E --> P
+            F --> P
+
+            D --> Q
+            E --> Q
+            F --> Q
+            J --> Q
+
+            %% Discovery and Config
+            D --> L
+            E --> L
+            F --> L
+            C --> L
+            G --> L
+            H --> L
+            I --> L
+            J --> L
+
+            D --> M
+            E --> M
+            F --> M
+            C --> M
+            G --> M
+            H --> M
+            I --> M
+            J --> M
+    </div>
+
+    <p class="explanation">
+        <strong>Figure:</strong> The component diagram illustrates the main components of the application. The client app communicates with the API Gateway, which routes requests to the Subscription Service. The Subscription Service interacts with various microservices like User Service, Meal Service, Activity Service, and others. The Discovery Service (Eureka Server) and Config Server (Spring Cloud Config) provide centralized service discovery and configuration management. Databases like MongoDB and PostgreSQL store the application's data.
+    </p>
+
+    <!-- Sequence Diagram -->
+    <h3>Sequence Diagram</h3>
+    <div class="mermaid">
+        sequenceDiagram
+            participant User
+            participant App as Client App
+            participant Gateway as API Gateway
+            participant SubService as Subscription Service
+            participant MealService as Meal Service
+            participant MongoDB
+
+            User->>App: Scans Barcode
+            App->>Gateway: POST /meals/barcode
+            Gateway->>Keycloak: Verify Authentication
+            Keycloak-->>Gateway: Valid Token
+            Gateway->>SubService: Forward Request
+            SubService->>MealService: Process Meal Entry
+            MealService->>MongoDB: Look Up Food Item
+            MongoDB-->>MealService: Food Data
+            MealService-->>SubService: Response OK
+            SubService-->>Gateway: Response OK
+            Gateway-->>App: Response OK
+            App-->>User: Confirm Entry
+    </div>
+
+    <p class="explanation">
+        <strong>Figure:</strong> The sequence diagram shows the process of logging a meal through barcode scanning. The user interacts with the client app, which sends a request to the API Gateway. Authentication is verified via Keycloak. The request is then routed to the Subscription Service, which communicates with the Meal Service. The Meal Service retrieves food data from MongoDB and responds back through the chain to the client app.
+    </p>
+
+</div>
+
+<!-- Microservice Sections -->
+<div class="section">
+    <h2 class="diagram-title">Microservice Details</h2>
+
+    <!-- User Service -->
+    <div class="microservice-section">
+        <h3>User Service</h3>
+
+        <p class="explanation">
+            The User Service manages user information, authentication, and authorization. It interacts with the Discovery Service and Config Server for service discovery and configuration.
+        </p>
+
+        <!-- Class Diagram -->
+        <h4>Class Diagram</h4>
+        <div class="mermaid">
+            classDiagram
+                class User {
+                    UUID id
+                    String firstName
+                    String lastName
+                    String email
+                    String role
+                    PersonalData personalData
+                    DietaryPreferences dietaryPreferences
+                }
+
+                class PersonalData {
+                    Double height
+                    Double weight
+                    LocalDate dateOfBirth
+                    String gender
+                }
+
+                class DietaryPreferences {
+                    List~String~ restrictions
+                    String goals
+                    String dietType
+                }
+
+                User "1" --> "1" PersonalData
+                User "1" --> "1" DietaryPreferences
+        </div>
+
+        <p class="explanation">
+            <strong>Figure:</strong> The class diagram for the User Service shows the User entity and its relationships with PersonalData and DietaryPreferences.
+        </p>
+
+        <!-- ER Diagram -->
+        <h4>Entity-Relationship (ER) Diagram</h4>
+        <div class="mermaid">
+            erDiagram
+                USER {
+                    UUID id PK
+                    String first_name
+                    String last_name
+                    String email
+                    String role
+                }
+                PERSONAL_DATA {
+                    UUID id PK
+                    Double height
+                    Double weight
+                    Date date_of_birth
+                    String gender
+                    UUID user_id FK
+                }
+                DIETARY_PREFERENCES {
+                    UUID id PK
+                    String goals
+                    String diet_type
+                    UUID user_id FK
+                }
+                USER ||--o{ PERSONAL_DATA : has
+                USER ||--o{ DIETARY_PREFERENCES : has
+        </div>
+
+        <p class="explanation">
+            <strong>Figure:</strong> The ER diagram depicts the database schema for the User Service, highlighting the relationships between users, their personal data, and dietary preferences.
+        </p>
+    </div>
+
+    <!-- Subscription Service -->
+    <div class="microservice-section">
+        <h3>Subscription Service</h3>
+
+        <p class="explanation">
+            The Subscription Service handles user subscriptions, orders, and plans. It acts as an intermediary between the client app and other microservices, providing a unified interface.
+        </p>
+
+        <!-- Class Diagram -->
+        <h4>Class Diagram</h4>
+        <div class="mermaid">
+            classDiagram
+                class Subscription {
+                    UUID id
+                    UUID userId
+                    String planType
+                    Date startDate
+                    Date endDate
+                    String status
+                }
+
+                class Order {
+                    UUID id
+                    UUID subscriptionId
+                    Double amount
+                    String currency
+                    Date orderDate
+                    String paymentStatus
+                }
+
+                Subscription "1" --> "*" Order
+        </div>
+
+        <p class="explanation">
+            <strong>Figure:</strong> The class diagram for the Subscription Service shows the Subscription and Order entities and their relationship.
+        </p>
+
+        <!-- ER Diagram -->
+        <h4>Entity-Relationship (ER) Diagram</h4>
+        <div class="mermaid">
+            erDiagram
+                SUBSCRIPTION {
+                    UUID id PK
+                    UUID user_id FK
+                    String plan_type
+                    Date start_date
+                    Date end_date
+                    String status
+                }
+                ORDER {
+                    UUID id PK
+                    UUID subscription_id FK
+                    Double amount
+                    String currency
+                    Date order_date
+                    String payment_status
+                }
+                SUBSCRIPTION ||--o{ ORDER : includes
+        </div>
+
+        <p class="explanation">
+            <strong>Figure:</strong> The ER diagram illustrates the database schema for the Subscription Service, showing how subscriptions relate to orders.
+        </p>
+    </div>
+
+    <!-- Meal Service -->
+    <div class="microservice-section">
+        <h3>Meal Service</h3>
+
+        <p class="explanation">
+            The Meal Service manages meal entries, including logging meals via barcode scanning or photo analysis using AI.
+        </p>
+
+        <!-- Class Diagram -->
+        <h4>Class Diagram</h4>
+        <div class="mermaid">
+            classDiagram
+                class Meal {
+                    UUID id
+                    UUID userId
+                    DateTime dateTime
+                    Double totalCalories
+                    List~FoodItem~ foodItems
+                }
+
+                class FoodItem {
+                    UUID id
+                    String name
+                    Double quantity
+                    Double calories
+                    Nutrients nutrients
+                }
+
+                class Nutrients {
+                    Double proteins
+                    Double carbohydrates
+                    Double fats
+                }
+
+                Meal "1" --> "*" FoodItem
+                FoodItem "1" --> "1" Nutrients
+        </div>
+
+        <p class="explanation">
+            <strong>Figure:</strong> The class diagram for the Meal Service shows the Meal entity and its relationship with FoodItem and Nutrients.
+        </p>
+
+        <!-- ER Diagram -->
+        <h4>Entity-Relationship (ER) Diagram</h4>
+        <div class="mermaid">
+            erDiagram
+                MEAL {
+                    UUID id PK
+                    UUID user_id FK
+                    DateTime date_time
+                    Double total_calories
+                }
+                FOOD_ITEM {
+                    UUID id PK
+                    UUID meal_id FK
+                    String name
+                    Double quantity
+                    Double calories
+                }
+                NUTRIENTS {
+                    UUID id PK
+                    UUID food_item_id FK
+                    Double proteins
+                    Double carbohydrates
+                    Double fats
+                }
+                MEAL ||--o{ FOOD_ITEM : contains
+                FOOD_ITEM ||--|| NUTRIENTS : has
+        </div>
+
+        <p class="explanation">
+            <strong>Figure:</strong> The ER diagram shows the database schema for the Meal Service, illustrating how meals are composed of food items and their nutrients.
+        </p>
+    </div>
+
+    <!-- Other Microservices -->
+    <!-- Similar sections can be created for other microservices like Activity Service, PRO Service, etc. -->
+
+</div>
+
+</body>
+</html>

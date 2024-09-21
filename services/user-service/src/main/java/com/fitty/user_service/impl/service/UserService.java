@@ -1,0 +1,69 @@
+package com.fitty.user_service.impl.service;
+
+import com.fitty.user_service.api.dto.UserRequest;
+import com.fitty.user_service.api.dto.UserResponse;
+import com.fitty.user_service.impl.entity.UserEntity;
+import com.fitty.user_service.impl.exception.UserNotFoundException;
+import com.fitty.user_service.impl.repository.UserRepository;
+import com.fitty.user_service.mapper.UserMapper;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+import org.apache.commons.lang.StringUtils;
+import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.stream.Collectors;
+
+@Service
+@RequiredArgsConstructor
+public class UserService {
+    private final UserRepository repository;
+    private final UserMapper mapper;
+    public String createUser(UserRequest request) {
+        var user = repository.save(mapper.mapUserDTOtoUserEntity(request));
+        return user.getId();
+    }
+
+    public String UpdateUser(UserRequest request) {
+        var user = repository.findById(request.id())
+                .orElseThrow(()-> new UserNotFoundException(String.format("User with id '%s' not found", request.id())));
+        mergeUser(user,request);
+
+        return "updated";
+    }
+
+    private void mergeUser(UserEntity user, UserRequest request) {
+        if(StringUtils.isNotBlank(request.firstName())){
+            user.setFirstName(request.firstName());
+        }
+        if(StringUtils.isNotBlank(request.lastName())){
+            user.setLastName(request.lastName());
+        }
+        if(StringUtils.isNotBlank(request.email())){
+            user.setEmail(request.email());
+        }
+        if (request.dietaryPreferencesDTO() != null) {
+
+        }
+    }
+
+    public List<UserResponse> findAllUsers() {
+        return repository
+                .findAll()
+                .stream()
+                .map(mapper::UserEntityToUserResponse)
+                .collect(Collectors.toList());
+    }
+
+    public UserResponse findUserById(String userId) {
+        return repository.findById(userId).map(mapper::UserEntityToUserResponse).orElseThrow(()-> new UserNotFoundException(String.format("User with id '%s' not found", userId)));
+    }
+
+    public Boolean existsUserById(String userId) {
+        return repository.findById(userId).isPresent();
+    }
+
+    public void deleteUserById(String userId) {
+        repository.deleteById(userId);
+    }
+}

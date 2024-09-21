@@ -1,0 +1,29 @@
+digraph Distribuzione {
+	Client_App [label="Client App
+(Flutter)" shape=box]
+	Internet [label=Internet shape=cloud]
+	Load_Balancer [label="Load Balancer
+(Kubernetes Ingress)" shape=diamond]
+	API_Gateway [label="API Gateway
+(Spring Cloud Gateway)" shape=box]
+	User_Service [label="User Service
+(Spring Boot)" shape=box]
+	Meal_Service [label="Meal Service
+(Spring Boot)" shape=box]
+	Keycloak [label=Keycloak shape=box]
+	Kafka [label="Kafka Cluster" shape=cylinder]
+	MongoDB [label="MongoDB Cluster" shape=cylinder]
+	PostgreSQL [label="PostgreSQL DB" shape=cylinder]
+	Client_App -> Internet
+	Internet -> Load_Balancer
+	Load_Balancer -> API_Gateway
+	API_Gateway -> User_Service
+	API_Gateway -> Meal_Service
+	API_Gateway -> Keycloak [label=Auth]
+	User_Service -> Kafka
+	Meal_Service -> Kafka
+	User_Service -> MongoDB
+	Meal_Service -> MongoDB
+	User_Service -> PostgreSQL
+	Meal_Service -> PostgreSQL
+}
