@@ -4,19 +4,20 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.util.List;
+import java.util.UUID;
 
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
 @Getter
 @Setter
+@Entity
 public class Category {
     @Id
     @GeneratedValue
-    private Integer id;
+    @Column(name = "id")
+    private UUID id;
     private String name;
     private String description;
-    @OneToMany(mappedBy = "category",cascade = CascadeType.REMOVE)
-    private List<Meal> meals;
 
 }

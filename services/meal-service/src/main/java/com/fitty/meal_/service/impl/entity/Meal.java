@@ -4,17 +4,20 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.util.List;
+import java.util.UUID;
 
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
 @Getter
 @Setter
+@Entity
 public class Meal {
     @Id
-    private String id;
+    @Column(name = "id")
+    private UUID id;
     private String name;
     private String description;
-    @OneToMany(mappedBy = "fitty-meals",cascade = CascadeType.REMOVE)
+    @OneToMany(mappedBy = "meal", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
     private List<FoodItem> foodItems;
 }

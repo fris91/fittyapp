@@ -1,40 +1,38 @@
+create extension if not exists "uuid-ossp";
+
 create table if not exists category
 (
-    id integer not null  primary key,
+    id UUID not null default uuid_generate_v4() primary key,
     description varchar(255),
     name varchar(255)
-);
+    );
 
 create table if not exists nutrients
 (
-    id integer not null  primary key,
+    id UUID not null default uuid_generate_v4() primary key,
     proteins double precision,
     carbohydrates double precision,
     fats double precision
-
 );
+
 create table if not exists meal
 (
-    id integer not null  primary key,
+    id UUID not null default uuid_generate_v4() primary key,
     description varchar(255),
-    name varchar(255),
-    nutrients_id integer
-        constraint foreignkey_nutrients references nutrients
-);
+    name varchar(255)
+    );
 
 create table if not exists food_item
 (
-    id integer not null  primary key,
+    id UUID not null default uuid_generate_v4() primary key,
     name varchar(255),
     quantity double precision,
     calories double precision,
     description varchar(255),
-    nutrients_id integer constraint fk_nutrients references nutrients,
-    category_id integer
-    constraint foreignkey_category references category,
-    meal_id integer
-    constraint fk_meal references meal
+    nutrients_id UUID,
+    category_id UUID,
+    meal_id UUID,
+    constraint fk_nutrients foreign key (nutrients_id) references nutrients(id),
+    constraint fk_category foreign key (category_id) references category(id),
+    constraint fk_meal foreign key (meal_id) references meal(id)
     );
-
-create sequence if not exists  category_seq increment by 50;
-create sequence if not exists  nutrients_seq increment by 50;
