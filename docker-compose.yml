@@ -1,0 +1,230 @@
+name: fitty
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-fitty}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-fitty}
+      POSTGRES_DB: ${POSTGRES_DB:-fitty}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-fitty}"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    networks:
+      - fitty-net
+
+  mongo:
+    image: mongo:7
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_INITDB_ROOT_USERNAME:-fitty}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_INITDB_ROOT_PASSWORD:-fitty}
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo-data:/data/db
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    networks:
+      - fitty-net
+
+  kafka:
+    image: bitnami/kafka:3.7
+    environment:
+      KAFKA_CFG_NODE_ID: 1
+      KAFKA_CFG_PROCESS_ROLES: broker,controller
+      KAFKA_CFG_CONTROLLER_QUORUM_VOTERS: 1@kafka:9093
+      KAFKA_CFG_LISTENERS: PLAINTEXT://:9092,CONTROLLER://:9093
+      KAFKA_CFG_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
+      KAFKA_CFG_CONTROLLER_LISTENER_NAMES: CONTROLLER
+      KAFKA_CFG_AUTO_CREATE_TOPICS_ENABLE: "true"
+      ALLOW_PLAINTEXT_LISTENER: "yes"
+    ports:
+      - "9092:9092"
+    volumes:
+      - kafka-data:/bitnami/kafka
+    networks:
+      - fitty-net
+
+  kafka-ui:
+    image: provectuslabs/kafka-ui:latest
+    depends_on:
+      - kafka
+    environment:
+      KAFKA_CLUSTERS_0_NAME: local
+      KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka:9092
+    ports:
+      - "8090:8080"
+    networks:
+      - fitty-net
+
+  config-server:
+    build: ./services/config-server
+    profiles: ["extras"]
+    ports:
+      - "8888:8888"
+    networks:
+      - fitty-net
+
+  discovery:
+    build: ./services/discovery
+    profiles: ["extras"]
+    ports:
+      - "8761:8761"
+    networks:
+      - fitty-net
+
+  api-gateway:
+    build: ./services/gateway-service
+    environment:
+      JWT_SECRET: ${JWT_SECRET:-local-development-secret-change-me-local-development-secret}
+      AUTH_SERVICE_URL: http://auth-service:8081
+      USER_SERVICE_URL: http://user-service:8082
+      HEALTH_DATA_SERVICE_URL: http://health-data-service:8083
+      RECOMMENDATION_SERVICE_URL: http://recommendation-service:8084
+      MEAL_SERVICE_URL: http://meal-service:8085
+      NOTIFICATION_SERVICE_URL: http://notification-service:8086
+      SPRING_CONFIG_IMPORT: optional:configserver:http://config-server:8888
+      EUREKA_CLIENT_ENABLED: "false"
+    depends_on:
+      - auth-service
+      - user-service
+      - health-data-service
+      - recommendation-service
+      - meal-service
+      - notification-service
+    ports:
+      - "8080:8080"
+    networks:
+      - fitty-net
+
+  auth-service:
+    build: ./services/auth-service
+    environment:
+      SERVER_PORT: 8081
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/${POSTGRES_DB:-fitty}
+      SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER:-fitty}
+      SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD:-fitty}
+      SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+      JWT_SECRET: ${JWT_SECRET:-local-development-secret-change-me-local-development-secret}
+      JWT_ISSUER: ${JWT_ISSUER:-fitty-local}
+    depends_on:
+      postgres:
+        condition: service_healthy
+      kafka:
+        condition: service_started
+    ports:
+      - "8081:8081"
+    networks:
+      - fitty-net
+
+  user-service:
+    build: ./services/user-service
+    environment:
+      SERVER_PORT: 8082
+      SPRING_DATA_MONGODB_URI: mongodb://${MONGO_INITDB_ROOT_USERNAME:-fitty}:${MONGO_INITDB_ROOT_PASSWORD:-fitty}@mongo:27017/fitty-users?authSource=admin
+      SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+      SPRING_CONFIG_IMPORT: optional:configserver:http://config-server:8888
+      EUREKA_CLIENT_ENABLED: "false"
+    depends_on:
+      mongo:
+        condition: service_healthy
+      kafka:
+        condition: service_started
+    ports:
+      - "8082:8082"
+    networks:
+      - fitty-net
+
+  health-data-service:
+    build: ./services/health-data-service
+    environment:
+      SERVER_PORT: 8083
+      SPRING_DATA_MONGODB_URI: mongodb://${MONGO_INITDB_ROOT_USERNAME:-fitty}:${MONGO_INITDB_ROOT_PASSWORD:-fitty}@mongo:27017/fitty-health?authSource=admin
+      SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+    depends_on:
+      mongo:
+        condition: service_healthy
+      kafka:
+        condition: service_started
+    ports:
+      - "8083:8083"
+    networks:
+      - fitty-net
+
+  recommendation-service:
+    build: ./services/recommendation-service
+    environment:
+      SERVER_PORT: 8084
+      SPRING_DATA_MONGODB_URI: mongodb://${MONGO_INITDB_ROOT_USERNAME:-fitty}:${MONGO_INITDB_ROOT_PASSWORD:-fitty}@mongo:27017/fitty-recommendations?authSource=admin
+      SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+    depends_on:
+      mongo:
+        condition: service_healthy
+      kafka:
+        condition: service_started
+    ports:
+      - "8084:8084"
+    networks:
+      - fitty-net
+
+  meal-service:
+    build: ./services/meal-service
+    environment:
+      SERVER_PORT: 8085
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/${POSTGRES_DB:-fitty}
+      SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER:-fitty}
+      SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD:-fitty}
+      SPRING_CONFIG_IMPORT: optional:configserver:http://config-server:8888
+      EUREKA_CLIENT_ENABLED: "false"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    ports:
+      - "8085:8085"
+    networks:
+      - fitty-net
+
+  notification-service:
+    build: ./services/notification-service
+    environment:
+      SERVER_PORT: 8086
+      SPRING_DATA_MONGODB_URI: mongodb://${MONGO_INITDB_ROOT_USERNAME:-fitty}:${MONGO_INITDB_ROOT_PASSWORD:-fitty}@mongo:27017/fitty-notifications?authSource=admin
+      SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+    depends_on:
+      mongo:
+        condition: service_healthy
+      kafka:
+        condition: service_started
+    ports:
+      - "8086:8086"
+    networks:
+      - fitty-net
+
+  web-app:
+    build: ./frontend-web
+    environment:
+      VITE_API_BASE_URL: ${VITE_API_BASE_URL:-http://localhost:8080}
+    depends_on:
+      - api-gateway
+    ports:
+      - "3000:3000"
+    networks:
+      - fitty-net
+
+networks:
+  fitty-net:
+    driver: bridge
+
+volumes:
+  postgres-data:
+  mongo-data:
+  kafka-data:

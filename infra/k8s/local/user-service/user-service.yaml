@@ -1,0 +1,59 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: user-service
+  namespace: fitty-app
+spec:
+  selector:
+    app: user-service
+  ports:
+    - name: http
+      port: 8082
+      targetPort: 8082
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: user-service
+  namespace: fitty-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: user-service
+  template:
+    metadata:
+      labels:
+        app: user-service
+    spec:
+      containers:
+        - name: user-service
+          image: fitty-cp-01:5000/fitty/user-service:local
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8082
+          env:
+            - name: SERVER_PORT
+              value: "8082"
+            - name: EUREKA_CLIENT_ENABLED
+              value: "false"
+            - name: SPRING_CONFIG_IMPORT
+              value: optional:configserver:http://config-server.fitty-system.svc.cluster.local:8888
+            - name: SPRING_DATA_MONGODB_URI
+              value: mongodb://fitty:fitty@mongo.fitty-data.svc.cluster.local:27017/fitty-users?authSource=admin
+          envFrom:
+            - configMapRef:
+                name: fitty-app-config
+          resources:
+            requests:
+              cpu: 200m
+              memory: 384Mi
+            limits:
+              cpu: 750m
+              memory: 768Mi
+          readinessProbe:
+            httpGet:
+              path: /actuator/health
+              port: 8082
+            initialDelaySeconds: 30
+            periodSeconds: 10

@@ -1,0 +1,7 @@
+{
+  "eventId": "evt_001",
+  "type": "user-registered",
+  "occurredAt": "2026-05-27T10:15:30Z",
+  "userId": "user_123",
+  "email": "lucas@example.com"
+}

@@ -1,0 +1,9 @@
+{
+  "eventId": "evt_005",
+  "type": "recommendation-ready",
+  "occurredAt": "2026-05-27T10:18:35Z",
+  "userId": "user_123",
+  "recommendationId": "rec_123",
+  "priority": "normal",
+  "category": "recovery"
+}

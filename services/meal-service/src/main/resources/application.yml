@@ -3,4 +3,15 @@ spring:
     name: meal-service
   config:
     import: optional:configserver:http://localhost:8888
+  kafka:
+    bootstrap-servers: ${SPRING_KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
+    producer:
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
 
+server:
+  port: ${SERVER_PORT:8085}
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,prometheus

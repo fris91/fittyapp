@@ -1,0 +1,8 @@
+{
+  "eventId": "evt_007",
+  "type": "notification-created",
+  "occurredAt": "2026-05-27T10:18:36Z",
+  "userId": "user_123",
+  "notificationId": "notif_123",
+  "channel": "in_app"
+}

@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: fitty-app-config
+  namespace: fitty-app
+data:
+  JWT_ISSUER: fitty-local-k8s
+  SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka.fitty-data.svc.cluster.local:9092
+  AUTH_SERVICE_URL: http://auth-service.fitty-app.svc.cluster.local:8081
+  USER_SERVICE_URL: http://user-service.fitty-app.svc.cluster.local:8082
+  HEALTH_DATA_SERVICE_URL: http://health-data-service.fitty-app.svc.cluster.local:8083
+  RECOMMENDATION_SERVICE_URL: http://recommendation-service.fitty-app.svc.cluster.local:8084
+  MEAL_SERVICE_URL: http://nutrition-service.fitty-app.svc.cluster.local:8085
+  NOTIFICATION_SERVICE_URL: http://notification-service.fitty-app.svc.cluster.local:8086
+  VITE_API_BASE_URL: http://api.fitty.local:30080

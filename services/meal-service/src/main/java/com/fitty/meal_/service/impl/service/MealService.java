@@ -9,10 +9,14 @@ import com.fitty.meal_.service.mapper.MealMapper;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Instant;
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -21,14 +25,21 @@ import java.util.stream.Collectors;
 public class MealService {
     private final MealRepository repository;
     private final MealMapper mapper;
+    private final KafkaTemplate<String, Object> kafkaTemplate;
 
     public UUID createMeal(@Valid MealRequestDTO request) {
         var response = repository.save(mapper.mapMealRequestToMeal(request));
+        kafkaTemplate.send("nutrition-plan-updated", response.getId().toString(), Map.of(
+                "eventId", UUID.randomUUID().toString(),
+                "type", "nutrition-plan-updated",
+                "occurredAt", Instant.now().toString(),
+                "planId", response.getId().toString()
+        ));
         return response.getId();
     }
 
     public List<AteMealResponse> ateMeal(List<AteMealRequest> request) {
-        return null;
+        return Collections.emptyList();
     }
     @Transactional(readOnly = true)
     public MealResponseDTO findById(UUID id) {

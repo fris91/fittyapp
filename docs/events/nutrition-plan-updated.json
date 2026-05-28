@@ -1,0 +1,7 @@
+{
+  "eventId": "evt_006",
+  "type": "nutrition-plan-updated",
+  "occurredAt": "2026-05-27T10:20:00Z",
+  "userId": "user_123",
+  "planId": "plan_123"
+}

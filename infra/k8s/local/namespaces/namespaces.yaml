@@ -1,0 +1,19 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: fitty-system
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: fitty-data
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: fitty-app
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: fitty-observability

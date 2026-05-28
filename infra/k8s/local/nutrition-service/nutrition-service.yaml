@@ -1,0 +1,71 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: nutrition-service
+  namespace: fitty-app
+spec:
+  selector:
+    app: nutrition-service
+  ports:
+    - name: http
+      port: 8085
+      targetPort: 8085
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nutrition-service
+  namespace: fitty-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: nutrition-service
+  template:
+    metadata:
+      labels:
+        app: nutrition-service
+    spec:
+      containers:
+        - name: nutrition-service
+          image: fitty-cp-01:5000/fitty/meal-service:local
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8085
+          env:
+            - name: SERVER_PORT
+              value: "8085"
+            - name: EUREKA_CLIENT_ENABLED
+              value: "false"
+            - name: SPRING_CONFIG_IMPORT
+              value: optional:configserver:http://config-server.fitty-system.svc.cluster.local:8888
+            - name: SPRING_DATASOURCE_URL
+              value: jdbc:postgresql://postgres.fitty-data.svc.cluster.local:5432/fitty
+            - name: SPRING_DATASOURCE_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: fitty-app-secrets
+                  key: POSTGRES_USER
+            - name: SPRING_DATASOURCE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: fitty-app-secrets
+                  key: POSTGRES_PASSWORD
+          envFrom:
+            - configMapRef:
+                name: fitty-app-config
+            - secretRef:
+                name: fitty-app-secrets
+          resources:
+            requests:
+              cpu: 200m
+              memory: 384Mi
+            limits:
+              cpu: 750m
+              memory: 768Mi
+          readinessProbe:
+            httpGet:
+              path: /actuator/health
+              port: 8085
+            initialDelaySeconds: 30
+            periodSeconds: 10

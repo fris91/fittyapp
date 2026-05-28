@@ -1,0 +1,9 @@
+{
+  "eventId": "evt_004",
+  "type": "health-risk-detected",
+  "occurredAt": "2026-05-27T10:18:31Z",
+  "userId": "user_123",
+  "snapshotId": "snap_123",
+  "riskLevel": "medium",
+  "reason": "Resting heart rate is above starter threshold"
+}

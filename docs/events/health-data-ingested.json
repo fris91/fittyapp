@@ -1,0 +1,14 @@
+{
+  "eventId": "evt_003",
+  "type": "health-data-ingested",
+  "occurredAt": "2026-05-27T10:18:30Z",
+  "userId": "user_123",
+  "snapshotId": "snap_123",
+  "metrics": {
+    "weightKg": 74.2,
+    "heightCm": 178,
+    "heartRateBpm": 72,
+    "sleepHours": 7.5,
+    "steps": 8400
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "expo": {
+    "name": "Fitty",
+    "slug": "fitty",
+    "version": "0.1.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "light",
+    "assetBundlePatterns": ["**/*"],
+    "extra": {
+      "apiBaseUrl": "http://localhost:8080"
+    }
+  }
+}

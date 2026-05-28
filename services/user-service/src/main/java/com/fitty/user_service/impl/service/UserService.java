@@ -8,10 +8,14 @@ import com.fitty.user_service.impl.repository.UserRepository;
 import com.fitty.user_service.mapper.UserMapper;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 
+import java.time.Instant;
 import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
@@ -19,8 +23,11 @@ import java.util.stream.Collectors;
 public class UserService {
     private final UserRepository repository;
     private final UserMapper mapper;
+    private final KafkaTemplate<String, Object> kafkaTemplate;
+
     public String createUser(UserRequest request) {
         var user = repository.save(mapper.mapUserDTOtoUserEntity(request));
+        publish("user-profile-updated", user);
         return user.getId();
     }
 
@@ -28,6 +35,8 @@ public class UserService {
         var user = repository.findById(request.id())
                 .orElseThrow(()-> new UserNotFoundException(String.format("User with id '%s' not found", request.id())));
         mergeUser(user,request);
+        repository.save(user);
+        publish("user-profile-updated", user);
 
         return "updated";
     }
@@ -65,5 +74,15 @@ public class UserService {
 
     public void deleteUserById(String userId) {
         repository.deleteById(userId);
+    }
+
+    private void publish(String topic, UserEntity user) {
+        kafkaTemplate.send(topic, user.getId(), Map.of(
+                "eventId", UUID.randomUUID().toString(),
+                "type", topic,
+                "occurredAt", Instant.now().toString(),
+                "userId", user.getId(),
+                "email", user.getEmail() == null ? "" : user.getEmail()
+        ));
     }
 }

@@ -1,0 +1,7 @@
+{
+  "eventId": "evt_002",
+  "type": "user-profile-updated",
+  "occurredAt": "2026-05-27T10:16:30Z",
+  "userId": "user_123",
+  "goals": ["improve_sleep", "balanced_nutrition"]
+}

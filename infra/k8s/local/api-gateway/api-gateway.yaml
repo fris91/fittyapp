@@ -1,0 +1,61 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: api-gateway
+  namespace: fitty-app
+spec:
+  type: NodePort
+  selector:
+    app: api-gateway
+  ports:
+    - name: http
+      port: 8080
+      targetPort: 8080
+      nodePort: 30080
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: api-gateway
+  namespace: fitty-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: api-gateway
+  template:
+    metadata:
+      labels:
+        app: api-gateway
+    spec:
+      containers:
+        - name: api-gateway
+          image: fitty-cp-01:5000/fitty/api-gateway:local
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8080
+          env:
+            - name: SERVER_PORT
+              value: "8080"
+            - name: EUREKA_CLIENT_ENABLED
+              value: "false"
+            - name: SPRING_CONFIG_IMPORT
+              value: optional:configserver:http://config-server.fitty-system.svc.cluster.local:8888
+          envFrom:
+            - configMapRef:
+                name: fitty-app-config
+            - secretRef:
+                name: fitty-app-secrets
+          resources:
+            requests:
+              cpu: 200m
+              memory: 384Mi
+            limits:
+              cpu: 750m
+              memory: 768Mi
+          readinessProbe:
+            httpGet:
+              path: /actuator/health
+              port: 8080
+            initialDelaySeconds: 25
+            periodSeconds: 10
