@@ -7,6 +7,7 @@ import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.web.client.RestClient;
+import org.springframework.web.util.UriComponentsBuilder;
 
 import java.net.URI;
 import java.util.List;
@@ -38,7 +39,7 @@ public class KeycloakClient {
         String userId;
         if (existingUserId == null) {
             URI location = restClient.post()
-                    .uri("{base}/admin/realms/{realm}/users", properties.keycloak().baseUrl(), properties.keycloak().realm())
+                    .uri(keycloakUri("/admin/realms/{realm}/users", properties.keycloak().realm()))
                     .headers(headers -> headers.setBearerAuth(adminToken))
                     .contentType(MediaType.APPLICATION_JSON)
                     .body(payload)
@@ -54,7 +55,7 @@ public class KeycloakClient {
         } else {
             userId = existingUserId;
             restClient.put()
-                    .uri("{base}/admin/realms/{realm}/users/{userId}", properties.keycloak().baseUrl(), properties.keycloak().realm(), userId)
+                    .uri(keycloakUri("/admin/realms/{realm}/users/{userId}", properties.keycloak().realm(), userId))
                     .headers(headers -> headers.setBearerAuth(adminToken))
                     .contentType(MediaType.APPLICATION_JSON)
                     .body(payload)
@@ -70,7 +71,10 @@ public class KeycloakClient {
 
     private String findUserIdByEmail(String email, String adminToken) {
         List<?> users = restClient.get()
-                .uri("{base}/admin/realms/{realm}/users?email={email}&exact=true", properties.keycloak().baseUrl(), properties.keycloak().realm(), email)
+                .uri(keycloakBuilder("/admin/realms/{realm}/users")
+                        .queryParam("email", email)
+                        .queryParam("exact", true)
+                        .build(properties.keycloak().realm()))
                 .headers(headers -> headers.setBearerAuth(adminToken))
                 .retrieve()
                 .body(List.class);
@@ -89,7 +93,7 @@ public class KeycloakClient {
         form.add("password", password);
 
         Map<?, ?> response = restClient.post()
-                .uri("{base}/realms/{realm}/protocol/openid-connect/token", properties.keycloak().baseUrl(), properties.keycloak().realm())
+                .uri(keycloakUri("/realms/{realm}/protocol/openid-connect/token", properties.keycloak().realm()))
                 .contentType(MediaType.APPLICATION_FORM_URLENCODED)
                 .body(form)
                 .retrieve()
@@ -115,7 +119,7 @@ public class KeycloakClient {
         form.add("password", properties.keycloak().adminPassword());
 
         Map<?, ?> response = restClient.post()
-                .uri("{base}/realms/{realm}/protocol/openid-connect/token", properties.keycloak().baseUrl(), properties.keycloak().adminRealm())
+                .uri(keycloakUri("/realms/{realm}/protocol/openid-connect/token", properties.keycloak().adminRealm()))
                 .contentType(MediaType.APPLICATION_FORM_URLENCODED)
                 .body(form)
                 .retrieve()
@@ -128,7 +132,7 @@ public class KeycloakClient {
 
     private void setPassword(String userId, String password, String adminToken) {
         restClient.put()
-                .uri("{base}/admin/realms/{realm}/users/{userId}/reset-password", properties.keycloak().baseUrl(), properties.keycloak().realm(), userId)
+                .uri(keycloakUri("/admin/realms/{realm}/users/{userId}/reset-password", properties.keycloak().realm(), userId))
                 .headers(headers -> headers.setBearerAuth(adminToken))
                 .contentType(MediaType.APPLICATION_JSON)
                 .body(Map.of("type", "password", "value", password, "temporary", false))
@@ -138,7 +142,7 @@ public class KeycloakClient {
 
     private void assignRealmRole(String userId, String roleName, String adminToken) {
         Map<?, ?> role = restClient.get()
-                .uri("{base}/admin/realms/{realm}/roles/{roleName}", properties.keycloak().baseUrl(), properties.keycloak().realm(), roleName)
+                .uri(keycloakUri("/admin/realms/{realm}/roles/{roleName}", properties.keycloak().realm(), roleName))
                 .headers(headers -> headers.setBearerAuth(adminToken))
                 .retrieve()
                 .body(Map.class);
@@ -146,7 +150,7 @@ public class KeycloakClient {
             throw new IllegalStateException("Missing Keycloak realm role: " + roleName);
         }
         restClient.post()
-                .uri("{base}/admin/realms/{realm}/users/{userId}/role-mappings/realm", properties.keycloak().baseUrl(), properties.keycloak().realm(), userId)
+                .uri(keycloakUri("/admin/realms/{realm}/users/{userId}/role-mappings/realm", properties.keycloak().realm(), userId))
                 .headers(headers -> headers.setBearerAuth(adminToken))
                 .contentType(MediaType.APPLICATION_JSON)
                 .body(List.of(role))
@@ -166,6 +170,14 @@ public class KeycloakClient {
                 "socialProvider", List.of(request.socialIdentity() == null ? "" : valueOrDefault(request.socialIdentity().provider(), "")),
                 "socialSubject", List.of(request.socialIdentity() == null ? "" : valueOrDefault(request.socialIdentity().providerSubject(), ""))
         );
+    }
+
+    private URI keycloakUri(String path, Object... variables) {
+        return keycloakBuilder(path).build(variables);
+    }
+
+    private UriComponentsBuilder keycloakBuilder(String path) {
+        return UriComponentsBuilder.fromUriString(properties.keycloak().baseUrl()).path(path);
     }
 
     private String valueOrDefault(String value, String fallback) {

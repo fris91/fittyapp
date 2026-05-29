@@ -5,7 +5,9 @@ import com.fitty.identity.dto.IdentityDtos.RegisterRequest;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
+import org.springframework.web.util.UriComponentsBuilder;
 
+import java.net.URI;
 import java.util.Map;
 
 @Component
@@ -29,10 +31,17 @@ public class UserProfileClient {
         );
 
         return restClient.post()
-                .uri("{base}/api/v1/user-service", properties.userService().url())
+                .uri(userServiceUri())
                 .contentType(MediaType.APPLICATION_JSON)
                 .body(payload)
                 .retrieve()
                 .body(String.class);
+    }
+
+    private URI userServiceUri() {
+        return UriComponentsBuilder.fromUriString(properties.userService().url())
+                .path("/api/v1/user-service")
+                .build()
+                .toUri();
     }
 }
