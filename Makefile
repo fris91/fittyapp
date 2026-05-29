@@ -2,7 +2,7 @@ COMPOSE=docker compose
 REGISTRY?=fitty-cp-01:5000
 IMAGE_TAG?=local
 K8S_DIR=infra/k8s/local
-SERVICES=api-gateway auth-service user-service health-data-service recommendation-service meal-service notification-service web-app
+SERVICES=api-gateway auth-service identity-service user-service health-data-service recommendation-service meal-service notification-service web-app
 
 .PHONY: up down logs test clean
 
@@ -33,6 +33,7 @@ k8s-up:
 k8s-build-images:
 	docker build -t $(REGISTRY)/fitty/api-gateway:$(IMAGE_TAG) services/gateway-service
 	docker build -t $(REGISTRY)/fitty/auth-service:$(IMAGE_TAG) services/auth-service
+	docker build -t $(REGISTRY)/fitty/identity-service:$(IMAGE_TAG) services/identity-service
 	docker build -t $(REGISTRY)/fitty/user-service:$(IMAGE_TAG) services/user-service
 	docker build -t $(REGISTRY)/fitty/health-data-service:$(IMAGE_TAG) services/health-data-service
 	docker build -t $(REGISTRY)/fitty/recommendation-service:$(IMAGE_TAG) services/recommendation-service
@@ -43,6 +44,7 @@ k8s-build-images:
 k8s-push-images:
 	docker push $(REGISTRY)/fitty/api-gateway:$(IMAGE_TAG)
 	docker push $(REGISTRY)/fitty/auth-service:$(IMAGE_TAG)
+	docker push $(REGISTRY)/fitty/identity-service:$(IMAGE_TAG)
 	docker push $(REGISTRY)/fitty/user-service:$(IMAGE_TAG)
 	docker push $(REGISTRY)/fitty/health-data-service:$(IMAGE_TAG)
 	docker push $(REGISTRY)/fitty/recommendation-service:$(IMAGE_TAG)
@@ -61,6 +63,7 @@ k8s-deploy:
 	kubectl apply -f $(K8S_DIR)/kafka/
 	kubectl apply -f $(K8S_DIR)/api-gateway/
 	kubectl apply -f $(K8S_DIR)/auth-service/
+	kubectl apply -f $(K8S_DIR)/identity-service/
 	kubectl apply -f $(K8S_DIR)/user-service/
 	kubectl apply -f $(K8S_DIR)/health-data-service/
 	kubectl apply -f $(K8S_DIR)/recommendation-service/
@@ -78,6 +81,7 @@ k8s-port-forward-keycloak:
 k8s-restart-apps:
 	kubectl rollout restart deployment -n fitty-app api-gateway
 	kubectl rollout restart deployment -n fitty-app auth-service
+	kubectl rollout restart deployment -n fitty-app identity-service
 	kubectl rollout restart deployment -n fitty-app user-service
 	kubectl rollout restart deployment -n fitty-app health-data-service
 	kubectl rollout restart deployment -n fitty-app recommendation-service
@@ -100,6 +104,7 @@ k8s-down:
 	kubectl delete -f $(K8S_DIR)/recommendation-service/ --ignore-not-found
 	kubectl delete -f $(K8S_DIR)/health-data-service/ --ignore-not-found
 	kubectl delete -f $(K8S_DIR)/user-service/ --ignore-not-found
+	kubectl delete -f $(K8S_DIR)/identity-service/ --ignore-not-found
 	kubectl delete -f $(K8S_DIR)/auth-service/ --ignore-not-found
 	kubectl delete -f $(K8S_DIR)/api-gateway/ --ignore-not-found
 	kubectl delete -f $(K8S_DIR)/kafka/ --ignore-not-found

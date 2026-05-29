@@ -6,17 +6,17 @@ export const theme = {
     success: "#59c98f",
     warning: "#f6b84b",
     error: "#ef6f73",
-    background: "#fffaf5",
+    background: "#fff8f2",
     surface: "#ffffff",
     text: "#20313f",
-    muted: "#697887",
-    line: "#efe6dc"
+    muted: "#8a97a4",
+    line: "#ede6dd"
   },
   radius: {
-    sm: "8px",
-    md: "12px",
-    lg: "18px",
-    xl: "24px",
+    sm: "12px",
+    md: "18px",
+    lg: "24px",
+    xl: "30px",
     full: "999px"
   },
   spacing: {

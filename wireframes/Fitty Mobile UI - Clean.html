@@ -1,0 +1,498 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Fitty · Clean Mobile UI</title>
+<link rel="stylesheet" href="fitty-clean.css">
+</head>
+<body>
+
+<!-- reusable nav icon defs -->
+<svg style="display:none"><defs>
+<g id="i-home"><path d="M3 11l9-7 9 7"/><path d="M5 10v10h14V10"/></g>
+<g id="i-chart"><path d="M4 20V10"/><path d="M10 20V4"/><path d="M16 20v-7"/><path d="M21 20H3"/></g>
+<g id="i-plus"><path d="M12 5v14M5 12h14"/></g>
+<g id="i-plan"><rect x="5" y="4" width="14" height="17" rx="2"/><path d="M9 9h6M9 13h6M9 17h3"/></g>
+<g id="i-spark"><path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8z"/></g>
+</defs></svg>
+
+<div class="topbar">
+  <div class="brand">
+    <span class="mark">F</span>
+    <div><b>Fitty</b><small>Clean UI · alt style</small></div>
+  </div>
+  <nav class="tabs" id="tabs">
+    <button class="tab active" data-view="strategy">Strategy</button>
+    <button class="tab" data-view="onboarding">Onboarding</button>
+    <button class="tab" data-view="concepts">Home concepts ×3</button>
+    <button class="tab" data-view="core">Core screens</button>
+  </nav>
+  <span class="spacer"></span>
+  <div class="toggles">
+    <label class="tg"><input type="checkbox" id="tgNotes" checked><span class="sw"></span>UX notes</label>
+  </div>
+</div>
+
+<div class="stage">
+
+<!-- ===================== STRATEGY ===================== -->
+<section class="view active" id="v-strategy">
+  <div class="doc">
+    <div class="section-head"><h2>UX strategy</h2></div>
+    <p class="lead-xl">A calm, encouraging companion — not a dashboard you operate. Every screen answers one question: <em>“what’s one good thing I can do right now?”</em></p>
+
+    <h3>Design principles</h3>
+    <ul>
+      <li><strong>One screen, one job.</strong> Progressive disclosure over density — detail lives a tap deeper.</li>
+      <li><strong>Encourage, don’t grade.</strong> Soft language, celebrate streaks, never shame a missed day.</li>
+      <li><strong>Fast in, fast out.</strong> Logging anything is ≤2 taps via the center button + bottom sheets.</li>
+      <li><strong>Wellness ≠ medical.</strong> Clinical-looking numbers always carry a quiet “not medical advice” boundary.</li>
+      <li><strong>Trustworthy AI.</strong> Every plan is editable, explainable, and shows what data it used.</li>
+      <li><strong>Soft & physical.</strong> Color carries meaning — coral = action, mint = positive, lavender = AI, amber = attention.</li>
+    </ul>
+
+    <h3>Mobile navigation</h3>
+    <p>Five-tab bottom nav with a raised center “+” for instant logging.</p>
+    <div class="pillrow"><span class="p">🏠 Today</span><span class="p">📈 Progress</span><span class="p">＋ Log</span><span class="p">🥗 Plans</span><span class="p">✨ Coach</span></div>
+
+    <h3>The daily loop</h3>
+    <p>Built around three tiny touchpoints so even a 15-second visit feels complete:</p>
+    <ul>
+      <li><strong>Morning check-in</strong> — one tap on mood/energy + today’s focus card.</li>
+      <li><strong>Midday log</strong> — one meal or workout via ＋; instant positive feedback + rings fill.</li>
+      <li><strong>Evening reflection</strong> — Coach summarizes the day and previews tomorrow.</li>
+    </ul>
+
+    <h3>Three home concepts</h3>
+    <div class="cards">
+      <div class="scard"><span class="pin">A · Data</span><h5>The cockpit</h5><p>Metric grid + trends up front. Powerful for quantified-self users, but can feel clinical.</p></div>
+      <div class="scard"><span class="pin">B · AI coach</span><h5>The companion</h5><p>Conversation leads, data one tap away. Warmest &amp; lowest-effort; needs a strong coach.</p></div>
+      <div class="scard rec"><span class="pin">★ C · Habit</span><h5>The momentum board</h5><p>Single focus + streak/rings + inline coach voice. Best for the broad “be healthy” user — <strong>recommended.</strong></p></div>
+    </div>
+    <p><strong>Recommendation:</strong> ship <strong>Concept C</strong> as default, borrow B’s coach voice inline, expose A’s full grid under <em>Progress</em>.</p>
+
+    <h3>MVP order</h3>
+    <div class="legend"><span><span class="d" style="background:var(--coral)"></span>MVP now</span><span><span class="d" style="background:var(--lav)"></span>Phase 2</span><span><span class="d" style="background:var(--line)"></span>Later</span></div>
+    <div class="cards" style="grid-template-columns:repeat(auto-fit,minmax(220px,1fr));">
+      <div class="scard"><h5 style="color:var(--coral)">MVP now</h5><ul><li>Onboarding → first plan</li><li>Home (Concept C)</li><li>Quick log sheet</li><li>Progress + weight chart</li><li>Coach feed + 1 chat</li><li>1 integration connect</li></ul></div>
+      <div class="scard"><h5 style="color:var(--lav)">Phase 2</h5><ul><li>Full AI plan generation</li><li>Recipes + detail</li><li>Workout session player</li><li>Goals + health score</li><li>Trial / upgrade</li></ul></div>
+      <div class="scard"><h5 style="color:var(--muted)">Later</h5><ul><li>Sync conflict UI</li><li>Social / sharing</li><li>Weekly review story</li><li>Web app · admin</li></ul></div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== ONBOARDING ===================== -->
+<section class="view" id="v-onboarding">
+  <div class="section-head"><h2>Onboarding → first home</h2><p>From first launch to a personal home screen in under 90 seconds. Account creation deferred until value is shown.</p></div>
+
+  <div class="flow-label"><span class="n">1</span> Welcome &amp; goal <span class="sub">value before any form</span></div>
+  <div class="rail">
+    <!-- Welcome -->
+    <div class="pw">
+      <div class="pcap">Welcome<span>first launch</span></div>
+      <div class="phone"><div class="inner"><div class="sbar"><span>9:41</span><span class="r">▮▮▮ 100%</span></div><div class="scr center" style="justify-content:center;gap:18px;">
+        <div class="img coral circle" style="width:120px;height:120px;font-size:42px;">🌿</div>
+        <div class="h1" style="font-size:30px;">Hi, I’m Fitty 👋</div>
+        <div class="lead">Your friendly wellness companion. Let’s set you up in a minute.</div>
+        <div class="row" style="gap:6px;"><span style="width:22px;height:6px;border-radius:9px;background:var(--coral)"></span><span style="width:6px;height:6px;border-radius:9px;background:var(--line)"></span><span style="width:6px;height:6px;border-radius:9px;background:var(--line)"></span></div>
+        <div class="col" style="width:100%;"><div class="btn cta">Get started</div><div class="sm" style="text-align:center;">I already have an account</div></div>
+      </div></div></div>
+      <div class="note">Personality &amp; value prop before any form. Skippable 3-slide benefit carousel.</div>
+    </div>
+    <div class="arrow">→</div>
+
+    <!-- Goal -->
+    <div class="pw">
+      <div class="pcap">Pick a goal<span>one big choice</span></div>
+      <div class="phone"><div class="inner"><div class="sbar"><span>9:41</span><span class="r">▮▮▮ 100%</span></div><div class="scr">
+        <div class="row between"><span class="sm">Step 1 of 5</span><span class="sm">Skip</span></div>
+        <div class="bar"><i style="width:20%"></i></div>
+        <div class="h1" style="margin-top:4px;">What brings you here?</div>
+        <div class="col" style="margin-top:4px;">
+          <div class="card t-coral row between" style="padding:14px;"><span class="h3">Lose weight</span><span class="sm">›</span></div>
+          <div class="card row between" style="padding:14px;"><span class="h3">Build muscle</span><span class="sm">›</span></div>
+          <div class="card row between" style="padding:14px;"><span class="h3">Eat better</span><span class="sm">›</span></div>
+          <div class="card row between" style="padding:14px;"><span class="h3">Feel healthier</span><span class="sm">›</span></div>
+          <div class="card row between" style="padding:14px;"><span class="h3">Sleep &amp; recover</span><span class="sm">›</span></div>
+        </div>
+        <div class="grow"></div><div class="btn cta">Continue</div>
+      </div></div></div>
+      <div class="note">One primary goal drives the whole home. Multi-select hidden behind “more”.</div>
+    </div>
+    <div class="arrow">→</div>
+
+    <!-- Body basics -->
+    <div class="pw">
+      <div class="pcap">Body basics<span>essentials only</span></div>
+      <div class="phone"><div class="inner"><div class="sbar"><span>9:41</span><span class="r">▮▮▮ 100%</span></div><div class="scr">
+        <div class="row between"><span class="sm">Step 2 of 5</span><span class="sm">Skip</span></div>
+        <div class="bar"><i style="width:40%"></i></div>
+        <div class="h1" style="margin-top:4px;">A bit about you</div>
+        <div class="grid2" style="margin-top:4px;">
+          <div class="card col" style="gap:6px;"><span class="cap">Sex</span><div class="row" style="gap:6px;"><span class="chip on">F</span><span class="chip">M</span></div></div>
+          <div class="card col" style="gap:2px;"><span class="cap">Age</span><span class="num">29</span></div>
+        </div>
+        <div class="card col" style="gap:8px;"><div class="row between"><span class="cap">Height</span><span class="num" style="font-size:20px;">168 cm</span></div><div class="bar mint"><i style="width:55%"></i></div></div>
+        <div class="card col" style="gap:8px;"><div class="row between"><span class="cap">Weight</span><span class="num" style="font-size:20px;">64 kg</span></div><div class="bar mint"><i style="width:48%"></i></div></div>
+        <div class="grow"></div><div class="btn cta">Continue</div>
+      </div></div></div>
+      <div class="note lav">Big sliders &amp; steppers, not keypads. Units auto from locale, switchable.</div>
+    </div>
+    <div class="arrow">→</div>
+
+    <!-- Activity -->
+    <div class="pw">
+      <div class="pcap">Activity level<span>visual, no jargon</span></div>
+      <div class="phone"><div class="inner"><div class="sbar"><span>9:41</span><span class="r">▮▮▮ 100%</span></div><div class="scr">
+        <div class="row between"><span class="sm">Step 3 of 5</span><span class="sm">Skip</span></div>
+        <div class="bar"><i style="width:60%"></i></div>
+        <div class="h1" style="margin-top:4px;">How active are you?</div>
+        <div class="col" style="margin-top:4px;">
+          <div class="card row" style="gap:12px;"><span class="img circle" style="width:42px;height:42px;font-size:20px;">🛋</span><div class="col" style="gap:1px;"><span class="h3">Mostly resting</span><span class="sm">little exercise</span></div></div>
+          <div class="card t-mint row" style="gap:12px;"><span class="img circle" style="width:42px;height:42px;font-size:20px;">🚶</span><div class="col" style="gap:1px;"><span class="h3">Lightly active</span><span class="sm">1–2× / week</span></div></div>
+          <div class="card row" style="gap:12px;"><span class="img circle" style="width:42px;height:42px;font-size:20px;">🏃</span><div class="col" style="gap:1px;"><span class="h3">Very active</span><span class="sm">4+ / week</span></div></div>
+        </div>
+        <div class="grow"></div><div class="btn cta">Continue</div>
+      </div></div></div>
+      <div class="note">Plain words + icons instead of “sedentary / TDEE”.</div>
+    </div>
+  </div>
+
+  <div class="flow-label"><span class="n">2</span> Connect, consent &amp; build <span class="sub">deferred account, narrated build</span></div>
+  <div class="rail">
+    <!-- Integrations -->
+    <div class="pw">
+      <div class="pcap">Connect<span>optional auto-fill</span></div>
+      <div class="phone"><div class="inner"><div class="sbar"><span>9:41</span><span class="r">▮▮▮ 100%</span></div><div class="scr">
+        <div class="row between"><span class="sm">Step 4 of 5</span><span class="sm">Skip</span></div>
+        <div class="bar"><i style="width:80%"></i></div>
+        <div class="h1" style="margin-top:4px;">Sync your data?</div>
+        <div class="lead">Connect a source so steps, sleep &amp; weight fill in automatically.</div>
+        <div class="col" style="margin-top:2px;">
+          <div class="card row between"><div class="row"><span class="img circle" style="width:34px;height:34px;font-size:14px;">G</span><span class="h3">Google Fit</span></div><span class="chip">Connect</span></div>
+          <div class="card row between"><div class="row"><span class="img circle" style="width:34px;height:34px;">🍎</span><span class="h3">Apple Health</span></div><span class="chip">Connect</span></div>
+          <div class="card row between"><div class="row"><span class="img circle" style="width:34px;height:34px;font-size:13px;">Mi</span><span class="h3">Xiaomi</span></div><span class="chip">Connect</span></div>
+        </div>
+        <div class="grow"></div><div class="btn ghost">Maybe later</div>
+      </div></div></div>
+      <div class="note mint">Optional &amp; skippable — never block onboarding on a device pairing. Permissions explained at connect.</div>
+    </div>
+    <div class="arrow">→</div>
+
+    <!-- Account -->
+    <div class="pw">
+      <div class="pcap">Save plan<span>account appears late</span></div>
+      <div class="phone"><div class="inner"><div class="sbar"><span>9:41</span><span class="r">▮▮▮ 100%</span></div><div class="scr">
+        <div class="row between"><span class="sm">Step 5 of 5</span></div>
+        <div class="bar"><i style="width:95%"></i></div>
+        <div class="h1" style="margin-top:4px;">Save your plan</div>
+        <div class="btn ghost">⌗  Continue with Google</div>
+        <div class="btn ghost">f  Continue with Facebook</div>
+        <div class="row" style="gap:10px;"><span class="grow" style="height:1px;background:var(--line)"></span><span class="sm">or</span><span class="grow" style="height:1px;background:var(--line)"></span></div>
+        <div class="soft"><span class="sm">email@you.com</span></div>
+        <div class="soft"><span class="sm">password</span></div>
+        <div class="t-lav" style="border-radius:14px;padding:11px;display:flex;gap:9px;align-items:flex-start;"><span class="chip lav" style="padding:2px 7px;">✓</span><span class="sm" style="color:var(--ink-2);">I agree to wellness use &amp; privacy. <strong>Not medical advice.</strong></span></div>
+        <div class="grow"></div><div class="btn cta">Create my plan</div>
+      </div></div></div>
+      <div class="note">Defer the wall until invested. Consent &amp; medical-boundary captured here.</div>
+    </div>
+    <div class="arrow">→</div>
+
+    <!-- Building -->
+    <div class="pw">
+      <div class="pcap">Building…<span>narrated loading</span></div>
+      <div class="phone"><div class="inner"><div class="sbar"><span>9:41</span><span class="r">▮▮▮ 100%</span></div><div class="scr center" style="justify-content:center;gap:20px;">
+        <div class="ring lav" style="width:104px;height:104px;--p:70%;"><div class="hole" style="font-size:24px;">✨</div></div>
+        <div class="h1">Building your plan…</div>
+        <div class="col" style="width:100%;">
+          <div class="card t-mint row" style="gap:9px;"><span>✓</span><span class="h3" style="font-weight:600;">Read your goal</span></div>
+          <div class="card t-mint row" style="gap:9px;"><span>✓</span><span class="h3" style="font-weight:600;">Set your targets</span></div>
+          <div class="card row" style="gap:9px;"><span>◌</span><span class="h3" style="font-weight:600;color:var(--muted);">Picking first moves…</span></div>
+        </div>
+      </div></div></div>
+      <div class="note lav">Turn compute into trust — narrate what the AI is doing. ~2–4s, then reveal.</div>
+    </div>
+    <div class="arrow">→</div>
+
+    <!-- First home -->
+    <div class="pw">
+      <div class="pcap">First home 🎉<span>the payoff</span></div>
+      <div class="phone tall"><div class="inner"><div class="sbar"><span>9:41</span><span class="r">▮▮▮ 100%</span></div><div class="scr">
+        <div class="row between"><div class="col" style="gap:0;"><span class="sm">Good morning,</span><span class="h2">Sara ☀️</span></div><span class="av" style="width:36px;height:36px;">S</span></div>
+        <div class="card t-coral col" style="gap:8px;"><span class="cap" style="color:var(--coral-600);">Your plan is ready</span><span class="h3">Start with a 15-min walk today</span><div class="row" style="gap:7px;"><span class="chip on">Do it</span><span class="chip">Why?</span></div></div>
+        <div class="grid3">
+          <div class="card center col" style="gap:6px;padding:11px;"><div class="ring" style="width:48px;height:48px;--p:5%;"><div class="hole" style="font-size:11px;">0%</div></div><span class="sm">Move</span></div>
+          <div class="card center col" style="gap:6px;padding:11px;"><div class="ring mint" style="width:48px;height:48px;--p:5%;"><div class="hole" style="font-size:11px;">0</div></div><span class="sm">Meals</span></div>
+          <div class="card center col" style="gap:6px;padding:11px;"><div class="ring lav" style="width:48px;height:48px;--p:5%;"><div class="hole" style="font-size:11px;">—</div></div><span class="sm">Body</span></div>
+        </div>
+        <div class="card flat" style="border:1.5px dashed var(--line);background:var(--bg);"><span class="cap">First step</span><div class="lead" style="margin-top:4px;">Log your first meal to start your streak →</div></div>
+      </div>
+      <div class="nav">
+        <div class="it on"><svg viewBox="0 0 24 24"><use href="#i-home"/></svg>Today</div>
+        <div class="it"><svg viewBox="0 0 24 24"><use href="#i-chart"/></svg>Progress</div>
+        <div class="fab"><svg viewBox="0 0 24 24"><use href="#i-plus"/></svg></div>
+        <div class="it"><svg viewBox="0 0 24 24"><use href="#i-plan"/></svg>Plans</div>
+        <div class="it"><svg viewBox="0 0 24 24"><use href="#i-spark"/></svg>Coach</div>
+      </div></div></div>
+      <div class="note mint">Empty-but-inviting first state: one clear action + “start your streak” hook. Never a blank dashboard.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== CONCEPTS ===================== -->
+<section class="view" id="v-concepts">
+  <div class="section-head"><h2>Home screen — 3 concepts</h2><p>Same user, same data, three philosophies. Recommendation: <strong>C</strong>.</p></div>
+  <div class="rail">
+    <!-- A -->
+    <div class="pw" style="width:300px;">
+      <div class="pcap">A · Data-focused<span>“the cockpit”</span></div>
+      <div class="phone tall" style="width:300px;"><div class="inner"><div class="sbar"><span>9:41</span><span class="r">▮▮▮</span></div><div class="scr">
+        <div class="row between"><span class="h2">Dashboard</span><span class="av" style="width:32px;height:32px;">S</span></div>
+        <div class="grid2">
+          <div class="card col" style="gap:2px;padding:12px;"><span class="cap">Weight</span><span class="num" style="font-size:22px;">64.2<span style="font-size:12px;font-weight:600;color:var(--muted)"> kg</span></span><span class="sm" style="color:var(--mint)">▼ 0.3 wk</span></div>
+          <div class="card col" style="gap:2px;padding:12px;"><span class="cap">BMI</span><span class="num" style="font-size:22px;">22.7</span><span class="sm">normal</span></div>
+          <div class="card col" style="gap:2px;padding:12px;"><span class="cap">Body fat</span><span class="num" style="font-size:22px;">24%</span><span class="sm" style="color:var(--mint)">▼ 0.5</span></div>
+          <div class="card col" style="gap:2px;padding:12px;"><span class="cap">Muscle</span><span class="num" style="font-size:22px;">41%</span><span class="sm">steady</span></div>
+        </div>
+        <div class="card col" style="gap:7px;"><span class="cap">Weight · 30d</span><div class="chart"><i style="height:80%"></i><i style="height:70%"></i><i style="height:74%"></i><i style="height:60%"></i><i style="height:54%"></i><i style="height:50%"></i><i style="height:44%"></i></div></div>
+        <div class="grid2"><div class="card t-mint col" style="gap:1px;padding:12px;"><span class="cap">Steps</span><span class="h3">8,420</span></div><div class="card t-lav col" style="gap:1px;padding:12px;"><span class="cap">Sleep</span><span class="h3">7.4h</span></div></div>
+      </div>
+      <div class="nav"><div class="it on"><svg viewBox="0 0 24 24"><use href="#i-home"/></svg>Today</div><div class="it"><svg viewBox="0 0 24 24"><use href="#i-chart"/></svg>Progress</div><div class="fab"><svg viewBox="0 0 24 24"><use href="#i-plus"/></svg></div><div class="it"><svg viewBox="0 0 24 24"><use href="#i-plan"/></svg>Plans</div><div class="it"><svg viewBox="0 0 24 24"><use href="#i-spark"/></svg>Coach</div></div></div></div>
+      <div class="note">Everything visible at once. Great for power users; risks feeling clinical for newcomers.</div>
+    </div>
+    <!-- B -->
+    <div class="pw" style="width:300px;">
+      <div class="pcap">B · AI-coach<span>“the companion”</span></div>
+      <div class="phone tall" style="width:300px;"><div class="inner"><div class="sbar"><span>9:41</span><span class="r">▮▮▮</span></div><div class="scr">
+        <div class="row"><span class="img circle" style="width:44px;height:44px;font-size:20px;">✨</span><div class="col" style="gap:0;"><span class="h2">Hey Sara</span><span class="sm">your coach</span></div></div>
+        <div class="t-lav" style="border-radius:6px 22px 22px 22px;padding:14px;"><span class="lead" style="color:var(--ink);">You slept well — nice. Want to make today count with a short walk before lunch?</span><div class="row" style="gap:7px;margin-top:9px;"><span class="chip lav">Sounds good</span><span class="chip">Later</span></div></div>
+        <span class="cap">Suggested for you</span>
+        <div class="card row between"><div class="col" style="gap:1px;"><span class="h3">Add protein to lunch</span><span class="sm">stabilizes energy</span></div><span class="sm">›</span></div>
+        <div class="card row between"><div class="col" style="gap:1px;"><span class="h3">Hydrate — 3 glasses left</span><span class="sm">gentle nudge</span></div><span class="sm">›</span></div>
+        <div class="card row between" style="border:1.5px dashed var(--line);"><span class="sm">Ask Fitty anything…</span><span>🎙</span></div>
+      </div>
+      <div class="nav"><div class="it"><svg viewBox="0 0 24 24"><use href="#i-home"/></svg>Today</div><div class="it"><svg viewBox="0 0 24 24"><use href="#i-chart"/></svg>Progress</div><div class="fab"><svg viewBox="0 0 24 24"><use href="#i-plus"/></svg></div><div class="it"><svg viewBox="0 0 24 24"><use href="#i-plan"/></svg>Plans</div><div class="it on"><svg viewBox="0 0 24 24"><use href="#i-spark"/></svg>Coach</div></div></div></div>
+      <div class="note lav">Warmest &amp; lowest-effort. Conversation leads; data one tap away. Needs a genuinely good coach.</div>
+    </div>
+    <!-- C -->
+    <div class="pw" style="width:300px;">
+      <div class="pcap">★ C · Habit / progress<span>“momentum board” — recommended</span></div>
+      <div class="phone tall" style="width:300px;box-shadow:0 18px 44px rgba(255,127,110,.25), 0 0 0 2px var(--coral);"><div class="inner"><div class="sbar"><span>9:41</span><span class="r">▮▮▮</span></div><div class="scr">
+        <div class="row between"><div class="col" style="gap:0;"><span class="sm">Tuesday · day 12</span><span class="h2">Morning, Sara 🔥</span></div><span class="av" style="width:32px;height:32px;">S</span></div>
+        <div class="card t-coral col" style="gap:8px;"><span class="cap" style="color:var(--coral-600)">Today’s focus</span><span class="h3">A 15-min walk + protein lunch</span><div class="row" style="gap:7px;"><span class="chip on">Start</span><span class="chip">Why this?</span></div></div>
+        <div class="row" style="justify-content:space-around;">
+          <div class="col center" style="gap:5px;"><div class="ring" style="width:56px;height:56px;--p:60%;"><div class="hole">60%</div></div><span class="sm">Move</span></div>
+          <div class="col center" style="gap:5px;"><div class="ring mint" style="width:56px;height:56px;--p:66%;"><div class="hole">2/3</div></div><span class="sm">Meals</span></div>
+          <div class="col center" style="gap:5px;"><div class="ring lav" style="width:56px;height:56px;--p:100%;"><div class="hole">✓</div></div><span class="sm">Body</span></div>
+        </div>
+        <div class="card col" style="gap:8px;"><span class="cap">This week · 🔥 12-day streak</span><div class="row" style="gap:5px;">
+          <span class="chip on" style="padding:7px 0;width:30px;text-align:center;">M</span><span class="chip on" style="padding:7px 0;width:30px;text-align:center;">T</span><span class="chip on" style="padding:7px 0;width:30px;text-align:center;">W</span><span class="chip" style="padding:7px 0;width:30px;text-align:center;">T</span><span class="chip" style="padding:7px 0;width:30px;text-align:center;">F</span></div></div>
+        <div class="card t-lav row between"><span class="h3" style="font-weight:600;">✨ Coach: you’re on a roll</span><span class="sm">›</span></div>
+      </div>
+      <div class="nav"><div class="it on"><svg viewBox="0 0 24 24"><use href="#i-home"/></svg>Today</div><div class="it"><svg viewBox="0 0 24 24"><use href="#i-chart"/></svg>Progress</div><div class="fab"><svg viewBox="0 0 24 24"><use href="#i-plus"/></svg></div><div class="it"><svg viewBox="0 0 24 24"><use href="#i-plan"/></svg>Plans</div><div class="it"><svg viewBox="0 0 24 24"><use href="#i-spark"/></svg>Coach</div></div></div></div>
+      <div class="note mint">Balances momentum, a single clear focus, and the coach as a friendly inline voice. Best for the broad user.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== CORE ===================== -->
+<section class="view" id="v-core">
+  <div class="section-head"><h2>Core screens</h2><p>Logging, plans, coach, progress, recipes, profile, billing.</p></div>
+
+  <div class="flow-label"><span class="n">＋</span> Quick logging</div>
+  <div class="rail tight">
+    <!-- Log sheet -->
+    <div class="pw">
+      <div class="pcap">Log sheet<span>＋ → bottom sheet</span></div>
+      <div class="phone"><div class="inner"><div class="sbar"><span>9:41</span><span class="r">▮▮▮</span></div>
+        <div class="scr" style="filter:saturate(.55);opacity:.7;"><div class="card" style="height:46px;"></div><div class="grid2"><div class="card" style="height:64px;"></div><div class="card" style="height:64px;"></div></div><div class="card" style="height:64px;"></div></div>
+        <div class="scrim"></div>
+        <div class="sheet"><div class="grab"></div><span class="h2">Log something</span>
+          <div class="grid2" style="margin-top:10px;">
+            <div class="card t-coral center col" style="gap:6px;"><span style="font-size:24px;">🍽</span><span class="h3">Meal</span></div>
+            <div class="card t-mint center col" style="gap:6px;"><span style="font-size:24px;">🏋</span><span class="h3">Workout</span></div>
+            <div class="card t-lav center col" style="gap:6px;"><span style="font-size:24px;">⚖️</span><span class="h3">Body data</span></div>
+            <div class="card t-amber center col" style="gap:6px;"><span style="font-size:24px;">💧</span><span class="h3">Water · mood</span></div>
+          </div>
+        </div>
+      </div></div>
+      <div class="note">One ＋, everything loggable in 2 taps. Bottom sheet keeps context.</div>
+    </div>
+    <div class="arrow">→</div>
+    <!-- Body data -->
+    <div class="pw">
+      <div class="pcap">Quick body data<span>delightful entry</span></div>
+      <div class="phone"><div class="inner"><div class="sbar"><span>9:41</span><span class="r">▮▮▮</span></div><div class="scr center">
+        <div class="row between" style="width:100%;"><span class="sm">✕</span><span class="cap">Weight</span><span class="sm" style="color:var(--coral);font-weight:800;">Save</span></div>
+        <div class="grow"></div>
+        <div class="num lg">64.2</div><span class="cap">kg · tap to switch</span>
+        <div class="card" style="width:100%;margin-top:10px;"><div class="row between" style="color:var(--muted);font-weight:700;"><span>62</span><span>63</span><span class="num" style="font-size:26px;color:var(--coral)">64</span><span>65</span><span>66</span></div></div>
+        <span class="sm">↔ scroll the dial</span>
+        <div class="grow"></div>
+        <div class="card flat row between" style="border:1.5px dashed var(--line);background:var(--bg);width:100%;"><span class="sm">📷 Scan scale</span><span class="sm">🔗 from Health</span></div>
+        <div class="btn cta">Save</div>
+      </div></div></div>
+      <div class="note lav">Big scrolling dial = no keyboard. Pre-fills last value &amp; offers device import.</div>
+    </div>
+    <div class="arrow">→</div>
+    <!-- Meal -->
+    <div class="pw">
+      <div class="pcap">Meal logged<span>positive feedback</span></div>
+      <div class="phone"><div class="inner"><div class="sbar"><span>9:41</span><span class="r">▮▮▮</span></div><div class="scr">
+        <div class="row between"><span class="sm">‹ Lunch</span><span class="sm">Edit</span></div>
+        <div class="card t-mint center col" style="gap:3px;"><span class="h2">＋120 kcal under goal 🎉</span><span class="sm">nice balance today</span></div>
+        <div class="card row"><span class="img" style="width:46px;height:46px;">🥗</span><div class="col grow" style="gap:1px;"><span class="h3">Coral lentil salad</span><span class="sm">24g P · 64g C · 18g F</span></div><span class="sm">✎</span></div>
+        <div class="card row"><span class="img" style="width:46px;height:46px;">🥛</span><div class="col grow" style="gap:1px;"><span class="h3">Greek yogurt</span><span class="sm">12g P · 9g C · 4g F</span></div><span class="sm">✎</span></div>
+        <div class="card flat row between" style="border:1.5px dashed var(--line);background:var(--bg);"><span class="sm">＋ Add food · search or scan</span><span>⌕</span></div>
+        <div class="card col" style="gap:6px;"><span class="cap">Today’s protein</span><div class="bar mint"><i style="width:62%"></i></div><span class="sm">62% of goal</span></div>
+      </div>
+      <div class="nav"><div class="it"><svg viewBox="0 0 24 24"><use href="#i-home"/></svg>Today</div><div class="it"><svg viewBox="0 0 24 24"><use href="#i-chart"/></svg>Progress</div><div class="fab"><svg viewBox="0 0 24 24"><use href="#i-plus"/></svg></div><div class="it on"><svg viewBox="0 0 24 24"><use href="#i-plan"/></svg>Plans</div><div class="it"><svg viewBox="0 0 24 24"><use href="#i-spark"/></svg>Coach</div></div></div></div>
+      <div class="note mint">Lead with encouragement, not a calorie scold. Search + barcode/photo scan.</div>
+    </div>
+  </div>
+
+  <div class="flow-label"><span class="n">✨</span> AI plans &amp; coach</div>
+  <div class="rail tight">
+    <!-- Generate -->
+    <div class="pw">
+      <div class="pcap">Generate plan<span>asks for missing data</span></div>
+      <div class="phone"><div class="inner"><div class="sbar"><span>9:41</span><span class="r">▮▮▮</span></div><div class="scr">
+        <div class="row between"><span class="sm">‹ AI workout plan</span><span class="tag">beta</span></div>
+        <div class="card t-lav col" style="gap:4px;"><span class="cap" style="color:#6a5acf">Before I build this</span><span class="lead" style="color:var(--ink)">I need 2 things to make it safe &amp; useful:</span></div>
+        <div class="card col" style="gap:7px;"><span class="cap">Days per week</span><div class="row" style="gap:6px;"><span class="chip">2</span><span class="chip on">3</span><span class="chip">4</span><span class="chip">5</span></div></div>
+        <div class="card col" style="gap:7px;"><span class="cap">Any injuries / limits?</span><div class="row" style="gap:6px;"><span class="chip">Knee</span><span class="chip">Back</span><span class="chip on">None</span></div></div>
+        <div class="card col" style="gap:7px;"><span class="cap">Equipment</span><div class="row" style="gap:6px;"><span class="chip on">Gym</span><span class="chip">Home</span><span class="chip">None</span></div></div>
+        <div class="grow"></div>
+        <div class="card flat" style="background:var(--amber-50);border:1px solid #f7e3b8;"><span class="sm" style="color:#9a6a12;">⚠ Wellness guidance, not medical advice. Stop if you feel pain.</span></div>
+        <div class="btn cta">✨ Generate my plan</div>
+      </div></div></div>
+      <div class="note">Gather inputs <em>before</em> generating — prevents bad plans &amp; builds trust.</div>
+    </div>
+    <div class="arrow">→</div>
+    <!-- Review -->
+    <div class="pw">
+      <div class="pcap">Review &amp; edit<span>editable · explainable</span></div>
+      <div class="phone tall"><div class="inner"><div class="sbar"><span>9:41</span><span class="r">▮▮▮</span></div><div class="scr">
+        <div class="row between"><span class="sm">‹ Your plan</span><span class="chip">Regenerate</span></div>
+        <div class="card t-mint col" style="gap:2px;"><span class="h3">3-day full body · 4 weeks</span><span class="sm">matches: lose weight · 3×/wk · gym</span></div>
+        <div class="card row between"><div class="col" style="gap:1px;"><span class="h3">Day 1 · Lower</span><span class="sm">5 exercises · 35 min</span></div><span class="sm">⌄</span></div>
+        <div class="card col" style="gap:9px;">
+          <div class="row between"><span class="h3" style="font-weight:600;">Goblet squat · 3×10</span><span class="sm">✎ ⇄ ✕</span></div>
+          <div class="row between"><span class="h3" style="font-weight:600;">Romanian deadlift · 3×8</span><span class="sm">✎ ⇄ ✕</span></div>
+          <div class="row between"><span class="h3" style="font-weight:600;">Walking lunge · 2×12</span><span class="sm">✎ ⇄ ✕</span></div>
+        </div>
+        <div class="card t-lav row between"><span class="sm" style="color:var(--ink)">✨ Why these? Low-impact, knee-safe.</span><span class="sm">›</span></div>
+        <div class="row" style="gap:9px;"><span class="btn ghost">Reject</span><span class="btn cta">Save plan</span></div>
+      </div></div></div>
+      <div class="note lav">Every item editable / swappable / removable. “Why these?” explains the AI.</div>
+    </div>
+    <div class="arrow">→</div>
+    <!-- Chat -->
+    <div class="pw">
+      <div class="pcap">Coach chat<span>conversational, bounded</span></div>
+      <div class="phone tall"><div class="inner"><div class="sbar"><span>9:41</span><span class="r">▮▮▮</span></div><div class="scr">
+        <div class="row"><span class="img circle" style="width:32px;height:32px;">✨</span><span class="h3">Fitty Coach</span></div>
+        <div class="t-lav" style="border-radius:6px 18px 18px 18px;align-self:flex-start;max-width:88%;padding:11px 13px;"><span class="lead" style="color:var(--ink)">Based on your week, want a lighter recovery day tomorrow?</span></div>
+        <div style="background:var(--ink);color:#fff;border-radius:18px 6px 18px 18px;align-self:flex-end;max-width:78%;padding:11px 13px;font-size:13.5px;font-weight:600;">yes please</div>
+        <div class="t-lav" style="border-radius:6px 18px 18px 18px;align-self:flex-start;max-width:88%;padding:11px 13px;"><span class="lead" style="color:var(--ink)">Done — swapped to mobility + walk. Added to Today.</span></div>
+        <div class="grow"></div>
+        <div class="row" style="gap:6px;"><span class="chip">Plan my week</span><span class="chip">Meal idea</span></div>
+        <div class="card flat row between" style="border:1.5px dashed var(--line);"><span class="sm">Message…</span><span>↑</span></div>
+        <div class="sm" style="text-align:center;">Wellness support · not a medical professional</div>
+      </div></div></div>
+      <div class="note mint">Suggestion chips lower the blank-page barrier. Footer keeps the medical boundary clear.</div>
+    </div>
+  </div>
+
+  <div class="flow-label"><span class="n">◷</span> Progress, recipes, profile &amp; billing</div>
+  <div class="rail tight">
+    <!-- Progress -->
+    <div class="pw">
+      <div class="pcap">Progress<span>history + score</span></div>
+      <div class="phone tall"><div class="inner"><div class="sbar"><span>9:41</span><span class="r">▮▮▮</span></div><div class="scr">
+        <div class="row between"><span class="h2">Progress</span><div class="row" style="gap:5px;"><span class="chip on">Wk</span><span class="chip">Mo</span><span class="chip">Yr</span></div></div>
+        <div class="card t-mint center col" style="gap:4px;"><span class="cap">Wellness score</span><div class="ring mint" style="width:96px;height:96px;--p:82%;"><div class="hole" style="font-size:28px;">82</div></div><span class="sm" style="color:#1f8a72">▲ 4 vs last week</span></div>
+        <div class="card col" style="gap:7px;"><span class="cap">Weight · trending down</span><div class="chart"><i style="height:90%"></i><i style="height:82%"></i><i style="height:85%"></i><i style="height:70%"></i><i style="height:64%"></i><i style="height:58%"></i><i style="height:50%"></i></div></div>
+        <div class="grid2"><div class="card col" style="gap:1px;padding:12px;"><span class="cap">Workouts</span><span class="h3">9 this mo</span></div><div class="card col" style="gap:1px;padding:12px;"><span class="cap">Avg sleep</span><span class="h3">7.2h</span></div></div>
+      </div>
+      <div class="nav"><div class="it"><svg viewBox="0 0 24 24"><use href="#i-home"/></svg>Today</div><div class="it on"><svg viewBox="0 0 24 24"><use href="#i-chart"/></svg>Progress</div><div class="fab"><svg viewBox="0 0 24 24"><use href="#i-plus"/></svg></div><div class="it"><svg viewBox="0 0 24 24"><use href="#i-plan"/></svg>Plans</div><div class="it"><svg viewBox="0 0 24 24"><use href="#i-spark"/></svg>Coach</div></div></div></div>
+      <div class="note">The full data lives here — power users get the “cockpit” off the calm home.</div>
+    </div>
+    <div class="arrow">→</div>
+    <!-- Recipes -->
+    <div class="pw">
+      <div class="pcap">Recipes<span>browse + suggested</span></div>
+      <div class="phone tall"><div class="inner"><div class="sbar"><span>9:41</span><span class="r">▮▮▮</span></div><div class="scr">
+        <div class="card flat row between" style="border:1.5px dashed var(--line);background:var(--bg);"><span class="sm">⌕ Search recipes</span><span>⚙</span></div>
+        <div class="row" style="gap:6px;"><span class="chip on">For you</span><span class="chip">High protein</span><span class="chip">Quick</span></div>
+        <div class="card" style="padding:0;overflow:hidden;"><div class="img" style="height:100px;border-radius:0;">🥗</div><div class="col" style="padding:11px;gap:2px;"><span class="h3">Mint yogurt power bowl</span><span class="sm">28g protein · 12 min · ★ 4.8</span></div></div>
+        <div class="grid2">
+          <div class="card" style="padding:0;overflow:hidden;"><div class="img coral" style="height:64px;border-radius:0;"></div><div class="col" style="padding:8px;gap:1px;"><span class="h3" style="font-size:12px;">Lentil salad</span><span class="sm">450 kcal</span></div></div>
+          <div class="card" style="padding:0;overflow:hidden;"><div class="img" style="height:64px;border-radius:0;"></div><div class="col" style="padding:8px;gap:1px;"><span class="h3" style="font-size:12px;">Berry oats</span><span class="sm">380 kcal</span></div></div>
+        </div>
+      </div>
+      <div class="nav"><div class="it"><svg viewBox="0 0 24 24"><use href="#i-home"/></svg>Today</div><div class="it"><svg viewBox="0 0 24 24"><use href="#i-chart"/></svg>Progress</div><div class="fab"><svg viewBox="0 0 24 24"><use href="#i-plus"/></svg></div><div class="it on"><svg viewBox="0 0 24 24"><use href="#i-plan"/></svg>Plans</div><div class="it"><svg viewBox="0 0 24 24"><use href="#i-spark"/></svg>Coach</div></div></div></div>
+      <div class="note lav">Imagery-led cards (real photos in production). “For you” personalizes to goal.</div>
+    </div>
+    <div class="arrow">→</div>
+    <!-- Profile -->
+    <div class="pw">
+      <div class="pcap">Profile &amp; settings<span>integrations · privacy</span></div>
+      <div class="phone tall"><div class="inner"><div class="sbar"><span>9:41</span><span class="r">▮▮▮</span></div><div class="scr">
+        <div class="card row"><span class="av" style="width:48px;height:48px;font-size:18px;">S</span><div class="col" style="gap:1px;"><span class="h3">Sara R.</span><span class="sm">Free plan</span></div></div>
+        <span class="cap">Connected sources</span>
+        <div class="card t-mint row between"><div class="row"><span class="img circle" style="width:28px;height:28px;font-size:12px;">G</span><div class="col" style="gap:0;"><span class="h3" style="font-size:13px;">Google Fit</span><span class="sm">synced 2h ago ✓</span></div></div><span class="sm">⚙</span></div>
+        <div class="card row between"><div class="row"><span class="img circle" style="width:28px;height:28px;">🍎</span><div class="col" style="gap:0;"><span class="h3" style="font-size:13px;">Apple Health</span><span class="sm" style="color:var(--coral)">reconnect needed ⚠</span></div></div><span class="chip on">Fix</span></div>
+        <div class="card flat row between" style="border:1.5px dashed var(--line);"><span class="sm">＋ Connect another</span><span class="sm">›</span></div>
+        <div class="col" style="gap:7px;">
+          <div class="card row between" style="padding:12px;"><span class="h3" style="font-weight:600;">Goals</span><span class="sm">›</span></div>
+          <div class="card row between" style="padding:12px;"><span class="h3" style="font-weight:600;">Privacy &amp; consent</span><span class="sm">›</span></div>
+          <div class="card row between" style="padding:12px;"><span class="h3" style="font-weight:600;">Notifications</span><span class="sm">›</span></div>
+        </div>
+      </div>
+      <div class="nav"><div class="it"><svg viewBox="0 0 24 24"><use href="#i-home"/></svg>Today</div><div class="it"><svg viewBox="0 0 24 24"><use href="#i-chart"/></svg>Progress</div><div class="fab"><svg viewBox="0 0 24 24"><use href="#i-plus"/></svg></div><div class="it"><svg viewBox="0 0 24 24"><use href="#i-plan"/></svg>Plans</div><div class="it"><svg viewBox="0 0 24 24"><use href="#i-spark"/></svg>Coach</div></div></div></div>
+      <div class="note mint">Sync status inline; broken connections surface a clear “Fix”, never a silent fail.</div>
+    </div>
+    <div class="arrow">→</div>
+    <!-- Subscription -->
+    <div class="pw">
+      <div class="pcap">Upgrade<span>trial / premium</span></div>
+      <div class="phone tall"><div class="inner"><div class="sbar"><span>9:41</span><span class="r">▮▮▮</span></div><div class="scr center">
+        <div class="row between" style="width:100%;"><span class="sm">✕</span><span class="tag">Premium</span></div>
+        <div class="img coral" style="width:100%;height:84px;font-size:34px;">⭐</div>
+        <div class="h1" style="font-size:24px;">Unlock your full coach</div>
+        <div class="col" style="width:100%;gap:7px;">
+          <div class="card t-mint row" style="gap:9px;"><span>✓</span><span class="h3" style="font-weight:600;">Unlimited AI plans</span></div>
+          <div class="card t-mint row" style="gap:9px;"><span>✓</span><span class="h3" style="font-weight:600;">Deep progress insights</span></div>
+          <div class="card t-mint row" style="gap:9px;"><span>✓</span><span class="h3" style="font-weight:600;">All integrations</span></div>
+        </div>
+        <div class="grow"></div>
+        <div class="card t-coral center col" style="gap:1px;width:100%;"><span class="h2">€7,99 / mo</span><span class="sm">7-day free trial · cancel anytime</span></div>
+        <div class="btn cta">Start free trial</div>
+        <span class="sm">Restore · Billing history</span>
+      </div></div></div>
+      <div class="note">Value-framed, not fear-framed. Locked features elsewhere show a soft ✨ lock that routes here.</div>
+    </div>
+  </div>
+</section>
+
+</div>
+
+<script>
+  const tabs = document.querySelectorAll('#tabs .tab');
+  const views = document.querySelectorAll('.view');
+  tabs.forEach(t => t.addEventListener('click', () => {
+    tabs.forEach(x => x.classList.remove('active'));
+    views.forEach(v => v.classList.remove('active'));
+    t.classList.add('active');
+    document.getElementById('v-' + t.dataset.view).classList.add('active');
+    window.scrollTo({top:0});
+  }));
+  const cNotes = document.getElementById('tgNotes');
+  const apply = () => { document.body.classList.toggle('no-notes', !cNotes.checked); localStorage.setItem('fitty.clean.notes', cNotes.checked?'1':'0'); };
+  try{ const s = localStorage.getItem('fitty.clean.notes'); if(s!==null) cNotes.checked = s==='1'; }catch(e){}
+  cNotes.addEventListener('change', apply); apply();
+</script>
+</body>
+</html>

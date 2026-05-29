@@ -1,0 +1,664 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Fitty · Mobile Wireframes</title>
+<link rel="stylesheet" href="fitty-wireframes.css">
+</head>
+<body class="color">
+
+<div class="topbar">
+  <div class="brand">
+    <span class="dot">F</span>
+    <div><b>Fitty</b><small>Mobile wireframes</small></div>
+  </div>
+  <nav class="tabs" id="tabs">
+    <button class="tab active" data-view="strategy">Strategy</button>
+    <button class="tab" data-view="onboarding">Onboarding flow</button>
+    <button class="tab" data-view="concepts">Home concepts ×3</button>
+    <button class="tab" data-view="core">Core screens</button>
+  </nav>
+  <span class="spacer"></span>
+  <div class="toggles">
+    <label class="tg"><input type="checkbox" id="tgColor" checked><span class="sw"></span>Pastel hint</label>
+    <label class="tg"><input type="checkbox" id="tgSketch" checked><span class="sw"></span>Sketch corners</label>
+    <label class="tg"><input type="checkbox" id="tgNotes" checked><span class="sw"></span>UX notes</label>
+  </div>
+</div>
+
+<div class="stage">
+
+<!-- ============================ STRATEGY ============================ -->
+<section class="view active" id="v-strategy">
+  <div class="doc">
+    <div class="section-head"><h2>UX strategy — the short version</h2></div>
+    <p class="lead">Fitty should feel like a calm, encouraging companion — not a dashboard you have to operate. Bright, soft, and personal. Every screen answers one question: <em>“what’s one good thing I can do right now?”</em></p>
+
+    <h3>1 · Vision</h3>
+    <p>A pocket wellness companion that turns scattered health data into <strong>one gentle next step a day</strong>. Fitty unifies body metrics, workouts, nutrition and connected devices, then uses a lightweight AI coach to translate it all into plain, motivating guidance. Premium and friendly — never clinical, never a chore.</p>
+
+    <h3>2 · Design principles</h3>
+    <ul>
+      <li><strong>One screen, one job.</strong> Progressive disclosure over density. Detail lives a tap deeper, never up front.</li>
+      <li><strong>Encourage, don’t grade.</strong> Soft language, celebrate streaks, never shame a missed day.</li>
+      <li><strong>Fast in, fast out.</strong> Logging anything is ≤2 taps via the center action button and bottom sheets.</li>
+      <li><strong>Wellness ≠ medical.</strong> Guidance is clearly framed as wellness; clinical-looking numbers always carry a quiet disclaimer and a “this isn’t medical advice” boundary.</li>
+      <li><strong>Trustworthy AI.</strong> Every AI plan is editable, explainable (“why this?”), and shows what data it used.</li>
+      <li><strong>Soft & physical.</strong> Rounded cards, pastel signals, gentle motion. Color carries meaning: coral = action, mint = health/positive, lavender = AI/insight, amber = attention.</li>
+    </ul>
+
+    <h3>3 · Mobile information architecture</h3>
+    <p>Five-tab bottom nav with a raised center “+” for instant logging. Everything else is reachable in ≤2 levels.</p>
+    <div class="pillrow">
+      <span class="p">🏠 Today</span><span class="p">📈 Progress</span><span class="p">＋ Log</span><span class="p">🥗 Plans</span><span class="p">✨ Coach</span>
+    </div>
+    <ul>
+      <li><strong>Today</strong> — home/dashboard, daily focus, check-in, recommendations.</li>
+      <li><strong>Progress</strong> — weight, body metrics, history charts, goals, health score.</li>
+      <li><strong>Log (＋)</strong> — bottom sheet: meal · workout · body data · water · mood.</li>
+      <li><strong>Plans</strong> — workout & nutrition plans, recipes, AI generation entry points.</li>
+      <li><strong>Coach</strong> — AI chat, recommendations feed, weekly review.</li>
+      <li><strong>Profile/Settings</strong> — avatar in header → profile, integrations, subscription, privacy, notifications.</li>
+    </ul>
+
+    <h3>4 · The daily engagement loop</h3>
+    <p>You said the daily habit is simply “be healthy.” That’s broad, so the loop is built around <strong>three tiny touchpoints</strong> that add up — designed so even a 15-second visit feels complete:</p>
+    <ul>
+      <li><strong>Morning check-in</strong> — a single tap on mood/energy + today’s one focus card.</li>
+      <li><strong>Midday log</strong> — one meal or workout via the ＋ button; instant positive feedback + ring fills.</li>
+      <li><strong>Evening reflection</strong> — Coach summarizes the day in one friendly line and previews tomorrow.</li>
+    </ul>
+    <p class="t" style="font-family:var(--read);color:var(--coral);font-weight:700;">↳ React to this loop — if “be healthy” really means weight loss, muscle gain, or sleep, I’ll re-center the whole home screen around that goal.</p>
+
+    <h3>5 · Three home concepts — which to build</h3>
+    <p>The home screen is the daily battleground. Three honest directions, compared:</p>
+    <div class="cards">
+      <div class="card">
+        <span class="pin">A · Data-focused</span>
+        <h5>The cockpit</h5>
+        <p><strong>Layout:</strong> metric grid up top (rings + numbers), trend strip, recent logs.</p>
+        <p><strong>Strengths:</strong> power users feel in control; everything visible.</p>
+        <p><strong>Weak:</strong> can feel clinical / overwhelming; against “not a dashboard” goal.</p>
+        <p><strong>Best for:</strong> quantified-self, athletes, device-heavy users.</p>
+      </div>
+      <div class="card">
+        <span class="pin">B · AI-coach</span>
+        <h5>The companion</h5>
+        <p><strong>Layout:</strong> conversational hero — coach greeting + today’s one move, then a feed of suggestions.</p>
+        <p><strong>Strengths:</strong> warmest, lowest cognitive load, most “alive”.</p>
+        <p><strong>Weak:</strong> data feels buried; needs strong AI to earn trust.</p>
+        <p><strong>Best for:</strong> beginners, guidance-seekers, daily re-engagement.</p>
+      </div>
+      <div class="card rec">
+        <span class="pin">★ C · Habit / progress</span>
+        <h5>The momentum board</h5>
+        <p><strong>Layout:</strong> big “today” focus + streak/rings, then this-week momentum, with the coach as a friendly inline voice.</p>
+        <p><strong>Strengths:</strong> drives daily return, motivating, balances data + warmth.</p>
+        <p><strong>Weak:</strong> needs real streak logic to not feel gimmicky.</p>
+        <p><strong>Best for:</strong> the broad “be healthy” mainstream user — <strong>your target.</strong></p>
+      </div>
+    </div>
+    <p><strong>Recommendation:</strong> Ship <strong>Concept C (Habit/Progress)</strong> as the default home, borrowing B’s coach voice as an inline card and exposing A’s full metric grid one tap away under <em>Progress</em>. It best serves a mainstream “be healthy” audience while leaving room for power users. See all three live in the <strong>Home concepts</strong> tab.</p>
+
+    <h3>6 · MVP — build these first</h3>
+    <div class="legend">
+      <span><span class="sw3 accent-coral"></span>MVP now</span>
+      <span><span class="sw3 accent-lav"></span>Phase 2</span>
+      <span><span class="sw3 soft" style="background:var(--fill);"></span>Later</span>
+    </div>
+    <div class="cards" style="grid-template-columns:repeat(auto-fit,minmax(220px,1fr));">
+      <div class="card"><h5 style="color:var(--coral)">MVP now</h5><ul>
+        <li>Onboarding → first plan</li><li>Home (Concept C)</li><li>Quick log sheet (meal/body/workout)</li>
+        <li>Progress + weight chart</li><li>AI coach feed + 1 chat</li><li>1 integration connect (Health/Google Fit)</li>
+        <li>Profile / subscription view</li></ul></div>
+      <div class="card"><h5 style="color:var(--lav)">Phase 2</h5><ul>
+        <li>AI workout & nutrition generation (full)</li><li>Recipe library + detail</li><li>Workout session player</li>
+        <li>Goals editor + health score detail</li><li>Notifications center</li><li>Trial / upgrade paywall</li></ul></div>
+      <div class="card"><h5 style="color:var(--ink-soft)">Later</h5><ul>
+        <li>Multi-device sync conflict UI</li><li>Social / sharing</li><li>Weekly review story</li>
+        <li>Web deep-analysis app</li><li>Full admin panel</li></ul></div>
+    </div>
+    <p class="t" style="font-family:var(--read);color:var(--ink-soft);">This tab is the companion doc. The other three tabs are the wireframes themselves — toggle <strong>Pastel hint</strong> / <strong>Sketch corners</strong> / <strong>UX notes</strong> up top to explore.</p>
+  </div>
+</section>
+
+<!-- ============================ ONBOARDING ============================ -->
+<section class="view" id="v-onboarding">
+  <div class="section-head">
+    <h2>Onboarding → first dashboard</h2>
+    <p>The hero flow. Goal: from “never heard of Fitty” to a personal home screen in under 90 seconds, asking only what we need, when we need it. Account creation is deferred until after the user sees value.</p>
+  </div>
+
+  <div class="flow-label"><span class="n">1</span> Welcome &amp; value</div>
+  <div class="rail">
+    <!-- S1 Welcome -->
+    <div class="phone-wrap">
+      <div class="phone-cap">Welcome<span>first launch · no wall yet</span></div>
+      <div class="phone">
+        <div class="notch"></div>
+        <div class="screen">
+          <div class="img" style="height:150px;margin-top:6px;">illustration</div>
+          <div class="bigger" style="margin-top:6px;">Hi, I’m<br>Fitty 👋</div>
+          <div class="t">Your friendly wellness companion. Let’s set you up in a minute.</div>
+          <div class="grow"></div>
+          <div class="row" style="justify-content:center;gap:6px;"><span class="chip fill"></span><span class="chip"></span><span class="chip"></span></div>
+          <div class="btn cta">Get started</div>
+          <div class="t" style="text-align:center;font-size:12px;">I already have an account</div>
+        </div>
+      </div>
+      <div class="note">Show personality &amp; the value prop before any form. Skippable carousel of 3 benefit slides.</div>
+    </div>
+    <div class="arrow">→</div>
+
+    <!-- S2 Goal -->
+    <div class="phone-wrap">
+      <div class="phone-cap">Pick a goal<span>single, big choice</span></div>
+      <div class="phone">
+        <div class="notch"></div>
+        <div class="screen">
+          <div class="row between"><span class="t">Step 1 of 5</span><span class="t">Skip</span></div>
+          <div class="bar"><i style="width:20%"></i></div>
+          <div class="big" style="margin-top:4px;">What brings<br>you here?</div>
+          <div class="col" style="margin-top:4px;">
+            <div class="box accent-coral row between"><span class="h">Lose weight</span><span class="t">›</span></div>
+            <div class="box row between"><span class="h">Build muscle</span><span class="t">›</span></div>
+            <div class="box row between"><span class="h">Eat better</span><span class="t">›</span></div>
+            <div class="box row between"><span class="h">Feel healthier</span><span class="t">›</span></div>
+            <div class="box row between"><span class="h">Sleep &amp; recover</span><span class="t">›</span></div>
+          </div>
+          <div class="grow"></div>
+          <div class="btn cta">Continue</div>
+        </div>
+      </div>
+      <div class="note">One primary goal drives the whole home screen. Multi-select hidden behind “more” to avoid overwhelm.</div>
+    </div>
+    <div class="arrow">→</div>
+
+    <!-- S3 Body basics -->
+    <div class="phone-wrap">
+      <div class="phone-cap">Body basics<span>only the essentials</span></div>
+      <div class="phone">
+        <div class="notch"></div>
+        <div class="screen">
+          <div class="row between"><span class="t">Step 2 of 5</span><span class="t">Skip</span></div>
+          <div class="bar"><i style="width:40%"></i></div>
+          <div class="big" style="margin-top:4px;">A bit<br>about you</div>
+          <div class="grid2" style="margin-top:4px;">
+            <div class="box col"><span class="lbl">Sex</span><div class="row" style="gap:5px;"><span class="chip fill">F</span><span class="chip">M</span><span class="chip">·</span></div></div>
+            <div class="box col"><span class="lbl">Age</span><span class="big" style="font-size:24px;">29</span></div>
+          </div>
+          <div class="box col"><span class="lbl">Height</span>
+            <div class="row between"><span class="big" style="font-size:24px;">168 cm</span><span class="t">slider →</span></div>
+            <div class="bar"><i style="width:55%"></i></div>
+          </div>
+          <div class="box col"><span class="lbl">Weight</span>
+            <div class="row between"><span class="big" style="font-size:24px;">64 kg</span><span class="t">slider →</span></div>
+            <div class="bar"><i style="width:48%"></i></div>
+          </div>
+          <div class="grow"></div>
+          <div class="btn cta">Continue</div>
+        </div>
+      </div>
+      <div class="note alt">Big sliders &amp; steppers, not keypads — pleasant to set, thumb-friendly. Units auto from locale, switchable.</div>
+    </div>
+    <div class="arrow">→</div>
+
+    <!-- S4 Activity -->
+    <div class="phone-wrap">
+      <div class="phone-cap">Activity level<span>visual, not jargon</span></div>
+      <div class="phone">
+        <div class="notch"></div>
+        <div class="screen">
+          <div class="row between"><span class="t">Step 3 of 5</span><span class="t">Skip</span></div>
+          <div class="bar"><i style="width:60%"></i></div>
+          <div class="big" style="margin-top:4px;">How active<br>are you?</div>
+          <div class="col" style="margin-top:4px;">
+            <div class="box row" style="gap:10px;"><span class="img circle" style="width:38px;height:38px;">🛋</span><div class="col" style="gap:2px;"><span class="h">Mostly resting</span><span class="tiny">little exercise</span></div></div>
+            <div class="box accent-mint row" style="gap:10px;"><span class="img circle" style="width:38px;height:38px;">🚶</span><div class="col" style="gap:2px;"><span class="h">Lightly active</span><span class="tiny">1–2× / week</span></div></div>
+            <div class="box row" style="gap:10px;"><span class="img circle" style="width:38px;height:38px;">🏃</span><div class="col" style="gap:2px;"><span class="h">Very active</span><span class="tiny">4+ / week</span></div></div>
+          </div>
+          <div class="grow"></div>
+          <div class="btn cta">Continue</div>
+        </div>
+      </div>
+      <div class="note">Plain words + icons instead of “sedentary / TDEE”. Tone stays human.</div>
+    </div>
+  </div>
+
+  <div class="flow-label"><span class="n">2</span> Connect, consent &amp; build</div>
+  <div class="rail">
+    <!-- S5 Integrations -->
+    <div class="phone-wrap">
+      <div class="phone-cap">Connect (optional)<span>auto-fill, less typing</span></div>
+      <div class="phone">
+        <div class="notch"></div>
+        <div class="screen">
+          <div class="row between"><span class="t">Step 4 of 5</span><span class="t">Skip</span></div>
+          <div class="bar"><i style="width:80%"></i></div>
+          <div class="big" style="margin-top:4px;">Sync your<br>health data?</div>
+          <div class="t">Connect a source so steps, sleep &amp; weight fill in automatically.</div>
+          <div class="col" style="margin-top:2px;">
+            <div class="box row between"><div class="row" style="gap:9px;"><span class="img circle" style="width:30px;height:30px;">G</span><span class="h">Google Fit</span></div><span class="chip">Connect</span></div>
+            <div class="box row between"><div class="row" style="gap:9px;"><span class="img circle" style="width:30px;height:30px;"></span><span class="h">Apple Health</span></div><span class="chip">Connect</span></div>
+            <div class="box row between"><div class="row" style="gap:9px;"><span class="img circle" style="width:30px;height:30px;">Mi</span><span class="h">Xiaomi Health</span></div><span class="chip">Connect</span></div>
+          </div>
+          <div class="grow"></div>
+          <div class="btn">Maybe later</div>
+        </div>
+      </div>
+      <div class="note alt2">Optional &amp; skippable — never block onboarding on a device pairing. Permissions explained in plain language at connect.</div>
+    </div>
+    <div class="arrow">→</div>
+
+    <!-- S6 Account + consent -->
+    <div class="phone-wrap">
+      <div class="phone-cap">Save progress<span>account appears late</span></div>
+      <div class="phone">
+        <div class="notch"></div>
+        <div class="screen">
+          <div class="row between"><span class="t">Step 5 of 5</span><span class="t"></span></div>
+          <div class="bar"><i style="width:95%"></i></div>
+          <div class="big" style="margin-top:4px;">Save your<br>plan</div>
+          <div class="btn">⌗ Continue with Google</div>
+          <div class="btn">f  Continue with Facebook</div>
+          <div class="row" style="gap:8px;align-items:center;"><span class="ln l"></span><span class="tiny">or</span><span class="ln l"></span></div>
+          <div class="box soft"><span class="t">email@you.com</span></div>
+          <div class="box soft"><span class="t">password</span></div>
+          <div class="box dash col" style="gap:6px;">
+            <label class="row" style="gap:8px;"><span class="chip" style="padding:2px 6px;">✓</span><span class="tiny" style="font-family:var(--hand);font-size:12px;">I agree to wellness use &amp; privacy. Not medical advice.</span></label>
+          </div>
+          <div class="grow"></div>
+          <div class="btn cta">Create my plan</div>
+        </div>
+      </div>
+      <div class="note">Defer the wall until the user is invested. Consent &amp; the medical-boundary disclaimer captured explicitly here.</div>
+    </div>
+    <div class="arrow">→</div>
+
+    <!-- S7 Building -->
+    <div class="phone-wrap">
+      <div class="phone-cap">Building…<span>loading state w/ delight</span></div>
+      <div class="phone">
+        <div class="notch"></div>
+        <div class="screen" style="justify-content:center;align-items:center;text-align:center;gap:16px;">
+          <div class="ring lg"><span>•••</span></div>
+          <div class="big">Building your<br>plan…</div>
+          <div class="col" style="width:100%;gap:8px;">
+            <div class="box accent-mint row" style="gap:8px;"><span>✓</span><span class="t" style="font-family:var(--hand);font-size:13px;color:var(--ink);">Read your goal</span></div>
+            <div class="box accent-mint row" style="gap:8px;"><span>✓</span><span class="t" style="font-family:var(--hand);font-size:13px;color:var(--ink);">Set your targets</span></div>
+            <div class="box row" style="gap:8px;"><span>◌</span><span class="t" style="font-family:var(--hand);font-size:13px;">Picking first moves…</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="note alt">Turn unavoidable compute into a moment of trust — narrate what the AI is doing. ~2–4s, then reveal.</div>
+    </div>
+    <div class="arrow">→</div>
+
+    <!-- S8 First dashboard -->
+    <div class="phone-wrap">
+      <div class="phone-cap">First home 🎉<span>the payoff</span></div>
+      <div class="phone tall">
+        <div class="notch"></div>
+        <div class="screen">
+          <div class="row between"><div class="col" style="gap:1px;"><span class="t">Good morning,</span><span class="h" style="font-size:20px;">Sara ☀️</span></div><span class="img circle" style="width:34px;height:34px;"></span></div>
+          <div class="box accent-coral col" style="gap:6px;">
+            <span class="lbl">Your plan is ready</span>
+            <span class="h" style="font-size:17px;">Start with a 15-min walk today</span>
+            <div class="row" style="gap:6px;"><span class="chip">Do it</span><span class="chip fill">Why?</span></div>
+          </div>
+          <div class="grid3">
+            <div class="box c col" style="align-items:center;gap:3px;"><span class="ring" style="width:46px;height:46px;border-width:5px;font-size:12px;"><span>0%</span></span><span class="tiny">Move</span></div>
+            <div class="box c col" style="align-items:center;gap:3px;"><span class="ring" style="width:46px;height:46px;border-width:5px;font-size:12px;"><span>0</span></span><span class="tiny">Meals</span></div>
+            <div class="box c col" style="align-items:center;gap:3px;"><span class="ring" style="width:46px;height:46px;border-width:5px;font-size:12px;"><span>—</span></span><span class="tiny">Body</span></div>
+          </div>
+          <div class="box dash col" style="gap:4px;"><span class="lbl">First step</span><span class="t">Log your first meal to start your streak →</span></div>
+        </div>
+        <div class="nav">
+          <div class="it on"><span class="ic"></span>Today</div>
+          <div class="it"><span class="ic"></span>Progress</div>
+          <div class="fab">＋</div>
+          <div class="it"><span class="ic"></span>Plans</div>
+          <div class="it"><span class="ic"></span>Coach</div>
+        </div>
+      </div>
+      <div class="note alt2">Empty-but-inviting first state: clear single next action + “start your streak” hook. Never a blank dashboard.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================ CONCEPTS ============================ -->
+<section class="view" id="v-concepts">
+  <div class="section-head">
+    <h2>Home screen — 3 concepts, side by side</h2>
+    <p>Same user, same data, three philosophies for the daily home. Compare the feel. My recommendation is <strong>C</strong> (see Strategy tab). Toggle pastel/sketch to imagine the finished skin.</p>
+  </div>
+  <div class="rail">
+
+    <!-- Concept A -->
+    <div class="phone-wrap" style="width:300px;">
+      <div class="phone-cap">A · Data-focused<span>“the cockpit”</span></div>
+      <div class="phone tall" style="width:300px;">
+        <div class="notch"></div>
+        <div class="screen">
+          <div class="row between"><span class="h" style="font-size:18px;">Dashboard</span><span class="img circle" style="width:30px;height:30px;"></span></div>
+          <div class="grid2">
+            <div class="box col" style="gap:2px;"><span class="lbl">Weight</span><span class="big" style="font-size:22px;">64.2<span style="font-size:12px;">kg</span></span><span class="tiny">▼ 0.3 this week</span></div>
+            <div class="box col" style="gap:2px;"><span class="lbl">BMI</span><span class="big" style="font-size:22px;">22.7</span><span class="tiny">normal range</span></div>
+            <div class="box col" style="gap:2px;"><span class="lbl">Body fat</span><span class="big" style="font-size:22px;">24%</span><span class="tiny">▼ 0.5</span></div>
+            <div class="box col" style="gap:2px;"><span class="lbl">Muscle</span><span class="big" style="font-size:22px;">41%</span><span class="tiny">steady</span></div>
+          </div>
+          <div class="box col" style="gap:6px;"><span class="lbl">Weight trend · 30d</span><div class="chart"><i style="height:80%"></i><i style="height:70%"></i><i style="height:75%"></i><i style="height:60%"></i><i style="height:55%"></i><i style="height:50%"></i><i style="height:45%"></i></div></div>
+          <div class="grid2">
+            <div class="box accent-mint col" style="gap:2px;"><span class="lbl">Steps</span><span class="h">8,420</span></div>
+            <div class="box accent-lav col" style="gap:2px;"><span class="lbl">Sleep</span><span class="h">7.4h</span></div>
+          </div>
+        </div>
+        <div class="nav"><div class="it on"><span class="ic"></span>Today</div><div class="it"><span class="ic"></span>Progress</div><div class="fab">＋</div><div class="it"><span class="ic"></span>Plans</div><div class="it"><span class="ic"></span>Coach</div></div>
+      </div>
+      <div class="note">Everything visible at once. Great for power users; risks feeling clinical &amp; overwhelming for newcomers.</div>
+    </div>
+
+    <!-- Concept B -->
+    <div class="phone-wrap" style="width:300px;">
+      <div class="phone-cap">B · AI-coach<span>“the companion”</span></div>
+      <div class="phone tall" style="width:300px;">
+        <div class="notch"></div>
+        <div class="screen">
+          <div class="row" style="gap:9px;"><span class="img circle" style="width:40px;height:40px;">✨</span><div class="col" style="gap:1px;"><span class="h" style="font-size:16px;">Hey Sara</span><span class="tiny">your coach</span></div></div>
+          <div class="box accent-lav col" style="gap:6px;border-radius:4px 20px 20px 20px;">
+            <span class="t" style="font-family:var(--hand);font-size:14px;color:var(--ink);">You slept well — nice. Want to make today count with a short walk before lunch?</span>
+            <div class="row" style="gap:6px;"><span class="chip fill">Sounds good</span><span class="chip">Later</span></div>
+          </div>
+          <span class="lbl">Suggested for you</span>
+          <div class="box row between"><div class="col" style="gap:1px;"><span class="h" style="font-size:14px;">Add protein to lunch</span><span class="tiny">stabilizes energy</span></div><span class="t">›</span></div>
+          <div class="box row between"><div class="col" style="gap:1px;"><span class="h" style="font-size:14px;">Hydrate — 3 glasses left</span><span class="tiny">gentle nudge</span></div><span class="t">›</span></div>
+          <div class="box dash row between"><span class="t">Ask Fitty anything…</span><span class="h">🎙</span></div>
+        </div>
+        <div class="nav"><div class="it"><span class="ic"></span>Today</div><div class="it"><span class="ic"></span>Progress</div><div class="fab">＋</div><div class="it"><span class="ic"></span>Plans</div><div class="it on"><span class="ic"></span>Coach</div></div>
+      </div>
+      <div class="note alt">Warmest &amp; lowest-effort. Conversation leads; data is one tap away. Needs a genuinely good coach to earn trust.</div>
+    </div>
+
+    <!-- Concept C -->
+    <div class="phone-wrap" style="width:300px;">
+      <div class="phone-cap">★ C · Habit / progress<span>“momentum board” — recommended</span></div>
+      <div class="phone tall" style="width:300px;">
+        <div class="notch"></div>
+        <div class="screen">
+          <div class="row between"><div class="col" style="gap:1px;"><span class="t">Tuesday · day 12</span><span class="h" style="font-size:18px;">Morning, Sara 🔥</span></div><span class="img circle" style="width:30px;height:30px;"></span></div>
+          <div class="box accent-coral col" style="gap:6px;">
+            <span class="lbl">Today’s focus</span>
+            <span class="h" style="font-size:16px;">A 15-min walk + protein lunch</span>
+            <div class="row" style="gap:6px;"><span class="chip">Start</span><span class="chip fill">Why this?</span></div>
+          </div>
+          <div class="row" style="gap:8px;justify-content:space-around;">
+            <div class="col" style="align-items:center;gap:3px;"><span class="ring" style="width:54px;height:54px;border-width:6px;font-size:13px;"><span>60%</span></span><span class="tiny">Move</span></div>
+            <div class="col" style="align-items:center;gap:3px;"><span class="ring" style="width:54px;height:54px;border-width:6px;font-size:13px;"><span>2/3</span></span><span class="tiny">Meals</span></div>
+            <div class="col" style="align-items:center;gap:3px;"><span class="ring" style="width:54px;height:54px;border-width:6px;font-size:13px;"><span>✓</span></span><span class="tiny">Body</span></div>
+          </div>
+          <div class="box col" style="gap:5px;"><span class="lbl">This week 🔥 12-day streak</span><div class="row" style="gap:5px;">
+            <span class="chip fill" style="padding:6px 0;width:30px;text-align:center;">M</span><span class="chip fill" style="padding:6px 0;width:30px;text-align:center;">T</span><span class="chip fill" style="padding:6px 0;width:30px;text-align:center;">W</span><span class="chip" style="padding:6px 0;width:30px;text-align:center;">T</span><span class="chip" style="padding:6px 0;width:30px;text-align:center;">F</span></div></div>
+          <div class="box accent-lav row between"><span class="t" style="font-family:var(--hand);color:var(--ink);font-size:13px;">✨ Coach: you’re on a roll</span><span class="t">›</span></div>
+        </div>
+        <div class="nav"><div class="it on"><span class="ic"></span>Today</div><div class="it"><span class="ic"></span>Progress</div><div class="fab">＋</div><div class="it"><span class="ic"></span>Plans</div><div class="it"><span class="ic"></span>Coach</div></div>
+      </div>
+      <div class="note alt2">Balances momentum (streak + rings), a single clear focus, and the coach as a friendly inline voice. Best for the broad “be healthy” user.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================ CORE SCREENS ============================ -->
+<section class="view" id="v-core">
+  <div class="section-head">
+    <h2>Core screens — breadth</h2>
+    <p>Rougher coverage of the rest of the app so the structure is complete: logging, plans, coach, progress, recipes, profile, subscription. These get depth in a later pass.</p>
+  </div>
+
+  <div class="flow-label"><span class="n">+</span> Quick logging (the ＋ button)</div>
+  <div class="rail tight">
+    <!-- Log sheet -->
+    <div class="phone-wrap">
+      <div class="phone-cap">Log sheet<span>＋ → bottom sheet</span></div>
+      <div class="phone">
+        <div class="notch"></div>
+        <div class="screen" style="filter:saturate(.6);"><div class="ln l"></div><div class="grid2"><div class="box" style="height:60px;"></div><div class="box" style="height:60px;"></div></div><div class="box" style="height:60px;"></div></div>
+        <div class="scrim"></div>
+        <div class="sheet">
+          <div class="grab"></div>
+          <span class="h" style="font-size:17px;">Log something</span>
+          <div class="grid2" style="margin-top:8px;">
+            <div class="box accent-coral col" style="align-items:center;gap:4px;"><span class="big" style="font-size:24px;">🍽</span><span class="t" style="font-family:var(--hand);font-size:13px;color:var(--ink);">Meal</span></div>
+            <div class="box accent-mint col" style="align-items:center;gap:4px;"><span class="big" style="font-size:24px;">🏋</span><span class="t" style="font-family:var(--hand);font-size:13px;color:var(--ink);">Workout</span></div>
+            <div class="box accent-lav col" style="align-items:center;gap:4px;"><span class="big" style="font-size:24px;">⚖️</span><span class="t" style="font-family:var(--hand);font-size:13px;color:var(--ink);">Body data</span></div>
+            <div class="box accent-amber col" style="align-items:center;gap:4px;"><span class="big" style="font-size:24px;">💧</span><span class="t" style="font-family:var(--hand);font-size:13px;color:var(--ink);">Water · mood</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="note">One ＋, everything loggable in 2 taps. Bottom sheet keeps context — no full-screen detour.</div>
+    </div>
+    <div class="arrow">→</div>
+
+    <!-- Quick body data -->
+    <div class="phone-wrap">
+      <div class="phone-cap">Quick body data<span>fast &amp; pleasant entry</span></div>
+      <div class="phone">
+        <div class="notch"></div>
+        <div class="screen" style="text-align:center;">
+          <div class="row between"><span class="t">✕</span><span class="lbl">Weight</span><span class="t">Save</span></div>
+          <div class="grow"></div>
+          <div class="bigger" style="font-size:64px;">64.2</div>
+          <span class="lbl">kg · tap to switch</span>
+          <div class="box soft" style="margin-top:10px;"><div class="row between" style="font-family:var(--note);font-size:18px;color:var(--pencil);"><span>62</span><span>63</span><span class="big" style="font-size:26px;">64</span><span>65</span><span>66</span></div></div>
+          <span class="tiny">↔ scroll the dial</span>
+          <div class="grow"></div>
+          <div class="box dash row between"><span class="t">📷 Scan scale</span><span class="t">🔗 from Health app</span></div>
+          <div class="btn cta">Save</div>
+        </div>
+      </div>
+      <div class="note alt">Big scrolling dial = delightful, no keyboard. Pre-fills last value &amp; offers device import.</div>
+    </div>
+    <div class="arrow">→</div>
+
+    <!-- Meal tracking -->
+    <div class="phone-wrap">
+      <div class="phone-cap">Meal logged<span>instant positive feedback</span></div>
+      <div class="phone">
+        <div class="notch"></div>
+        <div class="screen">
+          <div class="row between"><span class="t">‹ Lunch</span><span class="t">Edit</span></div>
+          <div class="box accent-mint col" style="align-items:center;gap:4px;"><span class="big">＋120 kcal under goal 🎉</span><span class="tiny">nice balance today</span></div>
+          <div class="box row" style="gap:9px;"><span class="img" style="width:46px;height:46px;"></span><div class="col grow" style="gap:2px;"><span class="h" style="font-size:14px;">Coral lentil salad</span><span class="tiny">24g P · 64g C · 18g F</span></div><span class="t">✎</span></div>
+          <div class="box row" style="gap:9px;"><span class="img" style="width:46px;height:46px;"></span><div class="col grow" style="gap:2px;"><span class="h" style="font-size:14px;">Greek yogurt</span><span class="tiny">12g P · 9g C · 4g F</span></div><span class="t">✎</span></div>
+          <div class="box dash row between"><span class="t">＋ Add food · search or scan</span><span class="h">⌕</span></div>
+          <div class="box col" style="gap:5px;"><span class="lbl">Today’s macros</span><div class="bar"><i style="width:62%"></i></div><span class="tiny">protein 62% of goal</span></div>
+        </div>
+        <div class="nav"><div class="it"><span class="ic"></span>Today</div><div class="it"><span class="ic"></span>Progress</div><div class="fab">＋</div><div class="it on"><span class="ic"></span>Plans</div><div class="it"><span class="ic"></span>Coach</div></div>
+      </div>
+      <div class="note alt2">Lead with encouragement, not a calorie scold. Search + barcode/photo scan to add fast.</div>
+    </div>
+  </div>
+
+  <div class="flow-label"><span class="n">✨</span> AI plans &amp; coach</div>
+  <div class="rail tight">
+    <!-- AI generate -->
+    <div class="phone-wrap">
+      <div class="phone-cap">Generate plan<span>asks for missing data first</span></div>
+      <div class="phone">
+        <div class="notch"></div>
+        <div class="screen">
+          <div class="row between"><span class="t">‹ AI workout plan</span><span class="tag">beta</span></div>
+          <div class="box accent-lav col" style="gap:5px;"><span class="lbl">Before I build this</span><span class="t" style="font-family:var(--hand);font-size:13px;color:var(--ink);">I need 2 things to make it safe &amp; useful:</span></div>
+          <div class="box col" style="gap:3px;"><span class="lbl">Days per week</span><div class="row" style="gap:5px;"><span class="chip">2</span><span class="chip fill">3</span><span class="chip">4</span><span class="chip">5</span></div></div>
+          <div class="box col" style="gap:3px;"><span class="lbl">Any injuries / limits?</span><span class="t">Knee · Lower back · None</span></div>
+          <div class="box col" style="gap:3px;"><span class="lbl">Equipment</span><div class="row" style="gap:5px;"><span class="chip fill">Gym</span><span class="chip">Home</span><span class="chip">None</span></div></div>
+          <div class="grow"></div>
+          <div class="box dash"><span class="tiny">⚠ Wellness guidance, not medical advice. Stop if you feel pain.</span></div>
+          <div class="btn cta">✨ Generate my plan</div>
+        </div>
+      </div>
+      <div class="note">Gather missing inputs <em>before</em> generating — prevents bad plans &amp; builds trust. Medical boundary shown up front.</div>
+    </div>
+    <div class="arrow">→</div>
+
+    <!-- Review/edit plan -->
+    <div class="phone-wrap">
+      <div class="phone-cap">Review &amp; edit<span>editable, explainable</span></div>
+      <div class="phone tall">
+        <div class="notch"></div>
+        <div class="screen">
+          <div class="row between"><span class="t">‹ Your plan</span><span class="chip fill">Regenerate</span></div>
+          <div class="box accent-mint col" style="gap:3px;"><span class="h" style="font-size:15px;">3-day full body · 4 weeks</span><span class="tiny">matches: lose weight · 3×/wk · gym</span></div>
+          <div class="box row between"><div class="col" style="gap:1px;"><span class="h" style="font-size:14px;">Day 1 · Lower</span><span class="tiny">5 exercises · 35 min</span></div><span class="t">⌄</span></div>
+          <div class="box col" style="gap:6px;">
+            <div class="row between"><span class="t" style="font-family:var(--hand);color:var(--ink);">Goblet squat · 3×10</span><span class="t">✎ ⇄ ✕</span></div>
+            <div class="row between"><span class="t" style="font-family:var(--hand);color:var(--ink);">Romanian deadlift · 3×8</span><span class="t">✎ ⇄ ✕</span></div>
+            <div class="row between"><span class="t" style="font-family:var(--hand);color:var(--ink);">Walking lunge · 2×12</span><span class="t">✎ ⇄ ✕</span></div>
+          </div>
+          <div class="box accent-lav row between"><span class="t" style="font-family:var(--hand);font-size:12px;color:var(--ink);">✨ Why these? Low-impact, knee-safe.</span><span class="t">›</span></div>
+          <div class="row" style="gap:8px;"><span class="btn grow">Reject</span><span class="btn cta grow">Save plan</span></div>
+        </div>
+        <div class="nav"><div class="it"><span class="ic"></span>Today</div><div class="it"><span class="ic"></span>Progress</div><div class="fab">＋</div><div class="it on"><span class="ic"></span>Plans</div><div class="it"><span class="ic"></span>Coach</div></div>
+      </div>
+      <div class="note alt">Every item editable / swappable / removable. “Why these?” explains the AI. Accept or reject the whole thing.</div>
+    </div>
+    <div class="arrow">→</div>
+
+    <!-- AI coach chat -->
+    <div class="phone-wrap">
+      <div class="phone-cap">Coach chat<span>conversational, bounded</span></div>
+      <div class="phone tall">
+        <div class="notch"></div>
+        <div class="screen">
+          <div class="row" style="gap:8px;"><span class="img circle" style="width:32px;height:32px;">✨</span><span class="h" style="font-size:15px;">Fitty Coach</span></div>
+          <div class="box accent-lav" style="border-radius:4px 18px 18px 18px;align-self:flex-start;max-width:88%;"><span class="t" style="font-family:var(--hand);font-size:13px;color:var(--ink);">Based on your week, want a lighter recovery day tomorrow?</span></div>
+          <div class="box fill" style="border-radius:18px 4px 18px 18px;align-self:flex-end;max-width:80%;"><span class="t" style="font-family:var(--hand);font-size:13px;color:var(--ink);">yes please</span></div>
+          <div class="box accent-lav" style="border-radius:4px 18px 18px 18px;align-self:flex-start;max-width:88%;"><span class="t" style="font-family:var(--hand);font-size:13px;color:var(--ink);">Done — swapped to mobility + walk. Added to Today.</span></div>
+          <div class="grow"></div>
+          <div class="row" style="gap:6px;"><span class="chip">Plan my week</span><span class="chip">Meal idea</span></div>
+          <div class="box dash row between"><span class="t">Message…</span><span class="h">↑</span></div>
+          <div class="tiny" style="text-align:center;">Wellness support · not a medical professional</div>
+        </div>
+        <div class="nav"><div class="it"><span class="ic"></span>Today</div><div class="it"><span class="ic"></span>Progress</div><div class="fab">＋</div><div class="it"><span class="ic"></span>Plans</div><div class="it on"><span class="ic"></span>Coach</div></div>
+      </div>
+      <div class="note alt2">Suggestion chips lower the blank-page barrier. Persistent footer keeps the medical boundary clear.</div>
+    </div>
+  </div>
+
+  <div class="flow-label"><span class="n">◷</span> Progress, recipes, profile &amp; billing</div>
+  <div class="rail tight">
+    <!-- Progress -->
+    <div class="phone-wrap">
+      <div class="phone-cap">Progress<span>history + health score</span></div>
+      <div class="phone tall">
+        <div class="notch"></div>
+        <div class="screen">
+          <div class="row between"><span class="h" style="font-size:18px;">Progress</span><div class="row" style="gap:5px;"><span class="chip fill">Wk</span><span class="chip">Mo</span><span class="chip">Yr</span></div></div>
+          <div class="box accent-mint col" style="align-items:center;gap:3px;"><span class="lbl">Wellness score</span><span class="ring lg"><span>82</span></span><span class="tiny">▲ 4 vs last week</span></div>
+          <div class="box col" style="gap:5px;"><span class="lbl">Weight · trending down</span><div class="chart"><i style="height:90%"></i><i style="height:82%"></i><i style="height:85%"></i><i style="height:70%"></i><i style="height:66%"></i><i style="height:60%"></i><i style="height:52%"></i></div></div>
+          <div class="grid2"><div class="box col" style="gap:1px;"><span class="lbl">Workouts</span><span class="h">9 this mo</span></div><div class="box col" style="gap:1px;"><span class="lbl">Avg sleep</span><span class="h">7.2h</span></div></div>
+        </div>
+        <div class="nav"><div class="it"><span class="ic"></span>Today</div><div class="it on"><span class="ic"></span>Progress</div><div class="fab">＋</div><div class="it"><span class="ic"></span>Plans</div><div class="it"><span class="ic"></span>Coach</div></div>
+      </div>
+      <div class="note">This is where the full data lives — power users get the “cockpit” here, off the calm home.</div>
+    </div>
+    <div class="arrow">→</div>
+
+    <!-- Recipes -->
+    <div class="phone-wrap">
+      <div class="phone-cap">Recipes<span>browse + suggested</span></div>
+      <div class="phone tall">
+        <div class="notch"></div>
+        <div class="screen">
+          <div class="box dash row between"><span class="t">⌕ Search recipes</span><span class="h">⚙</span></div>
+          <div class="row" style="gap:6px;"><span class="chip fill">For you</span><span class="chip">High protein</span><span class="chip">Quick</span></div>
+          <div class="box" style="padding:0;overflow:hidden;"><div class="img" style="height:96px;border:0;border-radius:0;">photo</div><div class="col" style="padding:9px 11px;gap:2px;"><span class="h" style="font-size:15px;">Mint yogurt power bowl</span><span class="tiny">28g protein · 12 min · ★ 4.8</span></div></div>
+          <div class="grid2">
+            <div class="box" style="padding:0;overflow:hidden;"><div class="img" style="height:62px;border:0;border-radius:0;"></div><div class="col" style="padding:7px;gap:1px;"><span class="h" style="font-size:12px;">Lentil salad</span><span class="tiny">450 kcal</span></div></div>
+            <div class="box" style="padding:0;overflow:hidden;"><div class="img" style="height:62px;border:0;border-radius:0;"></div><div class="col" style="padding:7px;gap:1px;"><span class="h" style="font-size:12px;">Berry oats</span><span class="tiny">380 kcal</span></div></div>
+          </div>
+        </div>
+        <div class="nav"><div class="it"><span class="ic"></span>Today</div><div class="it"><span class="ic"></span>Progress</div><div class="fab">＋</div><div class="it on"><span class="ic"></span>Plans</div><div class="it"><span class="ic"></span>Coach</div></div>
+      </div>
+      <div class="note alt">Imagery-led cards (real photos in hi-fi). “For you” personalizes to goal &amp; logged meals.</div>
+    </div>
+    <div class="arrow">→</div>
+
+    <!-- Profile / settings + integrations -->
+    <div class="phone-wrap">
+      <div class="phone-cap">Profile &amp; settings<span>integrations · privacy</span></div>
+      <div class="phone tall">
+        <div class="notch"></div>
+        <div class="screen">
+          <div class="box row" style="gap:10px;"><span class="img circle" style="width:46px;height:46px;"></span><div class="col" style="gap:1px;"><span class="h" style="font-size:16px;">Sara R.</span><span class="tiny">Free plan</span></div></div>
+          <span class="lbl">Connected sources</span>
+          <div class="box accent-mint row between"><div class="row" style="gap:8px;"><span class="img circle" style="width:26px;height:26px;">G</span><div class="col" style="gap:0;"><span class="h" style="font-size:13px;">Google Fit</span><span class="tiny">synced 2h ago ✓</span></div></div><span class="t">⚙</span></div>
+          <div class="box row between"><div class="row" style="gap:8px;"><span class="img circle" style="width:26px;height:26px;"></span><div class="col" style="gap:0;"><span class="h" style="font-size:13px;">Apple Health</span><span class="tiny" style="color:var(--coral);">reconnect needed ⚠</span></div></div><span class="chip">Fix</span></div>
+          <div class="box dash row between"><span class="t">＋ Connect another</span><span class="h">›</span></div>
+          <div class="col" style="gap:0;">
+            <div class="box soft row between"><span class="t" style="color:var(--ink);">Goals</span><span class="t">›</span></div>
+            <div class="box soft row between"><span class="t" style="color:var(--ink);">Privacy &amp; consent</span><span class="t">›</span></div>
+            <div class="box soft row between"><span class="t" style="color:var(--ink);">Notifications</span><span class="t">›</span></div>
+          </div>
+        </div>
+        <div class="nav"><div class="it"><span class="ic"></span>Today</div><div class="it"><span class="ic"></span>Progress</div><div class="fab">＋</div><div class="it"><span class="ic"></span>Plans</div><div class="it"><span class="ic"></span>Coach</div></div>
+      </div>
+      <div class="note alt2">Sync status &amp; last-sync inline; broken connections surface a clear “Fix” with reconnect, never a silent fail.</div>
+    </div>
+    <div class="arrow">→</div>
+
+    <!-- Subscription -->
+    <div class="phone-wrap">
+      <div class="phone-cap">Upgrade<span>trial / premium paywall</span></div>
+      <div class="phone tall">
+        <div class="notch"></div>
+        <div class="screen" style="text-align:center;">
+          <div class="row between" style="text-align:left;"><span class="t">✕</span><span class="tag">Premium</span></div>
+          <div class="img" style="height:80px;">illustration</div>
+          <div class="big" style="font-size:24px;">Unlock your<br>full coach</div>
+          <div class="col" style="gap:5px;text-align:left;">
+            <div class="box accent-mint row" style="gap:8px;"><span>✓</span><span class="t" style="font-family:var(--hand);color:var(--ink);font-size:13px;">Unlimited AI plans</span></div>
+            <div class="box accent-mint row" style="gap:8px;"><span>✓</span><span class="t" style="font-family:var(--hand);color:var(--ink);font-size:13px;">Deep progress insights</span></div>
+            <div class="box accent-mint row" style="gap:8px;"><span>✓</span><span class="t" style="font-family:var(--hand);color:var(--ink);font-size:13px;">All integrations</span></div>
+          </div>
+          <div class="grow"></div>
+          <div class="box accent-coral col" style="gap:1px;"><span class="h">€7,99 / mo</span><span class="tiny">7-day free trial · cancel anytime</span></div>
+          <div class="btn cta">Start free trial</div>
+          <span class="tiny">Restore · Billing history</span>
+        </div>
+      </div>
+      <div class="note">Value-framed, not fear-framed. Locked premium features elsewhere show a soft ✨ lock that routes here.</div>
+    </div>
+  </div>
+</section>
+
+</div>
+
+<script>
+  // tabs
+  const tabs = document.querySelectorAll('#tabs .tab');
+  const views = document.querySelectorAll('.view');
+  tabs.forEach(t => t.addEventListener('click', () => {
+    tabs.forEach(x => x.classList.remove('active'));
+    views.forEach(v => v.classList.remove('active'));
+    t.classList.add('active');
+    document.getElementById('v-' + t.dataset.view).classList.add('active');
+    window.scrollTo({top:0});
+  }));
+  // toggles
+  const body = document.body;
+  const sync = () => {
+    body.classList.toggle('color', cColor.checked);
+    body.classList.toggle('clean', !cSketch.checked);
+    body.classList.toggle('no-notes', !cNotes.checked);
+    localStorage.setItem('fitty.wf', JSON.stringify({c:cColor.checked,s:cSketch.checked,n:cNotes.checked}));
+  };
+  const cColor = document.getElementById('tgColor');
+  const cSketch = document.getElementById('tgSketch');
+  const cNotes = document.getElementById('tgNotes');
+  try{ const s = JSON.parse(localStorage.getItem('fitty.wf')); if(s){cColor.checked=s.c;cSketch.checked=s.s;cNotes.checked=s.n;} }catch(e){}
+  [cColor,cSketch,cNotes].forEach(c => c.addEventListener('change', sync));
+  sync();
+</script>
+</body>
+</html>

@@ -481,6 +481,7 @@ From PowerShell in the repository root:
 cd E:\workspace\fittyApp
 docker build -t fitty-cp-01:5000/fitty/api-gateway:local .\services\gateway-service
 docker build -t fitty-cp-01:5000/fitty/auth-service:local .\services\auth-service
+docker build -t fitty-cp-01:5000/fitty/identity-service:local .\services\identity-service
 docker build -t fitty-cp-01:5000/fitty/user-service:local .\services\user-service
 docker build -t fitty-cp-01:5000/fitty/health-data-service:local .\services\health-data-service
 docker build -t fitty-cp-01:5000/fitty/recommendation-service:local .\services\recommendation-service
@@ -503,6 +504,7 @@ From PowerShell:
 ```powershell
 docker push fitty-cp-01:5000/fitty/api-gateway:local
 docker push fitty-cp-01:5000/fitty/auth-service:local
+docker push fitty-cp-01:5000/fitty/identity-service:local
 docker push fitty-cp-01:5000/fitty/user-service:local
 docker push fitty-cp-01:5000/fitty/health-data-service:local
 docker push fitty-cp-01:5000/fitty/recommendation-service:local
@@ -533,6 +535,7 @@ kubectl apply -f .\infra\k8s\local\mongo\
 kubectl apply -f .\infra\k8s\local\kafka\
 kubectl apply -f .\infra\k8s\local\api-gateway\
 kubectl apply -f .\infra\k8s\local\auth-service\
+kubectl apply -f .\infra\k8s\local\identity-service\
 kubectl apply -f .\infra\k8s\local\user-service\
 kubectl apply -f .\infra\k8s\local\health-data-service\
 kubectl apply -f .\infra\k8s\local\recommendation-service\
@@ -582,6 +585,7 @@ infra/k8s/local/
 ├── kafka/
 ├── api-gateway/
 ├── auth-service/
+├── identity-service/
 ├── user-service/
 ├── health-data-service/
 ├── recommendation-service/
@@ -665,6 +669,7 @@ kubectl apply -f infra/k8s/local/mongo/
 kubectl apply -f infra/k8s/local/kafka/
 kubectl apply -f infra/k8s/local/api-gateway/
 kubectl apply -f infra/k8s/local/auth-service/
+kubectl apply -f infra/k8s/local/identity-service/
 kubectl apply -f infra/k8s/local/user-service/
 kubectl apply -f infra/k8s/local/health-data-service/
 kubectl apply -f infra/k8s/local/recommendation-service/
@@ -727,6 +732,27 @@ Local OIDC clients:
 | `fitty-mobile` | public, Authorization Code + PKCE | Mobile app |
 | `fitty-admin` | public, Authorization Code + PKCE | Admin UI |
 | `fitty-api` | bearer-only | API/resource-server audience |
+
+### Identity Service
+
+The app does not send users to the Keycloak UI for normal registration. Mobile and web clients call Fitty through the gateway:
+
+- `POST http://fitty-cp-01:30080/api/v1/identity/register`
+- `POST http://fitty-cp-01:30080/api/v1/identity/login`
+
+`identity-service` creates or updates the Keycloak user, assigns `FITTY_USER`, stores onboarding attributes and consent flags, creates the Fitty user profile through `user-service`, and returns Keycloak tokens for email/password registrations.
+
+Build and deploy the service after changing identity code:
+
+```powershell
+docker build -t fitty-cp-01:5000/fitty/identity-service:local .\services\identity-service
+docker push fitty-cp-01:5000/fitty/identity-service:local
+kubectl apply -f .\infra\k8s\local\configmaps\
+kubectl apply -f .\infra\k8s\local\secrets\
+kubectl apply -f .\infra\k8s\local\identity-service\
+kubectl rollout restart deployment -n fitty-app identity-service
+kubectl rollout restart deployment -n fitty-app api-gateway
+```
 
 Google and Facebook login are configured as disabled Keycloak identity-provider placeholders. Enable them in the Keycloak admin console later and set real provider credentials there or through a secret-managed import. Do not put production OAuth credentials in plain YAML.
 

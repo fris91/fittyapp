@@ -17,6 +17,7 @@ public class UserMapper {
     public UserEntity mapUserDTOtoUserEntity( UserRequest request) {
         return UserEntity
                 .builder()
+                .id(request.id())
                 .firstName(request.firstName())
                 .lastName(request.lastName())
                 .email(request.email())

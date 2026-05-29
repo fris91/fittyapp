@@ -7,6 +7,7 @@ data:
   JWT_ISSUER: fitty-local-k8s
   SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka.fitty-data.svc.cluster.local:9092
   AUTH_SERVICE_URL: http://auth-service.fitty-app.svc.cluster.local:8081
+  IDENTITY_SERVICE_URL: http://identity-service.fitty-app.svc.cluster.local:8087
   USER_SERVICE_URL: http://user-service.fitty-app.svc.cluster.local:8082
   HEALTH_DATA_SERVICE_URL: http://health-data-service.fitty-app.svc.cluster.local:8083
   RECOMMENDATION_SERVICE_URL: http://recommendation-service.fitty-app.svc.cluster.local:8084
@@ -17,3 +18,8 @@ data:
   VITE_KEYCLOAK_REALM: fitty
   VITE_KEYCLOAK_CLIENT_ID: fitty-web
   KEYCLOAK_ISSUER_URI: http://192.168.1.192:30081/realms/fitty
+  KEYCLOAK_BASE_URL: http://keycloak.fitty-system.svc.cluster.local:8080
+  KEYCLOAK_REALM: fitty
+  KEYCLOAK_ADMIN_REALM: master
+  KEYCLOAK_ADMIN_CLIENT_ID: admin-cli
+  KEYCLOAK_TOKEN_CLIENT_ID: fitty-mobile

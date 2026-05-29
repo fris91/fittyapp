@@ -68,7 +68,7 @@ data:
           "redirectUris": ["fitty://auth/*", "exp://*/--/*"],
           "webOrigins": ["*"],
           "standardFlowEnabled": true,
-          "directAccessGrantsEnabled": false,
+          "directAccessGrantsEnabled": true,
           "protocolMappers": [
             {
               "name": "subscriptionPlan",

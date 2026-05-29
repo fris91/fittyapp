@@ -18,6 +18,10 @@ spring:
             allowedHeaders: "*"
             allowCredentials: true
       routes:
+        - id: identity-service
+          uri: ${IDENTITY_SERVICE_URL:http://localhost:8087}
+          predicates:
+            - Path=/api/v1/identity/**
         - id: auth-service
           uri: ${AUTH_SERVICE_URL:http://localhost:8081}
           predicates:

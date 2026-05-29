@@ -1,0 +1,24 @@
+server:
+  port: ${SERVER_PORT:8087}
+
+spring:
+  application:
+    name: identity-service
+
+fitty:
+  keycloak:
+    base-url: ${KEYCLOAK_BASE_URL:http://localhost:30081}
+    realm: ${KEYCLOAK_REALM:fitty}
+    admin-realm: ${KEYCLOAK_ADMIN_REALM:master}
+    admin-client-id: ${KEYCLOAK_ADMIN_CLIENT_ID:admin-cli}
+    admin-username: ${KEYCLOAK_ADMIN_USERNAME:admin}
+    admin-password: ${KEYCLOAK_ADMIN_PASSWORD:admin123}
+    token-client-id: ${KEYCLOAK_TOKEN_CLIENT_ID:fitty-mobile}
+  user-service:
+    url: ${USER_SERVICE_URL:http://localhost:8082}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,prometheus
