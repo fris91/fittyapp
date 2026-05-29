@@ -41,6 +41,11 @@ spec:
               value: "false"
             - name: SPRING_CONFIG_IMPORT
               value: optional:configserver:http://config-server.fitty-system.svc.cluster.local:8888
+            - name: KEYCLOAK_ISSUER_URI
+              valueFrom:
+                configMapKeyRef:
+                  name: fitty-app-config
+                  key: KEYCLOAK_ISSUER_URI
           envFrom:
             - configMapRef:
                 name: fitty-app-config

@@ -51,6 +51,12 @@ public class UserService {
         if(StringUtils.isNotBlank(request.email())){
             user.setEmail(request.email());
         }
+        if(StringUtils.isNotBlank(request.role())){
+            user.setRole(request.role());
+        }
+        if(StringUtils.isNotBlank(request.subscriptionPlan())){
+            user.setSubscriptionPlan(request.subscriptionPlan());
+        }
         if (request.dietaryPreferencesDTO() != null) {
 
         }
@@ -74,6 +80,23 @@ public class UserService {
 
     public void deleteUserById(String userId) {
         repository.deleteById(userId);
+    }
+
+    public List<UserResponse> findAllAdminVisibleUsers() {
+        return findAllUsers();
+    }
+
+    public UserResponse findAdminVisibleUserById(String userId) {
+        return findUserById(userId);
+    }
+
+    public UserResponse updateAdminVisibleUser(String userId, UserRequest request) {
+        var user = repository.findById(userId)
+                .orElseThrow(() -> new UserNotFoundException(String.format("User with id '%s' not found", userId)));
+        mergeUser(user, request);
+        repository.save(user);
+        publish("user-profile-updated", user);
+        return mapper.UserEntityToUserResponse(user);
     }
 
     private void publish(String topic, UserEntity user) {

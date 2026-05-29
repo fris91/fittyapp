@@ -1,15 +1,25 @@
 # API Summary
 
-All client calls go through `http://localhost:8080`.
+All client calls go through the API Gateway. In local Kubernetes the gateway is exposed at `http://fitty-cp-01:30080`.
+
+Client requests must include a Keycloak access token:
+
+```http
+Authorization: Bearer <keycloak-access-token>
+```
+
+The gateway validates the token and forwards `X-User-Id`, `X-User-Email`, and `X-User-Roles` to backend services.
 
 ## Auth
 
-- `POST /api/v1/auth/register`
-- `POST /api/v1/auth/login`
-- `POST /api/v1/auth/refresh`
-- `POST /api/v1/auth/logout`
-- `GET /api/v1/auth/oauth2/google`
-- `GET /api/v1/auth/oauth2/facebook`
+New login and registration flows use Keycloak OIDC, not direct Fitty service credentials.
+
+- Keycloak realm: `fitty`
+- Local Keycloak URL: `http://fitty-cp-01:30081`
+- Web client: `fitty-web`
+- Flow: Authorization Code + PKCE
+
+The legacy `auth-service` endpoints remain during migration but should not be used for new frontend/mobile flows.
 
 ## Users
 
@@ -18,12 +28,26 @@ All client calls go through `http://localhost:8080`.
 - `GET /api/v1/user-service`
 - `GET /api/v1/user-service/findUserById/{user-id}`
 
+## Admin Users
+
+Requires `FITTY_ADMIN`.
+
+- `GET /api/v1/admin/users`
+- `GET /api/v1/admin/users/{id}`
+- `PATCH /api/v1/admin/users/{id}`
+- `GET /api/v1/admin/users/{id}/plans`
+- `PATCH /api/v1/admin/users/{id}/subscription`
+
+Admin endpoints expose profile, subscription and plan-level data only. They must not expose sensitive health measurements.
+
 ## Health Data
 
 - `POST /api/v1/health-data`
 - `GET /api/v1/health-data/latest`
 - `GET /api/v1/health-data/history`
 - `GET /api/v1/health-data/providers`
+
+Health data is scoped to the authenticated `X-User-Id`. Admin-only requests are forbidden by `health-data-service`.
 
 ## Recommendations
 

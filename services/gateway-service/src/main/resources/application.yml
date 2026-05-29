@@ -11,6 +11,9 @@ spring:
             allowedOrigins:
               - "http://localhost:3000"
               - "http://127.0.0.1:3000"
+              - "http://192.168.1.192:30000"
+              - "http://fitty-cp-01:30000"
+              - "http://fitty.local:30000"
             allowedMethods: "*"
             allowedHeaders: "*"
             allowCredentials: true
@@ -23,6 +26,10 @@ spring:
           uri: ${USER_SERVICE_URL:http://localhost:8082}
           predicates:
             - Path=/api/v1/user-service/**
+        - id: user-admin-service
+          uri: ${USER_SERVICE_URL:http://localhost:8082}
+          predicates:
+            - Path=/api/v1/admin/users/**
         - id: health-data-service
           uri: ${HEALTH_DATA_SERVICE_URL:http://localhost:8083}
           predicates:
@@ -39,6 +46,11 @@ spring:
           uri: ${NOTIFICATION_SERVICE_URL:http://localhost:8086}
           predicates:
             - Path=/api/v1/notifications/**
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: ${KEYCLOAK_ISSUER_URI:http://localhost:30081/realms/fitty}
 
 server:
   port: ${SERVER_PORT:8080}

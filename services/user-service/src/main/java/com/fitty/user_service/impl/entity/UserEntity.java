@@ -19,6 +19,7 @@ public class UserEntity {
     private String lastName;
     private String email;
     private String role; // e.g., "STANDARD", "PRO"
+    private String subscriptionPlan;
     private PersonalDataEntity personalData;
     private DietaryPreferencesEntity dietaryPreferences;
 }

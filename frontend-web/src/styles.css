@@ -6,6 +6,41 @@
   text-rendering: optimizeLegibility;
 }
 
+body[data-theme="dark"] {
+  color: #eef6f5;
+  background: #101820;
+}
+
+body[data-theme="dark"] .main,
+body[data-theme="dark"] .public-shell {
+  background: #101820;
+}
+
+body[data-theme="dark"] .sidebar,
+body[data-theme="dark"] .panel,
+body[data-theme="dark"] .metric,
+body[data-theme="dark"] .icon-button,
+body[data-theme="dark"] .bottom-nav {
+  background: #17242d;
+  border-color: #2a3a45;
+  color: #eef6f5;
+}
+
+body[data-theme="dark"] input,
+body[data-theme="dark"] select,
+body[data-theme="dark"] textarea {
+  background: #101820;
+  border-color: #2a3a45;
+  color: #eef6f5;
+}
+
+body[data-theme="dark"] .caption,
+body[data-theme="dark"] .pill,
+body[data-theme="dark"] .metric span,
+body[data-theme="dark"] p {
+  color: #a9bbc5;
+}
+
 * {
   box-sizing: border-box;
 }
@@ -15,6 +50,18 @@ body {
   min-width: 320px;
   min-height: 100vh;
   background: #fffaf5;
+}
+
+.public-shell {
+  min-height: 100vh;
+  padding: 28px;
+}
+
+.public-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 24px;
 }
 
 button,
@@ -264,6 +311,35 @@ p {
 
 .ghost {
   padding: 10px;
+}
+
+.link-button {
+  text-decoration: none;
+}
+
+.empty-card {
+  min-height: 180px;
+}
+
+.empty-state {
+  margin-top: 16px;
+  padding: 16px;
+  border-radius: 14px;
+  background: #fffaf5;
+  color: #697887;
+}
+
+.table {
+  display: grid;
+  grid-template-columns: 1.4fr 1.8fr 1fr 1fr;
+  gap: 10px;
+  margin-top: 18px;
+  align-items: center;
+}
+
+.table > * {
+  padding: 10px;
+  border-bottom: 1px solid #efe6dc;
 }
 
 .icon-button {

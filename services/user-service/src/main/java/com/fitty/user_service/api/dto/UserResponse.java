@@ -12,6 +12,7 @@ public record UserResponse(
         String lastName,
         String email,
         String role, // e.g., "STANDARD", "PRO"
+        String subscriptionPlan,
         PersonalDataDTO personalData,
         DietaryPreferencesDTO dietaryPreferencesDTO
 ) {

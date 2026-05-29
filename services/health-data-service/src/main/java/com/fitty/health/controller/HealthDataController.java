@@ -11,6 +11,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.server.ResponseStatusException;
+import org.springframework.http.HttpStatus;
 
 import java.util.List;
 
@@ -24,22 +26,37 @@ public class HealthDataController {
     }
 
     @PostMapping
-    HealthSnapshotResponse create(@RequestHeader(value = "X-User-Id", defaultValue = "local-user") String userId, @Valid @RequestBody HealthSnapshotRequest request) {
+    HealthSnapshotResponse create(@RequestHeader(value = "X-User-Id", defaultValue = "local-user") String userId,
+                                  @RequestHeader(value = "X-User-Roles", defaultValue = "") String roles,
+                                  @Valid @RequestBody HealthSnapshotRequest request) {
+        rejectAdminOnlyAccess(roles);
         return service.create(userId, request);
     }
 
     @GetMapping("/latest")
-    HealthSnapshotResponse latest(@RequestHeader(value = "X-User-Id", defaultValue = "local-user") String userId) {
+    HealthSnapshotResponse latest(@RequestHeader(value = "X-User-Id", defaultValue = "local-user") String userId,
+                                  @RequestHeader(value = "X-User-Roles", defaultValue = "") String roles) {
+        rejectAdminOnlyAccess(roles);
         return service.latest(userId);
     }
 
     @GetMapping("/history")
-    List<HealthSnapshotResponse> history(@RequestHeader(value = "X-User-Id", defaultValue = "local-user") String userId) {
+    List<HealthSnapshotResponse> history(@RequestHeader(value = "X-User-Id", defaultValue = "local-user") String userId,
+                                         @RequestHeader(value = "X-User-Roles", defaultValue = "") String roles) {
+        rejectAdminOnlyAccess(roles);
         return service.history(userId);
     }
 
     @GetMapping("/providers")
     List<ProviderPlaceholder> providers() {
         return service.providers();
+    }
+
+    private void rejectAdminOnlyAccess(String roles) {
+        boolean isAdmin = List.of(roles.split(",")).contains("FITTY_ADMIN");
+        boolean isUser = List.of(roles.split(",")).contains("FITTY_USER");
+        if (isAdmin && !isUser) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Admins cannot access sensitive health measurements");
+        }
     }
 }

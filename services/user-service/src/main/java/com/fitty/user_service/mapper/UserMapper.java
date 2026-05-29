@@ -21,8 +21,9 @@ public class UserMapper {
                 .lastName(request.lastName())
                 .email(request.email())
                 .role(request.role())
-                .personalData(mapPersonalDataDTOtoPersonalDataEntity(request.personalData()))
-                .dietaryPreferences(mapPersonalDataDTOtoPersonalDataEntity(request.dietaryPreferencesDTO()))
+                .subscriptionPlan(request.subscriptionPlan() == null ? "FREE" : request.subscriptionPlan())
+                .personalData(request.personalData() == null ? null : mapPersonalDataDTOtoPersonalDataEntity(request.personalData()))
+                .dietaryPreferences(request.dietaryPreferencesDTO() == null ? null : mapPersonalDataDTOtoPersonalDataEntity(request.dietaryPreferencesDTO()))
                 .build();
     }
     private PersonalDataEntity mapPersonalDataDTOtoPersonalDataEntity(PersonalDataDTO personalDataDTO ) {
@@ -51,6 +52,7 @@ public class UserMapper {
                 .lastName(userEntity.getLastName())
                 .email(userEntity.getEmail())
                 .role(userEntity.getRole())
+                .subscriptionPlan(userEntity.getSubscriptionPlan() == null ? "FREE" : userEntity.getSubscriptionPlan())
                 .dietaryPreferencesDTO(null)
                 .personalData(null)
                 .build();

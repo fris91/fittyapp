@@ -1,0 +1,191 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: fitty-realm-import
+  namespace: fitty-system
+data:
+  fitty-realm.json: |
+    {
+      "realm": "fitty",
+      "enabled": true,
+      "displayName": "Fitty Local",
+      "registrationAllowed": true,
+      "loginWithEmailAllowed": true,
+      "duplicateEmailsAllowed": false,
+      "resetPasswordAllowed": true,
+      "roles": {
+        "realm": [
+          { "name": "FITTY_USER", "description": "Standard Fitty user" },
+          { "name": "FITTY_ADMIN", "description": "Fitty platform administrator" },
+          { "name": "FITTY_COACH", "description": "Optional coach role" },
+          { "name": "FITTY_SUPPORT", "description": "Optional support role" }
+        ]
+      },
+      "clients": [
+        {
+          "clientId": "fitty-web",
+          "name": "Fitty Web",
+          "enabled": true,
+          "publicClient": true,
+          "protocol": "openid-connect",
+          "redirectUris": [
+            "http://localhost:3000/*",
+            "http://127.0.0.1:3000/*",
+            "http://192.168.1.192:30000/*",
+            "http://fitty-cp-01:30000/*",
+            "http://fitty.local:30000/*"
+          ],
+          "webOrigins": ["*"],
+          "standardFlowEnabled": true,
+          "directAccessGrantsEnabled": false,
+          "protocolMappers": [
+            {
+              "name": "subscriptionPlan",
+              "protocol": "openid-connect",
+              "protocolMapper": "oidc-usermodel-attribute-mapper",
+              "consentRequired": false,
+              "config": {
+                "user.attribute": "subscriptionPlan",
+                "claim.name": "subscriptionPlan",
+                "jsonType.label": "String",
+                "id.token.claim": "true",
+                "access.token.claim": "true",
+                "userinfo.token.claim": "true",
+                "multivalued": "false"
+              }
+            }
+          ],
+          "attributes": {
+            "pkce.code.challenge.method": "S256"
+          }
+        },
+        {
+          "clientId": "fitty-mobile",
+          "name": "Fitty Mobile",
+          "enabled": true,
+          "publicClient": true,
+          "protocol": "openid-connect",
+          "redirectUris": ["fitty://auth/*", "exp://*/--/*"],
+          "webOrigins": ["*"],
+          "standardFlowEnabled": true,
+          "directAccessGrantsEnabled": false,
+          "protocolMappers": [
+            {
+              "name": "subscriptionPlan",
+              "protocol": "openid-connect",
+              "protocolMapper": "oidc-usermodel-attribute-mapper",
+              "consentRequired": false,
+              "config": {
+                "user.attribute": "subscriptionPlan",
+                "claim.name": "subscriptionPlan",
+                "jsonType.label": "String",
+                "id.token.claim": "true",
+                "access.token.claim": "true",
+                "userinfo.token.claim": "true",
+                "multivalued": "false"
+              }
+            }
+          ],
+          "attributes": {
+            "pkce.code.challenge.method": "S256"
+          }
+        },
+        {
+          "clientId": "fitty-admin",
+          "name": "Fitty Admin",
+          "enabled": true,
+          "publicClient": true,
+          "protocol": "openid-connect",
+          "redirectUris": [
+            "http://localhost:3000/*",
+            "http://192.168.1.192:30000/*",
+            "http://fitty-cp-01:30000/*"
+          ],
+          "webOrigins": ["*"],
+          "standardFlowEnabled": true,
+          "protocolMappers": [
+            {
+              "name": "subscriptionPlan",
+              "protocol": "openid-connect",
+              "protocolMapper": "oidc-usermodel-attribute-mapper",
+              "consentRequired": false,
+              "config": {
+                "user.attribute": "subscriptionPlan",
+                "claim.name": "subscriptionPlan",
+                "jsonType.label": "String",
+                "id.token.claim": "true",
+                "access.token.claim": "true",
+                "userinfo.token.claim": "true",
+                "multivalued": "false"
+              }
+            }
+          ],
+          "attributes": {
+            "pkce.code.challenge.method": "S256"
+          }
+        },
+        {
+          "clientId": "fitty-api",
+          "name": "Fitty API",
+          "enabled": true,
+          "bearerOnly": true,
+          "protocol": "openid-connect"
+        }
+      ],
+      "identityProviders": [
+        {
+          "alias": "google",
+          "providerId": "google",
+          "enabled": false,
+          "config": {
+            "clientId": "${GOOGLE_CLIENT_ID}",
+            "clientSecret": "${GOOGLE_CLIENT_SECRET}",
+            "syncMode": "IMPORT"
+          }
+        },
+        {
+          "alias": "facebook",
+          "providerId": "facebook",
+          "enabled": false,
+          "config": {
+            "clientId": "${FACEBOOK_CLIENT_ID}",
+            "clientSecret": "${FACEBOOK_CLIENT_SECRET}",
+            "syncMode": "IMPORT"
+          }
+        }
+      ],
+      "users": [
+        {
+          "username": "fitty.user",
+          "email": "user@fitty.local",
+          "firstName": "Fitty",
+          "lastName": "User",
+          "enabled": true,
+          "emailVerified": true,
+          "attributes": {
+            "subscriptionPlan": ["FREE"],
+            "locale": ["it-IT"]
+          },
+          "credentials": [
+            { "type": "password", "value": "user123", "temporary": false }
+          ],
+          "realmRoles": ["FITTY_USER"]
+        },
+        {
+          "username": "fitty.admin",
+          "email": "admin@fitty.local",
+          "firstName": "Fitty",
+          "lastName": "Admin",
+          "enabled": true,
+          "emailVerified": true,
+          "attributes": {
+            "subscriptionPlan": ["GOLD"],
+            "locale": ["it-IT"]
+          },
+          "credentials": [
+            { "type": "password", "value": "admin123", "temporary": false }
+          ],
+          "realmRoles": ["FITTY_ADMIN"]
+        }
+      ]
+    }

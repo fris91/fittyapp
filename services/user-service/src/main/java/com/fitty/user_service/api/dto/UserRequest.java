@@ -14,6 +14,7 @@ public record UserRequest(
         @Email(message = "User email is not a valid email address")
         String email,
         String role, // e.g., "STANDARD", "PRO"
+        String subscriptionPlan,
         PersonalDataDTO personalData,
         DietaryPreferencesDTO dietaryPreferencesDTO
 ) {

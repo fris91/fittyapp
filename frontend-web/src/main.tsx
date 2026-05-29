@@ -1,236 +1,420 @@
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { createRoot } from "react-dom/client";
 import {
   Activity,
-  Bell,
-  Check,
-  ChevronRight,
-  Dumbbell,
-  HeartPulse,
-  Home,
-  LogIn,
+  LogOut,
   Moon,
+  Ruler,
   Settings,
   ShieldCheck,
   Sparkles,
-  Utensils
+  Sun,
+  Target,
+  Utensils,
+  Users
 } from "lucide-react";
-import { meals, metrics, notifications, recommendations } from "./mockData";
 import "./styles.css";
 
-type Page =
-  | "landing"
-  | "login"
-  | "register"
-  | "forgot"
-  | "onboarding"
-  | "dashboard"
-  | "health"
-  | "history"
-  | "recommendations"
-  | "nutrition"
-  | "notifications"
-  | "profile"
-  | "ui-kit"
-  | "error";
+type Role = "FITTY_USER" | "FITTY_ADMIN";
+type Page = "dashboard" | "body" | "measurements" | "recommendations" | "nutrition" | "workout" | "profile" | "admin-users";
 
-const navItems: { page: Page; label: string; icon: React.ReactNode }[] = [
-  { page: "dashboard", label: "Home", icon: <Home size={19} /> },
-  { page: "health", label: "Health", icon: <HeartPulse size={19} /> },
-  { page: "recommendations", label: "AI", icon: <Sparkles size={19} /> },
-  { page: "nutrition", label: "Meals", icon: <Utensils size={19} /> },
-  { page: "profile", label: "Profile", icon: <Settings size={19} /> }
+type Session = {
+  accessToken: string;
+  refreshToken?: string;
+  idToken?: string;
+  expiresAt: number;
+  user: {
+    id: string;
+    email: string;
+    name: string;
+    roles: Role[];
+    subscriptionPlan: string;
+  };
+};
+
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? "http://localhost:8080";
+const KEYCLOAK_URL = import.meta.env.VITE_KEYCLOAK_URL ?? "http://localhost:30081";
+const KEYCLOAK_REALM = import.meta.env.VITE_KEYCLOAK_REALM ?? "fitty";
+const KEYCLOAK_CLIENT_ID = import.meta.env.VITE_KEYCLOAK_CLIENT_ID ?? "fitty-web";
+const REDIRECT_URI = window.location.origin + window.location.pathname;
+const TOKEN_KEY = "fitty.session";
+const VERIFIER_KEY = "fitty.pkce.verifier";
+
+const userNav: { page: Page; label: string; icon: React.ReactNode }[] = [
+  { page: "dashboard", label: "Dashboard", icon: <Activity size={19} /> },
+  { page: "body", label: "Body", icon: <Ruler size={19} /> },
+  { page: "measurements", label: "Measurements", icon: <Target size={19} /> },
+  { page: "recommendations", label: "Recommendations", icon: <Sparkles size={19} /> },
+  { page: "nutrition", label: "Nutrition", icon: <Utensils size={19} /> },
+  { page: "workout", label: "Workout", icon: <Activity size={19} /> },
+  { page: "profile", label: "Settings", icon: <Settings size={19} /> }
 ];
 
 function App() {
-  const [page, setPage] = useState<Page>("landing");
-  const activeTitle = useMemo(() => page.replace("-", " "), [page]);
+  const [session, setSession] = useState<Session | null>(() => loadSession());
+  const [page, setPage] = useState<Page>("dashboard");
+  const [theme, setTheme] = useState<"light" | "dark">("light");
+  const isAdmin = session?.user.roles.includes("FITTY_ADMIN") ?? false;
+
+  useEffect(() => {
+    document.body.dataset.theme = theme;
+  }, [theme]);
+
+  useEffect(() => {
+    completeLogin().then((nextSession) => {
+      if (nextSession) {
+        setSession(nextSession);
+        window.history.replaceState({}, document.title, REDIRECT_URI);
+      }
+    });
+  }, []);
+
+  if (!session) {
+    return <AnonymousHome onLogin={() => startLogin()} theme={theme} onTheme={() => setTheme(theme === "light" ? "dark" : "light")} />;
+  }
+
+  const nav = isAdmin ? [{ page: "admin-users" as Page, label: "Users", icon: <Users size={19} /> }, ...userNav] : userNav;
+  const activeTitle = nav.find((item) => item.page === page)?.label ?? "Dashboard";
 
   return (
     <div className="app">
       <aside className="sidebar">
-        <button className="brand" onClick={() => setPage("dashboard")}>
+        <button className="brand" onClick={() => setPage(isAdmin ? "admin-users" : "dashboard")}>
           <span className="brand-mark">F</span>
           <span>Fitty</span>
         </button>
         <nav>
-          {navItems.map((item) => (
+          {nav.map((item) => (
             <button key={item.page} className={page === item.page ? "nav active" : "nav"} onClick={() => setPage(item.page)}>
               {item.icon}
               <span>{item.label}</span>
             </button>
           ))}
-          <button className="nav" onClick={() => setPage("notifications")}>
-            <Bell size={19} />
-            <span>Notifications</span>
-          </button>
-          <button className="nav" onClick={() => setPage("ui-kit")}>
-            <ShieldCheck size={19} />
-            <span>UI Kit</span>
-          </button>
         </nav>
       </aside>
 
       <main className="main">
         <header className="topbar">
           <div>
-            <span className="caption">Fitty local</span>
-            <h1>{page === "landing" ? "Fitty" : titleCase(activeTitle)}</h1>
+            <span className="caption">{isAdmin ? "Admin workspace" : "Personal workspace"}</span>
+            <h1>{activeTitle}</h1>
           </div>
           <div className="top-actions">
-            <button className="icon-button" aria-label="Notifications" onClick={() => setPage("notifications")}>
-              <Bell size={20} />
+            <button className="icon-button" aria-label="Toggle theme" onClick={() => setTheme(theme === "light" ? "dark" : "light")}>
+              {theme === "light" ? <Moon size={20} /> : <Sun size={20} />}
             </button>
-            <button className="avatar" onClick={() => setPage("profile")}>LF</button>
+            <span className="pill">{session.user.subscriptionPlan}</span>
+            <button className="avatar" title={session.user.email}>{initials(session.user.name)}</button>
+            <button className="icon-button" aria-label="Logout" onClick={() => logout(session)}>
+              <LogOut size={20} />
+            </button>
           </div>
         </header>
 
-        {page === "landing" && <Landing onNavigate={setPage} />}
-        {page === "login" && <Auth mode="login" onNavigate={setPage} />}
-        {page === "register" && <Auth mode="register" onNavigate={setPage} />}
-        {page === "forgot" && <Forgot onNavigate={setPage} />}
-        {page === "onboarding" && <Onboarding onNavigate={setPage} />}
-        {page === "dashboard" && <Dashboard onNavigate={setPage} />}
-        {page === "health" && <HealthEntry />}
-        {page === "history" && <HealthHistory />}
+        {page === "admin-users" && <AdminUsers token={session.accessToken} />}
+        {page === "dashboard" && <UserDashboard />}
+        {page === "body" && <BodyComposition />}
+        {page === "measurements" && <HealthMeasurements />}
         {page === "recommendations" && <Recommendations />}
         {page === "nutrition" && <Nutrition />}
-        {page === "notifications" && <Notifications />}
-        {page === "profile" && <Profile />}
-        {page === "ui-kit" && <UiKit />}
-        {page === "error" && <SystemStates onNavigate={setPage} />}
+        {page === "workout" && <Workout />}
+        {page === "profile" && <Profile session={session} />}
       </main>
-
-      <nav className="bottom-nav">
-        {navItems.map((item) => (
-          <button key={item.page} className={page === item.page ? "bottom active" : "bottom"} onClick={() => setPage(item.page)}>
-            {item.icon}
-            <span>{item.label}</span>
-          </button>
-        ))}
-      </nav>
     </div>
   );
 }
 
-function Landing({ onNavigate }: { onNavigate: (page: Page) => void }) {
+function AnonymousHome({ onLogin, theme, onTheme }: { onLogin: () => void; theme: string; onTheme: () => void }) {
   return (
-    <section className="hero">
-      <div className="hero-copy">
-        <span className="pill">Wellness, nutrition, movement</span>
-        <h2>Fitty</h2>
-        <p>One calm place for health signals, meal planning, gentle activity, and AI-powered wellness feedback.</p>
-        <div className="actions">
-          <button className="primary" onClick={() => onNavigate("register")}>Get started <ChevronRight size={18} /></button>
-          <button className="secondary" onClick={() => onNavigate("login")}>Log in</button>
-        </div>
-      </div>
-      <div className="phone-preview">
-        <MetricCard label="Wellness score" value="82" tone="primary" />
-        <RecommendationCard {...recommendations[0]} />
-      </div>
-    </section>
-  );
-}
-
-function Auth({ mode, onNavigate }: { mode: "login" | "register"; onNavigate: (page: Page) => void }) {
-  return (
-    <section className="auth-grid">
-      <div className="panel">
-        <h2>{mode === "login" ? "Welcome back" : "Create your Fitty account"}</h2>
-        <label>Email<input placeholder="lucas@example.com" /></label>
-        <label>Password<input placeholder="••••••••" type="password" /></label>
-        {mode === "register" && <label>Display name<input placeholder="Lucas" /></label>}
-        <button className="primary" onClick={() => onNavigate("dashboard")}><LogIn size={18} /> {mode === "login" ? "Log in" : "Register"}</button>
-        <div className="oauth-row">
-          <button className="secondary">Google</button>
-          <button className="secondary">Facebook</button>
-        </div>
-        <button className="ghost" onClick={() => onNavigate(mode === "login" ? "register" : "login")}>
-          {mode === "login" ? "Create account" : "Already have an account"}
-        </button>
-        <button className="ghost" onClick={() => onNavigate("forgot")}>Forgot password</button>
-      </div>
-    </section>
-  );
-}
-
-function Forgot({ onNavigate }: { onNavigate: (page: Page) => void }) {
-  return <section className="panel narrow"><h2>Reset password</h2><label>Email<input placeholder="lucas@example.com" /></label><button className="primary" onClick={() => onNavigate("login")}>Send reset link</button></section>;
-}
-
-function Onboarding({ onNavigate }: { onNavigate: (page: Page) => void }) {
-  const steps = ["Personal info", "Health goals", "Fitness", "Nutrition", "Wearables", "Privacy"];
-  return <section className="panel"><h2>Onboarding</h2><div className="stepper">{steps.map((s, i) => <span key={s} className={i < 2 ? "done" : ""}>{i + 1}. {s}</span>)}</div><button className="primary" onClick={() => onNavigate("dashboard")}>Finish setup</button></section>;
-}
-
-function Dashboard({ onNavigate }: { onNavigate: (page: Page) => void }) {
-  return (
-    <div className="stack">
-      <section className="metrics">{metrics.map((metric) => <MetricCard key={metric.label} {...metric} />)}</section>
-      <section className="content-grid">
-        <div className="panel">
-          <h2>Today</h2>
-          <div className="summary-row"><Moon /> Sleep steady at 7.4h</div>
-          <div className="summary-row"><Activity /> 8,420 steps logged</div>
-          <div className="summary-row"><Dumbbell /> Light mobility recommended</div>
-          <button className="secondary" onClick={() => onNavigate("health")}>Add health data</button>
+    <main className="public-shell">
+      <header className="public-header">
+        <button className="brand"><span className="brand-mark">F</span><span>Fitty</span></button>
+        <button className="icon-button" aria-label="Toggle theme" onClick={onTheme}>{theme === "light" ? <Moon /> : <Sun />}</button>
+      </header>
+      <section className="hero">
+        <div className="hero-copy">
+          <span className="pill">Keycloak protected local platform</span>
+          <h2>Fitty</h2>
+          <p>Personal wellness, nutrition, body composition, training and recommendations. Sign in before viewing any personal data.</p>
+          <div className="actions">
+            <button className="primary" onClick={onLogin}><ShieldCheck size={18} /> Sign in with Keycloak</button>
+            <a className="secondary link-button" href={`${KEYCLOAK_URL}/realms/${KEYCLOAK_REALM}/account/`}>Account console</a>
+          </div>
+          <div className="actions">
+            <button className="ghost" onClick={() => startLogin("google")}>Google via Keycloak</button>
+            <button className="ghost" onClick={() => startLogin("facebook")}>Facebook via Keycloak</button>
+          </div>
         </div>
         <div className="panel">
-          <h2>Latest recommendation</h2>
-          <RecommendationCard {...recommendations[0]} />
+          <h2>No demo data before login</h2>
+          <p>Dashboards stay empty until Keycloak authenticates the user and APIs return user-scoped data.</p>
+          <div className="empty-state">Use `fitty.user / user123` or `fitty.admin / admin123` in the local realm.</div>
         </div>
       </section>
-    </div>
+    </main>
   );
 }
 
-function HealthEntry() {
-  return <section className="panel form-grid"><label>Weight<input placeholder="74.2" /></label><label>Height<input placeholder="178" /></label><label>Blood pressure<input placeholder="120/80" /></label><label>Heart rate<input placeholder="72" /></label><label>Sleep hours<input placeholder="7.5" /></label><label>Steps<input placeholder="8400" /></label><label className="wide">Notes<textarea placeholder="Energy, symptoms, context" /></label><button className="primary">Save snapshot</button></section>;
+function UserDashboard() {
+  return (
+    <section className="stack">
+      <div className="content-grid">
+        <EmptyPanel title="Health overview" text="No measurements have been logged yet." action="Add body or health measurements" />
+        <EmptyPanel title="Goals" text="No active goals are configured yet." action="Configure goals" />
+        <EmptyPanel title="Recommendations" text="No recommendation has been generated from your real data yet." action="Generate after first data entry" />
+        <EmptyPanel title="Dashboard widgets" text="Widget personalization will be enabled after the first profile setup." action="Customize later" />
+      </div>
+    </section>
+  );
 }
 
-function HealthHistory() {
-  return <section className="panel"><h2>Health history</h2><div className="tabs"><button className="active">Weight</button><button>Steps</button><button>Sleep</button><button>Heart</button></div><div className="chart">Trend chart placeholder</div><Timeline /></section>;
+function BodyComposition() {
+  return (
+    <section className="panel form-grid">
+      <label>Weight kg<input placeholder="Manual entry" /></label>
+      <label>Height cm<input placeholder="Manual entry" /></label>
+      <label>Body fat %<input placeholder="Optional" /></label>
+      <label>Waist cm<input placeholder="Optional" /></label>
+      <label>Hips cm<input placeholder="Optional" /></label>
+      <label>Chest cm<input placeholder="Optional" /></label>
+      <label>Arms cm<input placeholder="Optional" /></label>
+      <label>Thighs cm<input placeholder="Optional" /></label>
+      <button className="primary">Save composition snapshot</button>
+    </section>
+  );
+}
+
+function HealthMeasurements() {
+  return (
+    <section className="panel form-grid">
+      <label>Blood pressure<input placeholder="120/80" /></label>
+      <label>Resting heart rate<input placeholder="Manual entry" /></label>
+      <label>Sleep hours<input placeholder="Manual entry" /></label>
+      <label>Steps<input placeholder="Manual entry or wearable sync" /></label>
+      <label>Hydration liters<input placeholder="Optional" /></label>
+      <label className="wide">Notes<textarea placeholder="Symptoms, context, training day, stress level" /></label>
+      <button className="primary">Save health measurement</button>
+    </section>
+  );
 }
 
 function Recommendations() {
-  return <section className="stack">{recommendations.map((item) => <RecommendationCard key={item.title} {...item} />)}<div className="alert">Fitty does not provide medical diagnosis. Consult a specialist when risk indicators are present.</div></section>;
+  return <EmptyPanel title="No recommendations yet" text="Fitty will generate deterministic recommendations after body, meal, activity, sleep and goal data are available." action="Add first measurement" />;
 }
 
 function Nutrition() {
-  return <section className="stack"><div className="metrics"><MetricCard label="Protein" value="92g" tone="secondary" /><MetricCard label="Carbs" value="210g" tone="accent" /><MetricCard label="Fats" value="64g" tone="warning" /></div>{meals.map((meal) => <div className="panel row" key={meal.name}><Utensils /><div><h3>{meal.name}</h3><p>{meal.macros}</p></div></div>)}</section>;
+  return (
+    <section className="stack">
+      <EmptyPanel title="No meals logged" text="Manual meal logging and AI plate-estimation placeholders will live here." action="Log meal manually" />
+      <EmptyPanel title="No nutrition plan" text="Plans will be generated from goals, body composition, preferences and subscription." action="Generate nutrition plan" />
+    </section>
+  );
 }
 
-function Notifications() {
-  return <section className="stack">{notifications.map((item) => <div className={item.unread ? "panel notification unread" : "panel notification"} key={item.title}><Bell /><div><h3>{item.title}</h3><p>{item.message}</p></div></div>)}</section>;
+function Workout() {
+  return <EmptyPanel title="No workout plan" text="Workout plan generation will use goals, fitness level, equipment and progression notes." action="Generate starter plan" />;
 }
 
-function Profile() {
-  return <section className="panel form-grid"><label>Name<input placeholder="Lucas" /></label><label>Goal<select><option>Improve energy</option><option>Better sleep</option></select></label><label>Connected providers<input placeholder="Google Fit placeholder" /></label><label className="wide check"><input type="checkbox" defaultChecked /> I consent to local health data processing</label><button className="primary">Save settings</button></section>;
+function Profile({ session }: { session: Session }) {
+  return (
+    <section className="panel form-grid">
+      <label>Name<input value={session.user.name} readOnly /></label>
+      <label>Email<input value={session.user.email} readOnly /></label>
+      <label>Roles<input value={session.user.roles.join(", ")} readOnly /></label>
+      <label>Subscription<input value={session.user.subscriptionPlan} readOnly /></label>
+      <label className="wide check"><input type="checkbox" /> I consent to local health data processing</label>
+    </section>
+  );
 }
 
-function UiKit() {
-  return <section className="stack"><div className="panel"><h2>Buttons</h2><div className="actions"><button className="primary">Primary</button><button className="secondary">Secondary</button><button className="ghost">Ghost</button><button className="icon-button" aria-label="Confirm"><Check /></button></div></div><div className="metrics">{metrics.map((metric) => <MetricCard key={metric.label} {...metric} />)}</div><RecommendationCard {...recommendations[1]} /><div className="panel"><h2>Controls</h2><div className="form-grid"><label>Input<input placeholder="Readable text" /></label><label>Select<select><option>Option</option></select></label><label className="check"><input type="checkbox" /> Checkbox</label><label className="check"><input type="radio" defaultChecked /> Radio</label><label>Slider<input type="range" /></label></div></div><div className="skeleton" /></section>;
+function AdminUsers({ token }: { token: string }) {
+  const [users, setUsers] = useState<AdminUser[]>([]);
+  const [error, setError] = useState("");
+  const [savingUserId, setSavingUserId] = useState("");
+
+  useEffect(() => {
+    fetch(`${API_BASE_URL}/api/v1/admin/users`, { headers: { Authorization: `Bearer ${token}` } })
+      .then((response) => {
+        if (!response.ok) throw new Error(`Admin API returned ${response.status}`);
+        return response.json();
+      })
+      .then(setUsers)
+      .catch((err) => setError(err.message));
+  }, [token]);
+
+  async function updateSubscription(userId: string, subscriptionPlan: string) {
+    setSavingUserId(userId);
+    setError("");
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/v1/admin/users/${userId}/subscription`, {
+        method: "PATCH",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ subscriptionPlan })
+      });
+      if (!response.ok) throw new Error(`Subscription update returned ${response.status}`);
+      const updated = await response.json() as AdminUser;
+      setUsers((current) => current.map((user) => user.id === updated.id ? updated : user));
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Could not update subscription");
+    } finally {
+      setSavingUserId("");
+    }
+  }
+
+  if (error) {
+    return <EmptyPanel title="Admin API unavailable" text={error} action="Check user-service logs" />;
+  }
+
+  return (
+    <section className="panel">
+      <h2>Registered users</h2>
+      <p>Admins can inspect anagraphic fields and subscription plans. Sensitive health metrics are intentionally not exposed here.</p>
+      {users.length === 0 ? (
+        <div className="empty-state">No application profiles have been created yet.</div>
+      ) : (
+        <div className="table">
+          <b>Name</b><b>Email</b><b>Type</b><b>Subscription</b>
+          {users.map((user) => (
+            <React.Fragment key={user.id}>
+              <span>{user.firstName} {user.lastName}</span>
+              <span>{user.email}</span>
+              <span>{user.role}</span>
+              <select
+                value={user.subscriptionPlan ?? "FREE"}
+                disabled={savingUserId === user.id}
+                onChange={(event) => updateSubscription(user.id, event.target.value)}
+              >
+                {["FREE", "BRONZE", "SILVER", "GOLD"].map((plan) => <option key={plan}>{plan}</option>)}
+              </select>
+            </React.Fragment>
+          ))}
+        </div>
+      )}
+    </section>
+  );
 }
 
-function SystemStates({ onNavigate }: { onNavigate: (page: Page) => void }) {
-  return <section className="empty"><h2>Page not found</h2><p>The requested area is not available in this local starter.</p><button className="primary" onClick={() => onNavigate("dashboard")}>Back home</button></section>;
+function EmptyPanel({ title, text, action }: { title: string; text: string; action: string }) {
+  return (
+    <article className="panel empty-card">
+      <h2>{title}</h2>
+      <p>{text}</p>
+      <span className="pill">{action}</span>
+    </article>
+  );
 }
 
-function MetricCard({ label, value, tone }: { label: string; value: string; tone: string }) {
-  return <article className={`metric ${tone}`}><span>{label}</span><strong>{value}</strong><div className="progress"><i /></div></article>;
+async function startLogin(identityProvider?: string) {
+  const verifier = randomString(64);
+  sessionStorage.setItem(VERIFIER_KEY, verifier);
+  const challenge = await pkceChallenge(verifier);
+  const params = new URLSearchParams({
+    client_id: KEYCLOAK_CLIENT_ID,
+    redirect_uri: REDIRECT_URI,
+    response_type: "code",
+    scope: "openid profile email",
+    code_challenge_method: "S256",
+    code_challenge: challenge
+  });
+  if (identityProvider) params.set("kc_idp_hint", identityProvider);
+  window.location.assign(`${KEYCLOAK_URL}/realms/${KEYCLOAK_REALM}/protocol/openid-connect/auth?${params}`);
 }
 
-function RecommendationCard({ title, category, priority, message }: { title: string; category: string; priority: string; message: string }) {
-  return <article className="panel recommendation"><div><span className="pill">{category} · {priority}</span><h3>{title}</h3><p>{message}</p></div><Sparkles /></article>;
+async function completeLogin() {
+  const code = new URLSearchParams(window.location.search).get("code");
+  if (!code) return null;
+  const verifier = sessionStorage.getItem(VERIFIER_KEY);
+  if (!verifier) return null;
+  const body = new URLSearchParams({
+    grant_type: "authorization_code",
+    client_id: KEYCLOAK_CLIENT_ID,
+    code,
+    redirect_uri: REDIRECT_URI,
+    code_verifier: verifier
+  });
+  const response = await fetch(`${KEYCLOAK_URL}/realms/${KEYCLOAK_REALM}/protocol/openid-connect/token`, {
+    method: "POST",
+    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+    body
+  });
+  if (!response.ok) throw new Error("Could not complete Keycloak login");
+  const token = await response.json();
+  const claims = parseJwt(token.access_token);
+  const session: Session = {
+    accessToken: token.access_token,
+    refreshToken: token.refresh_token,
+    idToken: token.id_token,
+    expiresAt: Date.now() + token.expires_in * 1000,
+    user: {
+      id: claims.sub,
+      email: claims.email ?? "",
+      name: claims.name ?? claims.preferred_username ?? "Fitty user",
+      roles: ((claims.realm_access?.roles ?? []) as string[]).filter((role) => role.startsWith("FITTY_")) as Role[],
+      subscriptionPlan: firstAttribute(claims.subscriptionPlan) ?? "FREE"
+    }
+  };
+  localStorage.setItem(TOKEN_KEY, JSON.stringify(session));
+  sessionStorage.removeItem(VERIFIER_KEY);
+  return session;
 }
 
-function Timeline() {
-  return <div className="timeline"><span>Today · 74.2kg · 8,420 steps</span><span>Yesterday · 74.5kg · 7,980 steps</span><span>Monday · 74.4kg · 9,120 steps</span></div>;
+function logout(session: Session) {
+  localStorage.removeItem(TOKEN_KEY);
+  const params = new URLSearchParams({
+    client_id: KEYCLOAK_CLIENT_ID,
+    post_logout_redirect_uri: REDIRECT_URI
+  });
+  if (session.idToken) params.set("id_token_hint", session.idToken);
+  window.location.assign(`${KEYCLOAK_URL}/realms/${KEYCLOAK_REALM}/protocol/openid-connect/logout?${params}`);
 }
 
-function titleCase(value: string) {
-  return value.replace(/\b\w/g, (letter) => letter.toUpperCase());
+function loadSession() {
+  const raw = localStorage.getItem(TOKEN_KEY);
+  if (!raw) return null;
+  const session = JSON.parse(raw) as Session;
+  if (session.expiresAt < Date.now() + 10_000) {
+    localStorage.removeItem(TOKEN_KEY);
+    return null;
+  }
+  return session;
 }
+
+function parseJwt(token: string) {
+  const payload = token.split(".")[1].replace(/-/g, "+").replace(/_/g, "/");
+  const bytes = Uint8Array.from(window.atob(payload), (char) => char.charCodeAt(0));
+  return JSON.parse(new TextDecoder().decode(bytes));
+}
+
+function firstAttribute(value: unknown) {
+  if (Array.isArray(value)) return value[0]?.toString();
+  return value?.toString();
+}
+
+function randomString(length: number) {
+  const values = new Uint8Array(length);
+  crypto.getRandomValues(values);
+  return Array.from(values, (value) => ("0" + (value % 36).toString(36)).slice(-1)).join("");
+}
+
+async function pkceChallenge(verifier: string) {
+  const digest = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(verifier));
+  return btoa(String.fromCharCode(...new Uint8Array(digest))).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+}
+
+function initials(name: string) {
+  return name.split(" ").map((part) => part[0]).join("").slice(0, 2).toUpperCase();
+}
+
+type AdminUser = {
+  id: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  role: string;
+  subscriptionPlan: string;
+};
 
 createRoot(document.getElementById("root")!).render(<App />);
