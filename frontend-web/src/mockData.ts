@@ -1,32 +1,32 @@
 export const metrics = [
-  { label: "Wellness score", value: "82", tone: "primary" },
-  { label: "Sleep", value: "7.4h", tone: "accent" },
-  { label: "Steps", value: "8,420", tone: "secondary" },
-  { label: "Heart rate", value: "72", tone: "warning" }
+  { label: "Punteggio benessere", value: "82", tone: "primary" },
+  { label: "Sonno", value: "7,4h", tone: "accent" },
+  { label: "Passi", value: "8.420", tone: "secondary" },
+  { label: "Battito", value: "72", tone: "warning" }
 ];
 
 export const recommendations = [
   {
-    title: "Prioritize recovery tonight",
-    category: "recovery",
-    priority: "normal",
-    message: "Keep dinner light, hydrate, and target a consistent sleep window."
+    title: "Priorita al recupero stasera",
+    category: "recupero",
+    priority: "normale",
+    message: "Cena leggera, idratazione e una finestra di sonno costante."
   },
   {
-    title: "Add protein to lunch",
-    category: "nutrition",
-    priority: "normal",
-    message: "A balanced protein source can help stabilize energy during the afternoon."
+    title: "Aggiungi proteine a pranzo",
+    category: "nutrizione",
+    priority: "normale",
+    message: "Una fonte proteica bilanciata aiuta a stabilizzare l'energia del pomeriggio."
   }
 ];
 
 export const meals = [
-  { name: "Mint yogurt bowl", macros: "28g protein · 52g carbs · 14g fat" },
-  { name: "Coral lentil salad", macros: "24g protein · 64g carbs · 18g fat" },
-  { name: "Lavender berry oats", macros: "18g protein · 70g carbs · 12g fat" }
+  { name: "Bowl yogurt e menta", macros: "28g proteine - 52g carboidrati - 14g grassi" },
+  { name: "Insalata di lenticchie corallo", macros: "24g proteine - 64g carboidrati - 18g grassi" },
+  { name: "Avena lavanda e frutti rossi", macros: "18g proteine - 70g carboidrati - 12g grassi" }
 ];
 
 export const notifications = [
-  { title: "Recommendation ready", message: "Your recovery suggestion is available.", unread: true },
-  { title: "Profile updated", message: "Nutrition preferences were saved.", unread: false }
+  { title: "Consiglio pronto", message: "Il suggerimento di recupero e disponibile.", unread: true },
+  { title: "Profilo aggiornato", message: "Le preferenze nutrizionali sono state salvate.", unread: false }
 ];

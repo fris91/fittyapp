@@ -7,7 +7,7 @@ export async function login(email: string, password: string) {
     body: JSON.stringify({ email, password })
   });
   if (!response.ok) {
-    throw new Error("Login failed");
+    throw new Error("Accesso non riuscito");
   }
   return response.json();
 }
@@ -22,7 +22,7 @@ export async function saveHealthData(token: string, payload: unknown) {
     body: JSON.stringify(payload)
   });
   if (!response.ok) {
-    throw new Error("Could not save health data");
+    throw new Error("Impossibile salvare i dati salute");
   }
   return response.json();
 }
