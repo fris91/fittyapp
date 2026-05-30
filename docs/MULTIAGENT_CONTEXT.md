@@ -90,6 +90,7 @@ Current roles:
 Important local caveat:
 
 - `fitty-mobile` currently needs direct access grants enabled for the app-owned email/password login exchange.
+- The API Gateway must validate tokens against the issuer Keycloak actually writes into tokens. For the app-owned login flow this is currently the in-cluster issuer: `http://keycloak.fitty-system.svc.cluster.local:8080/realms/fitty`.
 - If the realm already exists, changing `fitty-realm-configmap.yaml` may not re-import the realm automatically. Update it in the Keycloak admin console or intentionally reset the local Keycloak PVC.
 
 ## Sensitive Data Boundary
@@ -144,13 +145,13 @@ Current mobile direction:
   - `EXPO_PUBLIC_API_BASE_URL=http://192.168.1.192:30080`
   - mocks only when `EXPO_PUBLIC_USE_MOCKS=true`
 - Account step in onboarding now calls `registerIdentity(...)`.
+- Existing-user login calls `loginIdentity(...)`.
+- Mobile session persistence lives in `mobile-app/src/session.ts`; it uses `expo-secure-store` when installed and falls back to memory during local development.
+- Saved access tokens are passed to protected API calls from the quick-log flow.
 - Quick-log keyboard issue was addressed with dismiss behavior and done controls.
 
 Remaining mobile work:
 
-- Persist returned token in secure storage.
-- Use token for protected API calls.
-- Add true login screen for existing users.
 - Wire Google/Facebook social login properly through Keycloak/provider flow.
 - Replace static Today/Training/Nutrition/Coach state with gateway-backed data.
 - Add Android/iOS production build path beyond Expo Go.

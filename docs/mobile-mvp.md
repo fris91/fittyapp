@@ -73,4 +73,5 @@ The first backend slice is `identity-service`:
 
 - `POST /api/v1/identity/register` creates or updates the Keycloak user, applies the `FITTY_USER` role, stores onboarding attributes, creates a Fitty user profile, and returns tokens when an email/password credential is present.
 - `POST /api/v1/identity/login` exchanges email/password for Keycloak tokens through the `fitty-mobile` client.
+- The mobile app stores the returned session in `mobile-app/src/session.ts`. Install `expo-secure-store` for device-persistent secure storage; without it, the development fallback is in-memory only.
 - Social login currently accepts provider metadata as registration input; real Google/Facebook token exchange should be added through Keycloak identity provider configuration before production use.

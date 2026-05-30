@@ -16,6 +16,7 @@ Fitty owns the user-facing login and registration UI. The app calls `identity-se
 
 - Keycloak realm: `fitty`
 - Local Keycloak URL: `http://fitty-cp-01:30081`
+- Gateway JWT issuer URI: `http://keycloak.fitty-system.svc.cluster.local:8080/realms/fitty`
 - Mobile token client: `fitty-mobile`
 - Web client for future browser redirects: `fitty-web`
 

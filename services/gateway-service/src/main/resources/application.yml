@@ -34,6 +34,10 @@ spring:
           uri: ${USER_SERVICE_URL:http://localhost:8082}
           predicates:
             - Path=/api/v1/admin/users/**
+        - id: mobile-bff
+          uri: ${USER_SERVICE_URL:http://localhost:8082}
+          predicates:
+            - Path=/api/v1/mobile/**
         - id: health-data-service
           uri: ${HEALTH_DATA_SERVICE_URL:http://localhost:8083}
           predicates:

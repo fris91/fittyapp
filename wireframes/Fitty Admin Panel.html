@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Fitty · Admin Panel</title>
+<link rel="stylesheet" href="fitty-app.css">
+</head>
+<body class="admin">
+<svg style="display:none"><defs>
+<linearGradient id="lgCoral" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ff8f7e"/><stop offset="1" stop-color="#f4604c"/></linearGradient>
+<linearGradient id="lgMint" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#56d8ba"/><stop offset="1" stop-color="#39c6a7"/></linearGradient>
+<symbol id="logo" viewBox="0 0 100 100"><rect x="2" y="2" width="96" height="96" rx="27" fill="url(#lgCoral)"/><path d="M62 40 C61 27 70 19 84 17 C84 31 76 41 62 40 Z" fill="url(#lgMint)"/><path d="M70 34 C74 30 78 28 81 27" stroke="#fff" stroke-width="2.4" stroke-linecap="round" fill="none" opacity=".75"/><rect x="33" y="30" width="13.5" height="44" rx="6.7" fill="#fff"/><rect x="33" y="30" width="30" height="13.5" rx="6.7" fill="#fff"/><rect x="33" y="48" width="22" height="12" rx="6" fill="#fff"/></symbol>
+<g id="i-grid"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></g>
+<g id="i-users"><circle cx="9" cy="8" r="3.2"/><path d="M3 20a6 6 0 0112 0"/><path d="M16 5a3 3 0 010 6M21 20a6 6 0 00-5-5.9"/></g>
+<g id="i-card"><rect x="3" y="6" width="18" height="12" rx="2"/><path d="M3 10h18"/></g>
+<g id="i-box"><path d="M21 8l-9-5-9 5v8l9 5 9-5z"/><path d="M3 8l9 5 9-5M12 13v8"/></g>
+<g id="i-spark"><path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10z"/></g>
+<g id="i-bell"><path d="M18 16v-5a6 6 0 10-12 0v5l-2 2h16z"/><path d="M10 21h4"/></g>
+<g id="i-plug"><path d="M9 7V3M15 7V3M7 7h10v4a5 5 0 01-10 0z"/><path d="M12 16v5"/></g>
+<g id="i-pulse"><path d="M3 12h4l3 8 4-16 3 8h4"/></g>
+<g id="i-shield"><path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"/></g>
+<g id="i-life"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="3.5"/><path d="M5 5l4 4M15 15l4 4M19 5l-4 4M9 15l-4 4"/></g>
+<g id="i-lock"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 018 0v3"/></g>
+<g id="i-gear"><circle cx="12" cy="12" r="3.2"/><path d="M12 3v3M12 18v3M3 12h3M18 12h3M5.6 5.6l2.1 2.1M16.3 16.3l2.1 2.1M18.4 5.6l-2.1 2.1M7.7 16.3l-2.1 2.1"/></g>
+</defs></svg>
+
+<div class="app">
+  <aside class="sidebar">
+    <div class="s-brand"><span class="mark"><svg viewBox="0 0 100 100"><defs><linearGradient id="logoCoral" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ff8f7e"/><stop offset="1" stop-color="#f4604c"/></linearGradient><linearGradient id="logoMint" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#56d8ba"/><stop offset="1" stop-color="#39c6a7"/></linearGradient></defs><rect x="2" y="2" width="96" height="96" rx="27" fill="url(#logoCoral)"/><path d="M62 40 C61 27 70 19 84 17 C84 31 76 41 62 40 Z" fill="url(#logoMint)"/><path d="M70 34 C74 30 78 28 81 27" stroke="#fff" stroke-width="2.4" stroke-linecap="round" fill="none" opacity=".75"/><rect x="33" y="30" width="13.5" height="44" rx="6.7" fill="#fff"/><rect x="33" y="30" width="30" height="13.5" rx="6.7" fill="#fff"/><rect x="33" y="48" width="22" height="12" rx="6" fill="#fff"/></svg></span><div><b>Fitty</b><small>ADMIN</small></div></div>
+    <div class="s-cap">Overview</div>
+    <button class="s-item on" data-s="dashboard"><svg viewBox="0 0 24 24"><use href="#i-grid"/></svg><span>Dashboard</span></button>
+    <button class="s-item" data-s="analytics"><svg viewBox="0 0 24 24"><use href="#i-pulse"/></svg><span>Analytics</span></button>
+    <div class="s-cap">People</div>
+    <button class="s-item" data-s="users"><svg viewBox="0 0 24 24"><use href="#i-users"/></svg><span>Users</span></button>
+    <button class="s-item" data-s="subs"><svg viewBox="0 0 24 24"><use href="#i-card"/></svg><span>Subscriptions</span></button>
+    <button class="s-item" data-s="support"><svg viewBox="0 0 24 24"><use href="#i-life"/></svg><span>Support</span><span class="badge">5</span></button>
+    <div class="s-cap">Content</div>
+    <button class="s-item" data-s="content"><svg viewBox="0 0 24 24"><use href="#i-box"/></svg><span>Content library</span></button>
+    <button class="s-item" data-s="ai"><svg viewBox="0 0 24 24"><use href="#i-spark"/></svg><span>AI monitoring</span></button>
+    <button class="s-item" data-s="notif"><svg viewBox="0 0 24 24"><use href="#i-bell"/></svg><span>Notifications</span></button>
+    <button class="s-item" data-s="integ"><svg viewBox="0 0 24 24"><use href="#i-plug"/></svg><span>Integrations</span></button>
+    <div class="s-cap">System</div>
+    <button class="s-item" data-s="audit"><svg viewBox="0 0 24 24"><use href="#i-shield"/></svg><span>Audit logs</span></button>
+    <button class="s-item" data-s="roles"><svg viewBox="0 0 24 24"><use href="#i-lock"/></svg><span>Admins &amp; roles</span></button>
+    <div class="s-foot">
+      <div class="s-user"><span class="av" style="width:34px;height:34px;background:linear-gradient(135deg,var(--lav-100),var(--coral-100));">M</span><div class="col" style="display:flex;flex-direction:column;"><b style="font-size:13px;">Marco · Ops</b><span class="sm">Super admin</span></div></div>
+    </div>
+  </aside>
+
+  <div class="main">
+    <header class="topbar">
+      <div><h1 id="pgTitle">Dashboard</h1><div class="sub" id="pgSub">Platform overview · last 30 days</div></div>
+      <div class="search"><span>⌕</span><span>Search users, subscriptions, content…</span></div>
+      <div class="t-actions">
+        <label class="chip" style="cursor:pointer;"><input type="checkbox" id="tgNotes" checked style="margin-right:6px;">UX notes</label>
+        <span class="env">Production</span>
+        <button class="icon-btn"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#i-bell"/></svg><span class="dot"></span></button>
+        <span class="av" style="width:38px;height:38px;background:linear-gradient(135deg,var(--lav-100),var(--coral-100));">M</span>
+      </div>
+    </header>
+
+    <div class="content">
+
+      <!-- ===== DASHBOARD ===== -->
+      <section class="screen on" id="s-dashboard">
+        <div class="grid g-4" style="margin-bottom:18px;">
+          <div class="panel stat"><span class="cap">Total users</span><span class="num">24,815</span><span class="delta up">▲ 6.2% MoM</span></div>
+          <div class="panel stat"><span class="cap">Active (7d)</span><span class="num">11,402</span><span class="delta up">▲ 3.1%</span></div>
+          <div class="panel stat"><span class="cap">Premium MRR</span><span class="num">€38.7k</span><span class="delta up">▲ 9.4%</span></div>
+          <div class="panel stat"><span class="cap">Trial → paid</span><span class="num">31%</span><span class="delta down">▼ 1.2%</span></div>
+        </div>
+        <div class="grid g-32" style="margin-bottom:18px;">
+          <div class="panel lg">
+            <div class="panel-head"><h3>Active users</h3><div class="seg" style="margin-left:auto;"><button class="on">30d</button><button>90d</button><button>YTD</button></div></div>
+            <div class="chart">
+              <div class="col lav"><i style="height:50%"></i><span>W1</span></div>
+              <div class="col lav"><i style="height:62%"></i><span>W2</span></div>
+              <div class="col lav"><i style="height:58%"></i><span>W3</span></div>
+              <div class="col lav"><i style="height:72%"></i><span>W4</span></div>
+              <div class="col lav"><i style="height:80%"></i><span>W5</span></div>
+              <div class="col lav"><i style="height:76%"></i><span>W6</span></div>
+              <div class="col lav"><i style="height:92%"></i><span>Now</span></div>
+            </div>
+          </div>
+          <div class="panel lg">
+            <div class="panel-head"><h3>System events</h3><span class="link">View all</span></div>
+            <div class="list">
+              <div class="row"><span class="badge green">OK</span><div style="flex:1;"><b style="font-size:12.5px;color:var(--ink)">recommendation-ready</b><div class="sm">Kafka · 1,204 msgs/min</div></div><span class="sm">now</span></div>
+              <div class="row"><span class="badge amber">Warn</span><div style="flex:1;"><b style="font-size:12.5px;color:var(--ink)">health-data-ingested</b><div class="sm">Lag rising · 3.2s</div></div><span class="sm">2m</span></div>
+              <div class="row"><span class="badge green">OK</span><div style="flex:1;"><b style="font-size:12.5px;color:var(--ink)">user-registered</b><div class="sm">142 today</div></div><span class="sm">5m</span></div>
+              <div class="row"><span class="badge red">Error</span><div style="flex:1;"><b style="font-size:12.5px;color:var(--ink)">meal-external-service</b><div class="sm">Provider timeout · retrying</div></div><span class="sm">8m</span></div>
+            </div>
+          </div>
+        </div>
+        <div class="grid g-3">
+          <div class="panel"><div class="panel-head"><h3>Service health</h3></div><div class="list">
+            <div class="row"><b style="flex:1;font-size:12.5px;color:var(--ink)">auth-service</b><span class="badge green">Up</span></div>
+            <div class="row"><b style="flex:1;font-size:12.5px;color:var(--ink)">user-service</b><span class="badge green">Up</span></div>
+            <div class="row"><b style="flex:1;font-size:12.5px;color:var(--ink)">recommendation</b><span class="badge green">Up</span></div>
+            <div class="row"><b style="flex:1;font-size:12.5px;color:var(--ink)">meal-external</b><span class="badge amber">Degraded</span></div>
+          </div></div>
+          <div class="panel"><div class="panel-head"><h3>Plans split</h3></div>
+            <div style="display:flex;gap:6px;margin:8px 0 14px;"><span style="flex:7;height:14px;border-radius:6px 0 0 6px;background:var(--line-2)"></span><span style="flex:3;height:14px;border-radius:0 6px 6px 0;background:var(--lav)"></span></div>
+            <div class="row between" style="font-size:12.5px;gap:12px;"><span class="sm">Free · 70%</span><span class="sm">Premium · 30%</span></div>
+            <div class="row between" style="margin-top:6px;gap:12px;"><b style="font-size:13px;color:var(--ink)">17,370</b><b style="font-size:13px;color:var(--lav-700)">7,445</b></div>
+          </div>
+          <div class="panel"><div class="panel-head"><h3>Open support</h3><span class="badge red" style="margin-left:auto;">5 urgent</span></div><div class="list">
+            <div class="row"><span class="dot-ic tint-coral">!</span><div style="flex:1;"><b style="font-size:12.5px;color:var(--ink)">Billing dispute</b><div class="sm">#4821 · 2h</div></div></div>
+            <div class="row"><span class="dot-ic tint-amber">?</span><div style="flex:1;"><b style="font-size:12.5px;color:var(--ink)">Sync not working</b><div class="sm">#4820 · 4h</div></div></div>
+          </div></div>
+        </div>
+        <div class="note">Operational-first home: KPIs, live event stream &amp; service health up top so ops can triage in seconds. Density is intentional here — the opposite of the calm user app.</div>
+      </section>
+
+      <!-- ===== USERS ===== -->
+      <section class="screen" id="s-users">
+        <div class="page-head"><div><h2>Users</h2><p>Monitor, search and manage platform users.</p></div><div class="actions"><button class="btn ghost">Export</button><button class="btn cta">+ Invite</button></div></div>
+        <div class="toolbar">
+          <div class="search"><span>⌕</span><span>Search by name, email or ID…</span></div>
+          <span class="chip on">All</span><span class="chip">Active</span><span class="chip">Inactive</span><span class="chip">Premium</span><span class="chip">Trial</span><span class="chip">Suspended</span>
+          <span style="margin-left:auto;" class="sm">24,815 users</span>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>User</th><th>Plan</th><th>Status</th><th>Health data</th><th>Last active</th><th>Joined</th><th></th></tr></thead>
+            <tbody>
+              <tr><td><div class="u"><span class="av" style="width:34px;height:34px;">S</span><div><b>Sara Rossi</b><span>sara.r@email.com</span></div></div></td><td><span class="badge gray">Free</span></td><td><span class="badge green">Active</span></td><td><span class="badge lav">Synced</span></td><td>2m ago</td><td>16 May ’26</td><td class="kebab">⋯</td></tr>
+              <tr><td><div class="u"><span class="av" style="width:34px;height:34px;background:linear-gradient(135deg,var(--coral-100),var(--amber-50))">L</span><div><b>Luca Bianchi</b><span>luca.b@email.com</span></div></div></td><td><span class="badge lav">Premium</span></td><td><span class="badge green">Active</span></td><td><span class="badge lav">Synced</span></td><td>1h ago</td><td>02 Apr ’26</td><td class="kebab">⋯</td></tr>
+              <tr><td><div class="u"><span class="av" style="width:34px;height:34px;background:linear-gradient(135deg,var(--mint-100),var(--lav-100))">G</span><div><b>Giulia Verde</b><span>giulia.v@email.com</span></div></div></td><td><span class="badge amber">Trial</span></td><td><span class="badge green">Active</span></td><td><span class="badge gray">Manual only</span></td><td>3h ago</td><td>24 May ’26</td><td class="kebab">⋯</td></tr>
+              <tr><td><div class="u"><span class="av" style="width:34px;height:34px;background:linear-gradient(135deg,var(--lav-100),var(--mint-100))">A</span><div><b>Ahmed Khan</b><span>ahmed.k@email.com</span></div></div></td><td><span class="badge lav">Premium</span></td><td><span class="badge gray">Inactive</span></td><td><span class="badge red">No data</span></td><td>22 days ago</td><td>11 Jan ’26</td><td class="kebab">⋯</td></tr>
+              <tr><td><div class="u"><span class="av" style="width:34px;height:34px;background:linear-gradient(135deg,var(--amber-50),var(--coral-100))">M</span><div><b>Marta Neri</b><span>marta.n@email.com</span></div></div></td><td><span class="badge gray">Free</span></td><td><span class="badge red">Suspended</span></td><td><span class="badge gray">Manual only</span></td><td>5 days ago</td><td>30 Mar ’26</td><td class="kebab">⋯</td></tr>
+            </tbody>
+          </table>
+          <div class="tbl-foot"><span>Showing 1–5 of 24,815</span><div class="pages"><span class="pg on">1</span><span class="pg">2</span><span class="pg">3</span><span class="pg">…</span><span class="pg">↦</span></div></div>
+        </div>
+        <div class="note">Filter chips + global search up front. The <b>Health data</b> column shows <i>availability</i> (synced / manual / none) — never the sensitive values themselves. Row → user detail.</div>
+      </section>
+
+      <!-- ===== USER DETAIL ===== -->
+      <section class="screen" id="s-detail">
+        <div class="page-head"><div><h2 style="display:flex;align-items:center;gap:10px;"><span class="av" style="width:40px;height:40px;">S</span>Sara Rossi</h2><p>sara.r@email.com · ID usr_8f3a1 · joined 16 May ’26</p></div>
+          <div class="actions"><button class="btn ghost">Message</button><button class="btn ghost">Suspend</button><button class="btn cta">Edit</button></div></div>
+        <div class="grid g-23">
+          <div class="grid" style="gap:18px;align-content:start;">
+            <div class="panel"><div class="panel-head"><h3>Anagrafica</h3></div><div class="list">
+              <div class="row"><span class="sm" style="flex:1;">Status</span><span class="badge green">Active</span></div>
+              <div class="row"><span class="sm" style="flex:1;">Plan</span><span class="badge gray">Free</span></div>
+              <div class="row"><span class="sm" style="flex:1;">Age / Sex</span><b style="font-size:12.5px;color:var(--ink)">29 · F</b></div>
+              <div class="row"><span class="sm" style="flex:1;">Goal</span><b style="font-size:12.5px;color:var(--ink)">Lose weight</b></div>
+              <div class="row"><span class="sm" style="flex:1;">Locale</span><b style="font-size:12.5px;color:var(--ink)">it-IT</b></div>
+            </div></div>
+            <div class="panel"><div class="panel-head"><h3>Data availability</h3></div><div class="list">
+              <div class="row"><span class="sm" style="flex:1;">Body metrics</span><span class="badge lav">Available</span></div>
+              <div class="row"><span class="sm" style="flex:1;">Workouts</span><span class="badge lav">Available</span></div>
+              <div class="row"><span class="sm" style="flex:1;">Nutrition logs</span><span class="badge green">Active</span></div>
+              <div class="row"><span class="sm" style="flex:1;">Clinical indicators</span><span class="badge gray">None</span></div>
+            </div>
+            <div class="note" style="margin-top:8px;">Operators see <b>what exists</b>, not the values. Viewing actual health data requires elevated role + is itself audit-logged.</div>
+            </div>
+          </div>
+          <div class="grid" style="gap:18px;align-content:start;">
+            <div class="panel"><div class="panel-head"><h3>Activity (30 days)</h3></div>
+              <div class="spark" style="height:60px;">
+                <i style="height:40%"></i><i style="height:70%"></i><i style="height:55%"></i><i style="height:90%"></i><i style="height:65%"></i><i style="height:30%"></i><i style="height:80%"></i><i style="height:75%"></i><i style="height:60%"></i><i style="height:95%"></i><i style="height:50%"></i><i style="height:85%"></i><i style="height:70%"></i><i style="height:45%"></i>
+              </div>
+              <div class="grid g-3" style="margin-top:16px;">
+                <div class="panel tint-mint" style="padding:12px;"><span class="cap">Sessions</span><b style="display:block;font-size:18px;margin-top:2px;">21</b></div>
+                <div class="panel tint-lav" style="padding:12px;"><span class="cap">Meals logged</span><b style="display:block;font-size:18px;margin-top:2px;">54</b></div>
+                <div class="panel tint-coral" style="padding:12px;"><span class="cap">AI plans</span><b style="display:block;font-size:18px;margin-top:2px;">3</b></div>
+              </div>
+            </div>
+            <div class="panel"><div class="panel-head"><h3>Subscription &amp; billing</h3><span class="link">Manage</span></div><div class="table-wrap" style="border:0;box-shadow:none;"><table>
+              <thead><tr><th>Date</th><th>Event</th><th>Amount</th><th>Status</th></tr></thead>
+              <tbody>
+                <tr><td>16 May ’26</td><td>Account created (Free)</td><td>—</td><td><span class="badge green">OK</span></td></tr>
+                <tr><td>—</td><td>No payments yet</td><td>—</td><td><span class="badge gray">—</span></td></tr>
+              </tbody></table></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===== SUBSCRIPTIONS ===== -->
+      <section class="screen" id="s-subs">
+        <div class="page-head"><div><h2>Subscriptions</h2><p>Plans, pricing &amp; payment status.</p></div><div class="actions"><button class="btn cta">+ New plan</button></div></div>
+        <div class="grid g-3" style="margin-bottom:18px;">
+          <div class="panel"><div class="panel-head"><h3>Free</h3><span class="badge gray" style="margin-left:auto;">Default</span></div><span class="num">€0</span><p class="sm" style="margin:8px 0;">Core tracking, 1 AI plan/mo, manual data.</p><div class="row" style="justify-content:space-between;"><span class="sm">17,370 users</span><button class="btn sm ghost">Edit</button></div></div>
+          <div class="panel tint-lav"><div class="panel-head"><h3>Premium</h3><span class="badge lav" style="margin-left:auto;">Popular</span></div><span class="num">€7,99<span style="font-size:13px;color:var(--muted)">/mo</span></span><p class="sm" style="margin:8px 0;color:var(--ink-2)">Unlimited AI, all integrations, insights.</p><div class="row" style="justify-content:space-between;"><span class="sm">7,445 users</span><button class="btn sm ghost">Edit</button></div></div>
+          <div class="panel"><div class="panel-head"><h3>Premium Annual</h3></div><span class="num">€69<span style="font-size:13px;color:var(--muted)">/yr</span></span><p class="sm" style="margin:8px 0;">Same as Premium · 2 months free.</p><div class="row" style="justify-content:space-between;"><span class="sm">2,108 users</span><button class="btn sm ghost">Edit</button></div></div>
+        </div>
+        <div class="panel">
+          <div class="panel-head"><h3>Recent payments</h3>
+            <div class="toolbar" style="margin:0 0 0 auto;"><span class="chip on">All</span><span class="chip">Paid</span><span class="chip">Failed</span><span class="chip">Refunded</span></div></div>
+          <div class="table-wrap" style="border:0;box-shadow:none;"><table>
+            <thead><tr><th>User</th><th>Plan</th><th>Amount</th><th>Method</th><th>Date</th><th>Status</th></tr></thead>
+            <tbody>
+              <tr><td>Luca Bianchi</td><td>Premium</td><td><b style="color:var(--ink)">€7,99</b></td><td>•••• 4242</td><td>28 May</td><td><span class="badge green">Paid</span></td></tr>
+              <tr><td>Giulia Verde</td><td>Trial → Premium</td><td><b style="color:var(--ink)">€7,99</b></td><td>PayPal</td><td>27 May</td><td><span class="badge amber">Pending</span></td></tr>
+              <tr><td>Ahmed Khan</td><td>Premium</td><td><b style="color:var(--ink)">€7,99</b></td><td>•••• 1881</td><td>26 May</td><td><span class="badge red">Failed</span></td></tr>
+            </tbody></table></div>
+        </div>
+      </section>
+
+      <!-- ===== CONTENT ===== -->
+      <section class="screen" id="s-content">
+        <div class="page-head"><div><h2>Content library</h2><p>Recipes, exercises, workout &amp; nutrition templates.</p></div><div class="actions"><button class="btn cta">+ Add item</button></div></div>
+        <div class="toolbar"><span class="chip on">Recipes · 342</span><span class="chip">Exercises · 518</span><span class="chip">Workout templates · 64</span><span class="chip">Nutrition templates · 28</span><div class="search" style="margin-left:auto;max-width:240px;"><span>⌕</span><span>Search…</span></div></div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Item</th><th>Category</th><th>Macros / focus</th><th>Used by</th><th>Status</th><th>Updated</th><th></th></tr></thead>
+            <tbody>
+              <tr><td><div class="u"><span class="dot-ic tint-mint">🥗</span><div><b>Mint yogurt power bowl</b><span>Breakfast · vegetarian</span></div></div></td><td>Recipe</td><td>28g P · 420 kcal</td><td>1,204</td><td><span class="badge green">Published</span></td><td>2d ago</td><td class="kebab">⋯</td></tr>
+              <tr><td><div class="u"><span class="dot-ic tint-coral">🏋</span><div><b>Goblet squat</b><span>Lower · compound</span></div></div></td><td>Exercise</td><td>Quads · glutes</td><td>3,810</td><td><span class="badge green">Published</span></td><td>1w ago</td><td class="kebab">⋯</td></tr>
+              <tr><td><div class="u"><span class="dot-ic tint-lav">📋</span><div><b>3-day full body</b><span>Beginner · gym</span></div></div></td><td>Workout tmpl</td><td>3×/week</td><td>892</td><td><span class="badge amber">Draft</span></td><td>3h ago</td><td class="kebab">⋯</td></tr>
+              <tr><td><div class="u"><span class="dot-ic tint-amber">🍽</span><div><b>Balanced 1,600 kcal</b><span>Weight loss</span></div></div></td><td>Nutrition tmpl</td><td>120g protein</td><td>2,140</td><td><span class="badge green">Published</span></td><td>5d ago</td><td class="kebab">⋯</td></tr>
+            </tbody>
+          </table>
+          <div class="tbl-foot"><span>Showing 1–4 of 342 recipes</span><div class="pages"><span class="pg on">1</span><span class="pg">2</span><span class="pg">3</span><span class="pg">↦</span></div></div>
+        </div>
+        <div class="note">One unified library with type chips — recipes, exercises &amp; templates share the same table + editor pattern. "Used by" surfaces impact before editing/unpublishing.</div>
+      </section>
+
+      <!-- ===== AI MONITORING ===== -->
+      <section class="screen" id="s-ai">
+        <div class="page-head"><div><h2>AI monitoring</h2><p>Generated recommendations &amp; plans — quality, safety &amp; volume.</p></div><div class="actions"><div class="seg"><button class="on">All</button><button>Flagged</button></div></div></div>
+        <div class="grid g-4" style="margin-bottom:18px;">
+          <div class="panel stat"><span class="cap">Generated (24h)</span><span class="num">8,940</span><span class="delta up">▲ 12%</span></div>
+          <div class="panel stat"><span class="cap">Accepted</span><span class="num">74%</span><span class="delta up">▲ 2%</span></div>
+          <div class="panel stat"><span class="cap">Edited after</span><span class="num">19%</span><span class="sm">healthy signal</span></div>
+          <div class="panel stat tint-amber"><span class="cap">Flagged for review</span><span class="num">12</span><span class="delta down">needs attention</span></div>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Time</th><th>User</th><th>Type</th><th>Output</th><th>Outcome</th><th>Safety</th><th></th></tr></thead>
+            <tbody>
+              <tr><td>09:41</td><td>usr_8f3a1</td><td><span class="badge lav">Workout</span></td><td>3-day full body</td><td><span class="badge green">Accepted</span></td><td><span class="badge green">Pass</span></td><td class="kebab">⋯</td></tr>
+              <tr><td>09:38</td><td>usr_2b77c</td><td><span class="badge mint">Nutrition</span></td><td>1,800 kcal high-protein</td><td><span class="badge amber">Edited</span></td><td><span class="badge green">Pass</span></td><td class="kebab">⋯</td></tr>
+              <tr><td>09:30</td><td>usr_91fd0</td><td><span class="badge lav">Workout</span></td><td>5-day split</td><td><span class="badge gray">Rejected</span></td><td><span class="badge red">Flagged · injury</span></td><td class="kebab">⋯</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="note">Track accept / edit / reject rates as the trust metric. <b>Safety</b> flags (e.g. plan vs. declared injury) surface here for human review — the medical boundary, enforced server-side.</div>
+      </section>
+
+      <!-- ===== generic placeholders for remaining nav ===== -->
+      <section class="screen" id="s-analytics"><div class="page-head"><div><h2>Analytics</h2><p>Engagement, retention &amp; funnel.</p></div></div>
+        <div class="grid g-3" style="margin-bottom:18px;">
+          <div class="panel stat"><span class="cap">D1 retention</span><span class="num">62%</span></div>
+          <div class="panel stat"><span class="cap">D7 retention</span><span class="num">38%</span></div>
+          <div class="panel stat"><span class="cap">D30 retention</span><span class="num">21%</span></div>
+        </div>
+        <div class="panel lg"><div class="panel-head"><h3>Onboarding funnel</h3></div>
+          <div class="list">
+            <div class="row"><b style="flex:0 0 160px;font-size:12.5px;color:var(--ink)">Welcome</b><div class="bar" style="flex:1;"><i style="width:100%"></i></div><span class="sm">100%</span></div>
+            <div class="row"><b style="flex:0 0 160px;font-size:12.5px;color:var(--ink)">Goal picked</b><div class="bar mint" style="flex:1;"><i style="width:88%"></i></div><span class="sm">88%</span></div>
+            <div class="row"><b style="flex:0 0 160px;font-size:12.5px;color:var(--ink)">Body basics</b><div class="bar mint" style="flex:1;"><i style="width:79%"></i></div><span class="sm">79%</span></div>
+            <div class="row"><b style="flex:0 0 160px;font-size:12.5px;color:var(--ink)">Account created</b><div class="bar lav" style="flex:1;"><i style="width:64%"></i></div><span class="sm">64%</span></div>
+            <div class="row"><b style="flex:0 0 160px;font-size:12.5px;color:var(--ink)">First log</b><div class="bar" style="flex:1;"><i style="width:51%"></i></div><span class="sm">51%</span></div>
+          </div>
+          <div class="note">Funnel pinpoints the biggest drop (account step) — directly validates the "defer the account wall" decision and where to optimise next.</div>
+        </div>
+      </section>
+
+      <section class="screen" id="s-support"><div class="page-head"><div><h2>Support requests</h2><p>Triage &amp; resolve user tickets.</p></div></div>
+        <div class="toolbar"><span class="chip on">Open · 23</span><span class="chip">Urgent · 5</span><span class="chip">Mine</span><span class="chip">Resolved</span></div>
+        <div class="table-wrap"><table>
+          <thead><tr><th>#</th><th>User</th><th>Subject</th><th>Priority</th><th>Status</th><th>Age</th><th></th></tr></thead>
+          <tbody>
+            <tr><td>4821</td><td>Ahmed Khan</td><td>Billing dispute — double charge</td><td><span class="badge red">Urgent</span></td><td><span class="badge amber">Open</span></td><td>2h</td><td class="kebab">⋯</td></tr>
+            <tr><td>4820</td><td>Giulia Verde</td><td>Google Fit sync stopped</td><td><span class="badge amber">High</span></td><td><span class="badge amber">Open</span></td><td>4h</td><td class="kebab">⋯</td></tr>
+            <tr><td>4818</td><td>Sara Rossi</td><td>How do I change my goal?</td><td><span class="badge gray">Low</span></td><td><span class="badge lav">Waiting</span></td><td>1d</td><td class="kebab">⋯</td></tr>
+          </tbody>
+        </table></div>
+      </section>
+
+      <section class="screen" id="s-content2"></section>
+
+      <section class="screen" id="s-notif"><div class="page-head"><div><h2>Notifications</h2><p>Compose &amp; schedule push / in-app messages.</p></div><div class="actions"><button class="btn cta">+ New campaign</button></div></div>
+        <div class="table-wrap"><table>
+          <thead><tr><th>Campaign</th><th>Audience</th><th>Channel</th><th>Sent / Open</th><th>Status</th><th></th></tr></thead>
+          <tbody>
+            <tr><td><b style="color:var(--ink)">Streak reminder</b></td><td>Inactive 3d+</td><td><span class="badge lav">Push</span></td><td>8,210 · 42%</td><td><span class="badge green">Live</span></td><td class="kebab">⋯</td></tr>
+            <tr><td><b style="color:var(--ink)">Trial ending soon</b></td><td>Trial day 5</td><td><span class="badge mint">In-app + email</span></td><td>1,044 · 61%</td><td><span class="badge green">Live</span></td><td class="kebab">⋯</td></tr>
+            <tr><td><b style="color:var(--ink)">New recipes</b></td><td>All premium</td><td><span class="badge lav">Push</span></td><td>—</td><td><span class="badge amber">Scheduled</span></td><td class="kebab">⋯</td></tr>
+          </tbody>
+        </table></div>
+        <div class="note">Audience targeting reuses the same filter chips as Users, so ops define a segment once and act on it (notify / export / manage).</div>
+      </section>
+
+      <section class="screen" id="s-integ"><div class="page-head"><div><h2>Integrations status</h2><p>Health of external providers.</p></div></div>
+        <div class="grid g-3">
+          <div class="panel"><div class="panel-head"><span class="dot-ic tint-mint">G</span><h3>Google Fit</h3><span class="badge green" style="margin-left:auto;">Operational</span></div><div class="list"><div class="row"><span class="sm" style="flex:1;">Connected accounts</span><b style="font-size:12.5px;color:var(--ink)">9,402</b></div><div class="row"><span class="sm" style="flex:1;">Sync success</span><b style="font-size:12.5px;color:var(--mint-700)">99.2%</b></div></div></div>
+          <div class="panel"><div class="panel-head"><span class="dot-ic" style="background:#f1f3f5;">🍎</span><h3>Apple Health</h3><span class="badge amber" style="margin-left:auto;">Degraded</span></div><div class="list"><div class="row"><span class="sm" style="flex:1;">Connected accounts</span><b style="font-size:12.5px;color:var(--ink)">6,118</b></div><div class="row"><span class="sm" style="flex:1;">Sync success</span><b style="font-size:12.5px;color:var(--amber-700)">94.1%</b></div></div></div>
+          <div class="panel"><div class="panel-head"><span class="dot-ic" style="background:#f1f3f5;">Mi</span><h3>Xiaomi Health</h3><span class="badge green" style="margin-left:auto;">Operational</span></div><div class="list"><div class="row"><span class="sm" style="flex:1;">Connected accounts</span><b style="font-size:12.5px;color:var(--ink)">2,740</b></div><div class="row"><span class="sm" style="flex:1;">Sync success</span><b style="font-size:12.5px;color:var(--mint-700)">98.0%</b></div></div></div>
+        </div>
+      </section>
+
+      <section class="screen" id="s-audit"><div class="page-head"><div><h2>Audit logs</h2><p>Every privileged action, immutable.</p></div><div class="actions"><button class="btn ghost">Export</button></div></div>
+        <div class="toolbar"><div class="search" style="max-width:280px;"><span>⌕</span><span>Search actor, action, target…</span></div><span class="chip on">All</span><span class="chip">Data access</span><span class="chip">Role changes</span><span class="chip">Billing</span></div>
+        <div class="table-wrap"><table>
+          <thead><tr><th>Time</th><th>Actor</th><th>Action</th><th>Target</th><th>IP</th></tr></thead>
+          <tbody>
+            <tr><td>09:42:11</td><td><b style="color:var(--ink)">Marco · Ops</b></td><td><span class="badge amber">Viewed health data</span></td><td>usr_8f3a1</td><td>10.0.2.14</td></tr>
+            <tr><td>09:30:02</td><td><b style="color:var(--ink)">Elena · Admin</b></td><td><span class="badge red">Suspended user</span></td><td>usr_91fd0</td><td>10.0.2.21</td></tr>
+            <tr><td>08:58:40</td><td><b style="color:var(--ink)">Marco · Ops</b></td><td><span class="badge lav">Edited plan price</span></td><td>plan_premium</td><td>10.0.2.14</td></tr>
+            <tr><td>08:14:09</td><td><b style="color:var(--ink)">system</b></td><td><span class="badge green">Role granted</span></td><td>usr_admin_7 → Editor</td><td>—</td></tr>
+          </tbody>
+        </table></div>
+        <div class="note">Sensitive actions (esp. <b>viewing health data</b>) are themselves logged — the privacy promise from the user app is enforced &amp; observable here.</div>
+      </section>
+
+      <section class="screen" id="s-roles"><div class="page-head"><div><h2>Admins &amp; roles</h2><p>Team access &amp; permissions.</p></div><div class="actions"><button class="btn cta">+ Add admin</button></div></div>
+        <div class="table-wrap"><table>
+          <thead><tr><th>Admin</th><th>Role</th><th>Scope</th><th>Last active</th><th></th></tr></thead>
+          <tbody>
+            <tr><td><div class="u"><span class="av" style="width:32px;height:32px;background:linear-gradient(135deg,var(--lav-100),var(--coral-100))">M</span><div><b>Marco</b><span>marco@fitty.app</span></div></div></td><td><span class="badge lav">Super admin</span></td><td>All</td><td>now</td><td class="kebab">⋯</td></tr>
+            <tr><td><div class="u"><span class="av" style="width:32px;height:32px;">E</span><div><b>Elena</b><span>elena@fitty.app</span></div></div></td><td><span class="badge mint">Admin</span></td><td>Users · Support</td><td>12m</td><td class="kebab">⋯</td></tr>
+            <tr><td><div class="u"><span class="av" style="width:32px;height:32px;background:linear-gradient(135deg,var(--mint-100),var(--amber-50))">D</span><div><b>Davide</b><span>davide@fitty.app</span></div></div></td><td><span class="badge gray">Editor</span></td><td>Content only</td><td>2h</td><td class="kebab">⋯</td></tr>
+          </tbody>
+        </table></div>
+        <div class="note">Role-scoped access (Super admin / Admin / Editor / Support). Editors can't see users; only elevated roles can reveal health data — least-privilege by default.</div>
+      </section>
+
+    </div>
+  </div>
+</div>
+
+<script>
+  const titles = {dashboard:["Dashboard","Platform overview · last 30 days"],analytics:["Analytics","Engagement, retention & funnel"],users:["Users","Monitor & manage users"],detail:["User detail","Sara Rossi"],subs:["Subscriptions","Plans, pricing & payments"],support:["Support requests","Triage & resolve"],content:["Content library","Recipes, exercises & templates"],ai:["AI monitoring","Quality, safety & volume"],notif:["Notifications","Campaigns & messaging"],integ:["Integrations status","Provider health"],audit:["Audit logs","Privileged actions"],roles:["Admins & roles","Team access"]};
+  const items = document.querySelectorAll('.s-item');
+  const screens = document.querySelectorAll('.screen');
+  function go(s){
+    screens.forEach(x => x.classList.remove('on'));
+    const el = document.getElementById('s-'+s); if(el) el.classList.add('on');
+    if(titles[s]){document.getElementById('pgTitle').textContent = titles[s][0];document.getElementById('pgSub').textContent = titles[s][1];}
+    document.querySelector('.content').scrollTo({top:0});
+  }
+  items.forEach(b => b.addEventListener('click', () => {
+    items.forEach(x => x.classList.remove('on')); b.classList.add('on'); go(b.dataset.s);
+  }));
+  // make a Users row open the detail view
+  document.querySelectorAll('#s-users tbody tr').forEach(tr => tr.addEventListener('click', () => go('detail')));
+  const tg = document.getElementById('tgNotes');
+  const apply = () => document.body.classList.toggle('no-notes', !tg.checked);
+  tg.addEventListener('change', apply); apply();
+</script>
+</body>
+</html>

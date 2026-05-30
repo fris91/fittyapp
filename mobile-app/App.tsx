@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import {
   Keyboard,
   KeyboardAvoidingView,
@@ -15,10 +15,19 @@ import {
 } from "react-native";
 import { StatusBar } from "expo-status-bar";
 import { theme } from "./src/theme";
-import { registerIdentity } from "./src/api";
+import {
+  getTodaySummary,
+  loginIdentity,
+  registerIdentity,
+  saveHealthSnapshot,
+  saveMealLog,
+  type TodaySummary
+} from "./src/api";
+import { clearSession, FittySession, loadSession, saveSession, sessionFromIdentity, sessionFromLogin } from "./src/session";
 
-type Tab = "today" | "training" | "nutrition" | "coach";
-type OnboardingStep = "welcome" | "goal" | "body" | "activity" | "connect" | "account" | "building" | "done";
+type Tab = "today" | "progress" | "plans" | "coach";
+type PlansView = "overview" | "training" | "nutrition" | "recipes";
+type OnboardingStep = "welcome" | "login" | "goal" | "body" | "activity" | "connect" | "account" | "building" | "done";
 type AsyncState = "empty" | "loading" | "error" | "ready";
 type LogType = "meal" | "workout" | "body" | "water";
 
@@ -52,23 +61,37 @@ const initialOnboarding: Onboarding = {
   password: ""
 };
 
-const progressState: AsyncState = "ready";
-const coachState: AsyncState = "ready";
 const integrationState: AsyncState = "empty";
 
 export default function App() {
   const [onboardingStep, setOnboardingStep] = useState<OnboardingStep>("welcome");
   const [onboarding, setOnboarding] = useState(initialOnboarding);
   const [tab, setTab] = useState<Tab>("today");
+  const [plansView, setPlansView] = useState<PlansView>("overview");
   const [trainingView, setTrainingView] = useState<"plan" | "exercise" | "progress">("plan");
-  const [nutritionView, setNutritionView] = useState<"today" | "plan" | "library">("today");
+  const [nutritionView, setNutritionView] = useState<"today" | "plan">("today");
+  const [progressState, setProgressState] = useState<AsyncState>("ready");
+  const [coachState, setCoachState] = useState<AsyncState>("ready");
   const [logOpen, setLogOpen] = useState(false);
   const [logType, setLogType] = useState<LogType>("meal");
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [authState, setAuthState] = useState<AsyncState>("empty");
   const [authError, setAuthError] = useState("");
+  const [session, setSession] = useState<FittySession | null>(null);
+  const [bootState, setBootState] = useState<AsyncState>("loading");
+  const [loginEmail, setLoginEmail] = useState("");
+  const [loginPassword, setLoginPassword] = useState("");
 
-  const hasCompletedOnboarding = onboardingStep === "done";
+  const hasCompletedOnboarding = Boolean(session) || onboardingStep === "done";
+
+  useEffect(() => {
+    loadSession()
+      .then((storedSession) => {
+        setSession(storedSession);
+        setBootState("ready");
+      })
+      .catch(() => setBootState("ready"));
+  }, []);
 
   function nextStep() {
     const order: OnboardingStep[] = ["welcome", "goal", "body", "activity", "connect", "account", "building", "done"];
@@ -80,7 +103,7 @@ export default function App() {
     setAuthState("loading");
     setAuthError("");
     try {
-      await registerIdentity({
+      const response = await registerIdentity({
         email: onboarding.email.trim(),
         password: onboarding.password,
         firstName: onboarding.firstName.trim(),
@@ -104,6 +127,11 @@ export default function App() {
           marketing: false
         }
       });
+      const nextSession = sessionFromIdentity(response);
+      if (nextSession) {
+        await saveSession(nextSession);
+        setSession(nextSession);
+      }
       setAuthState("ready");
       setOnboardingStep("building");
     } catch (error) {
@@ -112,20 +140,72 @@ export default function App() {
     }
   }
 
+  async function loginWithPassword() {
+    setAuthState("loading");
+    setAuthError("");
+    try {
+      const token = await loginIdentity(loginEmail.trim(), loginPassword);
+      const nextSession = sessionFromLogin(token, loginEmail.trim());
+      if (!nextSession) {
+        throw new Error("Login did not return a usable access token");
+      }
+      await saveSession(nextSession);
+      setSession(nextSession);
+      setAuthState("ready");
+    } catch (error) {
+      setAuthState("error");
+      setAuthError(error instanceof Error ? error.message : "Login failed");
+    }
+  }
+
+  async function logout() {
+    await clearSession();
+    setSession(null);
+    setOnboardingStep("welcome");
+    setAuthState("empty");
+    setLoginPassword("");
+  }
+
+  if (bootState === "loading") {
+    return (
+      <SafeAreaView style={styles.safe}>
+        <StatusBar style="dark" />
+        <View style={styles.onboardingCenter}>
+          <ProgressRing label="..." progress={55} color={theme.colors.accent} size={92} />
+          <Text style={styles.heroTitle}>Opening Fitty</Text>
+        </View>
+      </SafeAreaView>
+    );
+  }
+
   if (!hasCompletedOnboarding) {
     return (
       <SafeAreaView style={styles.safe}>
         <StatusBar style="dark" />
-        <OnboardingScreen
-          step={onboardingStep}
-          data={onboarding}
-          onChange={setOnboarding}
-          onNext={nextStep}
-          onRegister={registerFromOnboarding}
-          authState={authState}
-          authError={authError}
-          onDone={() => setOnboardingStep("done")}
-        />
+        {onboardingStep === "login" ? (
+          <LoginScreen
+            email={loginEmail}
+            password={loginPassword}
+            authState={authState}
+            authError={authError}
+            onEmail={setLoginEmail}
+            onPassword={setLoginPassword}
+            onLogin={loginWithPassword}
+            onBack={() => setOnboardingStep("welcome")}
+          />
+        ) : (
+          <OnboardingScreen
+            step={onboardingStep}
+            data={onboarding}
+            onChange={setOnboarding}
+            onNext={nextStep}
+            onLogin={() => setOnboardingStep("login")}
+            onRegister={registerFromOnboarding}
+            authState={authState}
+            authError={authError}
+            onDone={() => setOnboardingStep("done")}
+          />
+        )}
       </SafeAreaView>
     );
   }
@@ -134,11 +214,20 @@ export default function App() {
     <SafeAreaView style={styles.safe}>
       <StatusBar style="dark" />
       <View style={styles.shell}>
-        <Header name="Sara" onSettings={() => setSettingsOpen(true)} />
+        <Header name={session?.firstName || onboarding.firstName || "Fitty"} onSettings={() => setSettingsOpen(true)} />
         <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
-          {tab === "today" && <TodayScreen onLog={() => setLogOpen(true)} />}
-          {tab === "training" && <TrainingScreen view={trainingView} onView={setTrainingView} />}
-          {tab === "nutrition" && <NutritionScreen view={nutritionView} onView={setNutritionView} />}
+          {tab === "today" && <TodayScreen token={session?.token.accessToken} onLog={() => setLogOpen(true)} />}
+          {tab === "progress" && <ProgressScreen state={progressState} />}
+          {tab === "plans" && (
+            <PlansScreen
+              view={plansView}
+              onView={setPlansView}
+              trainingView={trainingView}
+              onTrainingView={setTrainingView}
+              nutritionView={nutritionView}
+              onNutritionView={setNutritionView}
+            />
+          )}
           {tab === "coach" && <CoachScreen state={coachState} />}
         </ScrollView>
         <BottomNav tab={tab} onTab={setTab} onLog={() => setLogOpen(true)} />
@@ -147,11 +236,14 @@ export default function App() {
         visible={logOpen}
         type={logType}
         onType={setLogType}
+        token={session?.token.accessToken}
         onClose={() => setLogOpen(false)}
       />
       <SettingsSheet
         visible={settingsOpen}
         onboarding={onboarding}
+        session={session}
+        onLogout={logout}
         onClose={() => setSettingsOpen(false)}
       />
     </SafeAreaView>
@@ -163,6 +255,7 @@ function OnboardingScreen({
   data,
   onChange,
   onNext,
+  onLogin,
   onRegister,
   authState,
   authError,
@@ -172,6 +265,7 @@ function OnboardingScreen({
   data: Onboarding;
   onChange: (next: Onboarding) => void;
   onNext: () => void;
+  onLogin: () => void;
   onRegister: () => void;
   authState: AsyncState;
   authError: string;
@@ -188,7 +282,7 @@ function OnboardingScreen({
         <Text style={styles.lead}>Your friendly wellness companion. Let us set you up in a minute.</Text>
         <View style={styles.dots}><View style={styles.dotActive} /><View style={styles.dot} /><View style={styles.dot} /></View>
         <Button label="Get started" onPress={onNext} />
-        <Pressable style={styles.textButton}><Text style={styles.textButtonText}>I already have an account</Text></Pressable>
+        <Pressable style={styles.textButton} onPress={onLogin}><Text style={styles.textButtonText}>I already have an account</Text></Pressable>
       </View>
     );
   }
@@ -297,6 +391,40 @@ function OnboardingScreen({
   );
 }
 
+function LoginScreen({
+  email,
+  password,
+  authState,
+  authError,
+  onEmail,
+  onPassword,
+  onLogin,
+  onBack
+}: {
+  email: string;
+  password: string;
+  authState: AsyncState;
+  authError: string;
+  onEmail: (value: string) => void;
+  onPassword: (value: string) => void;
+  onLogin: () => void;
+  onBack: () => void;
+}) {
+  return (
+    <ScrollView contentContainerStyle={styles.content}>
+      <View style={styles.stack}>
+        <Pressable style={styles.textButton} onPress={onBack}><Text style={styles.textButtonText}>Back</Text></Pressable>
+        <Text style={styles.heroTitle}>Welcome back</Text>
+        <Text style={styles.leadSmall}>Sign in with your Fitty account. Your token is stored locally and used for protected API calls.</Text>
+        <TextInput style={styles.input} placeholder="email@you.com" placeholderTextColor={theme.colors.muted} value={email} onChangeText={onEmail} autoCapitalize="none" keyboardType="email-address" returnKeyType="next" />
+        <TextInput style={styles.input} placeholder="password" placeholderTextColor={theme.colors.muted} value={password} onChangeText={onPassword} secureTextEntry returnKeyType="done" onSubmitEditing={() => Keyboard.dismiss()} />
+        {authState === "error" && <Text style={styles.errorText}>{authError}</Text>}
+        <Button label={authState === "loading" ? "Signing in..." : "Sign in"} onPress={onLogin} disabled={!email || !password || authState === "loading"} />
+      </View>
+    </ScrollView>
+  );
+}
+
 function Header({ name, onSettings }: { name: string; onSettings: () => void }) {
   return (
     <View style={styles.header}>
@@ -311,12 +439,58 @@ function Header({ name, onSettings }: { name: string; onSettings: () => void }) 
   );
 }
 
-function TodayScreen({ onLog }: { onLog: () => void }) {
+function TodayScreen({ token, onLog }: { token?: string; onLog: () => void }) {
+  const [state, setState] = useState<AsyncState>("loading");
+  const [data, setData] = useState<TodaySummary | null>(null);
+  const [error, setError] = useState("");
+  const [reloadKey, setReloadKey] = useState(0);
+
+  useEffect(() => {
+    let cancelled = false;
+    setState("loading");
+    setError("");
+    getTodaySummary(token)
+      .then((next) => {
+        if (cancelled) return;
+        setData(next);
+        setState("ready");
+      })
+      .catch((err) => {
+        if (cancelled) return;
+        setError(err instanceof Error ? err.message : "Could not load Today");
+        setState("error");
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [token, reloadKey]);
+
+  if (state === "loading") {
+    return <SkeletonStack />;
+  }
+
+  if (state === "error" || !data) {
+    return (
+      <View style={styles.stack}>
+        <View style={styles.card}>
+          <Text style={styles.cardTitle}>Today needs a refresh</Text>
+          <Text style={styles.cardText}>{error || "We could not load your day. Your data is safe."}</Text>
+          <Pressable style={styles.chip} onPress={() => setReloadKey((key) => key + 1)}>
+            <Text style={styles.chipText}>Retry</Text>
+          </Pressable>
+        </View>
+      </View>
+    );
+  }
+
+  const dayLetters = ["M", "T", "W", "T", "F", "S", "S"];
+  const streak = Math.max(0, Math.min(7, data.streakDays ?? 0));
+
   return (
     <View style={styles.stack}>
       <View style={[styles.card, styles.focusCard]}>
-        <Text style={styles.cardKicker}>Your plan is ready</Text>
-        <Text style={styles.cardTitle}>Start with a 15-minute walk today</Text>
+        <Text style={styles.cardKicker}>Your focus</Text>
+        <Text style={styles.cardTitle}>{data.focus}</Text>
         <Text style={styles.cardText}>A small, doable move keeps momentum without making the day feel heavy.</Text>
         <View style={styles.row}>
           <Button label="Do it" onPress={onLog} compact />
@@ -324,25 +498,30 @@ function TodayScreen({ onLog }: { onLog: () => void }) {
         </View>
       </View>
       <View style={styles.ringGrid}>
-        <RingCard label="Move" value="0%" progress={5} color={theme.colors.primary} />
-        <RingCard label="Meals" value="0" progress={5} color={theme.colors.secondary} />
-        <RingCard label="Body" value="-" progress={5} color={theme.colors.accent} />
+        <RingCard label="Move" value={`${data.rings.move}%`} progress={data.rings.move} color={theme.colors.primary} />
+        <RingCard label="Meals" value={`${data.rings.meals}%`} progress={data.rings.meals} color={theme.colors.secondary} />
+        <RingCard label="Body" value={`${data.rings.body}%`} progress={data.rings.body} color={theme.colors.accent} />
       </View>
       <View style={styles.card}>
         <Text style={styles.cardKicker}>Weekly streak</Text>
         <View style={styles.streakRow}>
-          {["M", "T", "W", "T", "F", "S", "S"].map((day, index) => (
-            <View key={`${day}-${index}`} style={[styles.streakDot, index < 2 && styles.streakDone]}>
-              <Text style={[styles.streakText, index < 2 && styles.streakTextDone]}>{day}</Text>
+          {dayLetters.map((day, index) => (
+            <View key={`${day}-${index}`} style={[styles.streakDot, index < streak && styles.streakDone]}>
+              <Text style={[styles.streakText, index < streak && styles.streakTextDone]}>{day}</Text>
             </View>
           ))}
         </View>
-        <Text style={styles.cardText}>Two gentle wins this week. Keep it light and consistent.</Text>
+        <Text style={styles.cardText}>
+          {streak === 0
+            ? "No logs yet this week. The first one is the hardest, then it gets light."
+            : `${streak} gentle ${streak === 1 ? "win" : "wins"} this week. Keep it light and consistent.`}
+        </Text>
       </View>
       <View style={[styles.card, styles.aiCard]}>
         <Text style={styles.cardKicker}>Coach</Text>
-        <Text style={styles.cardTitle}>Log your first meal to start your streak.</Text>
+        <Text style={styles.cardTitle}>{data.coachLine}</Text>
         <Text style={styles.cardText}>You will get encouraging feedback right away, never a scorecard.</Text>
+        {data.disclaimer && <Text style={styles.disclaimer}>{data.disclaimer}</Text>}
       </View>
     </View>
   );
@@ -435,17 +614,16 @@ function TrainingScreen({ view, onView }: { view: "plan" | "exercise" | "progres
   );
 }
 
-function NutritionScreen({ view, onView }: { view: "today" | "plan" | "library"; onView: (view: "today" | "plan" | "library") => void }) {
+function NutritionScreen({ view, onView }: { view: "today" | "plan"; onView: (view: "today" | "plan") => void }) {
   return (
     <View style={styles.stack}>
       <SegmentedControl
         items={[
           ["today", "Today"],
-          ["plan", "Plan"],
-          ["library", "Recipes"]
+          ["plan", "Plan"]
         ]}
         value={view}
-        onChange={(next) => onView(next as "today" | "plan" | "library")}
+        onChange={(next) => onView(next as "today" | "plan")}
       />
       {view === "today" && (
         <>
@@ -471,18 +649,56 @@ function NutritionScreen({ view, onView }: { view: "today" | "plan" | "library";
           </View>
         </>
       )}
-      {view === "library" && (
-        <>
-          <RecipeCard title="Mint yogurt bowl" meta="28g protein - 420 kcal" />
-          <RecipeCard title="Coral lentil salad" meta="24g protein - 510 kcal" />
-          <RecipeCard title="Lavender berry oats" meta="18g protein - 460 kcal" />
-        </>
-      )}
     </View>
   );
 }
 
-function PlansScreen() {
+function RecipesPanel() {
+  return (
+    <View style={styles.stack}>
+      <RecipeCard title="Mint yogurt bowl" meta="28g protein - 420 kcal" />
+      <RecipeCard title="Coral lentil salad" meta="24g protein - 510 kcal" />
+      <RecipeCard title="Lavender berry oats" meta="18g protein - 460 kcal" />
+    </View>
+  );
+}
+
+function PlansScreen({
+  view,
+  onView,
+  trainingView,
+  onTrainingView,
+  nutritionView,
+  onNutritionView
+}: {
+  view: PlansView;
+  onView: (view: PlansView) => void;
+  trainingView: "plan" | "exercise" | "progress";
+  onTrainingView: (view: "plan" | "exercise" | "progress") => void;
+  nutritionView: "today" | "plan";
+  onNutritionView: (view: "today" | "plan") => void;
+}) {
+  return (
+    <View style={styles.stack}>
+      <SegmentedControl
+        items={[
+          ["overview", "Plans"],
+          ["training", "Training"],
+          ["nutrition", "Nutrition"],
+          ["recipes", "Recipes"]
+        ]}
+        value={view}
+        onChange={(next) => onView(next as PlansView)}
+      />
+      {view === "overview" && <PlansOverview />}
+      {view === "training" && <TrainingScreen view={trainingView} onView={onTrainingView} />}
+      {view === "nutrition" && <NutritionScreen view={nutritionView} onView={onNutritionView} />}
+      {view === "recipes" && <RecipesPanel />}
+    </View>
+  );
+}
+
+function PlansOverview() {
   return (
     <View style={styles.stack}>
       <StateCard title="No nutrition plan yet" text="Fitty will ask a few missing inputs, then generate an editable plan." action="Prepare nutrition plan" />
@@ -518,13 +734,46 @@ function QuickLogSheet({
   visible,
   type,
   onType,
+  token,
   onClose
 }: {
   visible: boolean;
   type: LogType;
   onType: (type: LogType) => void;
+  token?: string;
   onClose: () => void;
 }) {
+  const [saveState, setSaveState] = useState<AsyncState>("empty");
+  const [saveError, setSaveError] = useState("");
+
+  async function saveLog() {
+    setSaveState("loading");
+    setSaveError("");
+    try {
+      if (type === "meal") {
+        await saveMealLog(token, {
+          name: "Quick meal",
+          calories: 0,
+          approximate: true,
+          loggedAt: new Date().toISOString()
+        });
+      }
+      if (type === "body") {
+        await saveHealthSnapshot(token, {
+          source: "manual",
+          weightKg: null,
+          sleepHours: null,
+          measurementTimestamp: new Date().toISOString()
+        });
+      }
+      setSaveState("ready");
+      onClose();
+    } catch (error) {
+      setSaveState("error");
+      setSaveError(error instanceof Error ? error.message : "Could not save this log");
+    }
+  }
+
   return (
     <Modal visible={visible} transparent animationType="slide" onRequestClose={onClose}>
       <Pressable style={styles.scrim} onPress={onClose} />
@@ -547,8 +796,9 @@ function QuickLogSheet({
         {type === "body" && <BodyLog />}
         {type === "workout" && <WorkoutLog />}
         {type === "water" && <WaterLog />}
+        {saveState === "error" && <Text style={styles.errorText}>{saveError}</Text>}
         <Button label="Done editing" onPress={() => Keyboard.dismiss()} variant="ghost" />
-        <Button label="Save log" onPress={onClose} />
+        <Button label={saveState === "loading" ? "Saving..." : "Save log"} onPress={saveLog} disabled={saveState === "loading"} />
       </KeyboardAvoidingView>
     </Modal>
   );
@@ -594,7 +844,19 @@ function WaterLog() {
   );
 }
 
-function SettingsSheet({ visible, onboarding, onClose }: { visible: boolean; onboarding: Onboarding; onClose: () => void }) {
+function SettingsSheet({
+  visible,
+  onboarding,
+  session,
+  onLogout,
+  onClose
+}: {
+  visible: boolean;
+  onboarding: Onboarding;
+  session: FittySession | null;
+  onLogout: () => void;
+  onClose: () => void;
+}) {
   const [connected, setConnected] = useState(Boolean(onboarding.connectedProvider));
   return (
     <Modal visible={visible} transparent animationType="slide" onRequestClose={onClose}>
@@ -604,8 +866,13 @@ function SettingsSheet({ visible, onboarding, onClose }: { visible: boolean; onb
         <Text style={styles.sheetTitle}>Profile and settings</Text>
         <View style={styles.cardFlat}>
           <Text style={styles.cardKicker}>Subscription</Text>
-          <Text style={styles.cardTitle}>FREE</Text>
+          <Text style={styles.cardTitle}>{session?.subscriptionPlan || "FREE"}</Text>
           <Text style={styles.cardText}>Plan status is read-only in this MVP.</Text>
+        </View>
+        <View style={styles.cardFlat}>
+          <Text style={styles.cardKicker}>Account</Text>
+          <Text style={styles.cardTitle}>{session ? `${session.firstName} ${session.lastName}`.trim() : onboarding.email || "Local user"}</Text>
+          <Text style={styles.cardText}>{session?.email || "No active secure session"}</Text>
         </View>
         <View style={styles.cardFlat}>
           <Text style={styles.cardKicker}>Google Fit placeholder</Text>
@@ -615,6 +882,7 @@ function SettingsSheet({ visible, onboarding, onClose }: { visible: boolean; onb
           </View>
           <Text style={styles.cardText}>{integrationState === "empty" ? "Reconnect and disconnect states are ready for the real provider flow." : ""}</Text>
         </View>
+        <Button label="Log out" onPress={onLogout} variant="ghost" />
         <Button label="Close" onPress={onClose} variant="ghost" />
       </View>
     </Modal>
@@ -625,11 +893,11 @@ function BottomNav({ tab, onTab, onLog }: { tab: Tab; onTab: (tab: Tab) => void;
   return (
     <View style={styles.bottomNav}>
       <NavItem label="Today" active={tab === "today"} onPress={() => onTab("today")} />
-      <NavItem label="Training" active={tab === "training"} onPress={() => onTab("training")} />
+      <NavItem label="Progress" active={tab === "progress"} onPress={() => onTab("progress")} />
       <Pressable style={styles.fab} onPress={onLog} accessibilityLabel="Open quick log">
         <Text style={styles.fabText}>+</Text>
       </Pressable>
-      <NavItem label="Nutrition" active={tab === "nutrition"} onPress={() => onTab("nutrition")} />
+      <NavItem label="Plans" active={tab === "plans"} onPress={() => onTab("plans")} />
       <NavItem label="Coach" active={tab === "coach"} onPress={() => onTab("coach")} />
     </View>
   );

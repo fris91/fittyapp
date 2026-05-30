@@ -17,7 +17,7 @@ data:
   VITE_KEYCLOAK_URL: http://192.168.1.192:30081
   VITE_KEYCLOAK_REALM: fitty
   VITE_KEYCLOAK_CLIENT_ID: fitty-web
-  KEYCLOAK_ISSUER_URI: http://192.168.1.192:30081/realms/fitty
+  KEYCLOAK_ISSUER_URI: http://keycloak.fitty-system.svc.cluster.local:8080/realms/fitty
   KEYCLOAK_BASE_URL: http://keycloak.fitty-system.svc.cluster.local:8080
   KEYCLOAK_REALM: fitty
   KEYCLOAK_ADMIN_REALM: master

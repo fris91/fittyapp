@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="512" height="512" role="img" aria-label="FittyApp">
+  <defs>
+    <linearGradient id="coralGrad" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#ff8f7e"></stop><stop offset="1" stop-color="#f4604c"></stop>
+    </linearGradient>
+    <linearGradient id="mintGrad" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#56d8ba"></stop><stop offset="1" stop-color="#39c6a7"></stop>
+    </linearGradient>
+  </defs>
+  <rect x="2" y="2" width="96" height="96" rx="27" fill="url(#coralGrad)"></rect>
+  <path d="M62 40 C61 27 70 19 84 17 C84 31 76 41 62 40 Z" fill="url(#mintGrad)"></path>
+  <path d="M70 34 C74 30 78 28 81 27" stroke="#fff" stroke-width="2.4" stroke-linecap="round" fill="none" opacity=".75"></path>
+  <rect x="33" y="30" width="13.5" height="44" rx="6.7" fill="#fff"></rect>
+  <rect x="33" y="30" width="30" height="13.5" rx="6.7" fill="#fff"></rect>
+  <rect x="33" y="48" width="22" height="12" rx="6" fill="#fff"></rect>
+</svg>

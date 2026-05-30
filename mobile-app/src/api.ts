@@ -8,6 +8,7 @@ export type ApiState<T> = {
 };
 
 export type TodaySummary = {
+  firstName?: string;
   focus: string;
   rings: {
     move: number;
@@ -16,6 +17,7 @@ export type TodaySummary = {
   };
   streakDays: number;
   coachLine: string;
+  disclaimer?: string;
 };
 
 export type ProgressSummary = {
@@ -123,10 +125,12 @@ export async function loginIdentity(email: string, password: string): Promise<Id
 export async function getTodaySummary(token?: string): Promise<TodaySummary> {
   if (USE_MOCKS) {
     return {
+      firstName: "Friend",
       focus: "Start with a 15-minute walk today",
       rings: { move: 5, meals: 0, body: 0 },
       streakDays: 2,
-      coachLine: "Log your first meal to start your streak."
+      coachLine: "Log your first meal to start your streak.",
+      disclaimer: "Wellness guidance, not medical advice."
     };
   }
   return request<TodaySummary>("/api/v1/mobile/today", token);

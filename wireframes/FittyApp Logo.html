@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>FittyApp · Logo &amp; Brand Mark</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+:root{
+  --coral:#ff7f6e;--coral-600:#f4604c;--coral-50:#fff1ee;--coral-100:#ffe1da;
+  --mint:#39c6a7;--mint-100:#cdf0e7;--mint-soft:#9fe6d4;
+  --lav:#9b8cff;--lav-100:#e2dcff;
+  --bg:#fff8f2;--surface:#fff;--ink:#20313f;--ink-2:#46586a;--muted:#8a97a4;--line:#ece5dc;
+  --font:'Plus Jakarta Sans',system-ui,sans-serif;
+}
+*{box-sizing:border-box;}
+body{margin:0;font-family:var(--font);color:var(--ink);background:
+  radial-gradient(1100px 700px at 10% -10%,var(--coral-50),transparent 55%),
+  radial-gradient(1000px 700px at 110% 5%,#f1eeff,transparent 52%),var(--bg);-webkit-font-smoothing:antialiased;}
+.wrap{max-width:1100px;margin:0 auto;padding:48px 28px 100px;}
+.eyebrow{font-size:12px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:var(--coral-600);}
+h1{font-size:40px;font-weight:800;letter-spacing:-.03em;margin:8px 0 4px;}
+.sub{font-size:16px;color:var(--ink-2);max-width:640px;line-height:1.5;}
+h2{font-size:13px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin:54px 0 16px;display:flex;align-items:center;gap:12px;}
+h2::after{content:"";flex:1;height:1px;background:var(--line);}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:24px;box-shadow:0 10px 30px rgba(32,49,63,.06);}
+.grid{display:grid;gap:20px;}
+.g3{grid-template-columns:repeat(3,1fr);}
+.g2{grid-template-columns:1fr 1fr;}
+@media(max-width:760px){.g3,.g2{grid-template-columns:1fr;}}
+
+/* hero lockup */
+.hero{padding:56px;display:flex;align-items:center;gap:40px;flex-wrap:wrap;justify-content:center;
+  background:linear-gradient(135deg,#fff,var(--coral-50));}
+.lockup{display:flex;align-items:center;gap:22px;}
+.word{font-size:64px;font-weight:800;letter-spacing:-.04em;line-height:1;}
+.word .app{color:var(--coral);}
+
+/* concept cards */
+.concept{padding:28px;text-align:center;display:flex;flex-direction:column;align-items:center;gap:14px;position:relative;}
+.concept.rec{border:2px solid var(--coral);}
+.concept .pin{position:absolute;top:14px;right:14px;font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.06em;
+  background:var(--coral);color:#fff;border-radius:7px;padding:4px 9px;}
+.concept h3{font-size:18px;font-weight:800;margin:4px 0 0;}
+.concept p{font-size:13px;color:var(--ink-2);margin:0;line-height:1.45;}
+.tile{border-radius:28px;width:120px;height:120px;box-shadow:0 12px 26px rgba(255,127,110,.32);}
+
+/* color chips */
+.swatch{height:96px;border-radius:16px;display:flex;align-items:flex-end;padding:12px;color:#fff;font-weight:800;font-size:13px;}
+.swatch.light{color:var(--ink);}
+.sw-meta{padding:10px 4px 0;}
+.sw-meta b{font-size:13px;display:block;}
+.sw-meta span{font-size:11.5px;color:var(--muted);font-weight:600;}
+
+/* clearspace / sizing */
+.cs{padding:34px;display:flex;gap:34px;align-items:center;flex-wrap:wrap;justify-content:center;}
+.cs-box{position:relative;padding:30px;border:2px dashed var(--coral-100);border-radius:18px;}
+.sizes{display:flex;align-items:flex-end;gap:26px;flex-wrap:wrap;justify-content:center;padding:34px;}
+.size-item{display:flex;flex-direction:column;align-items:center;gap:8px;}
+.size-item span{font-size:11px;color:var(--muted);font-weight:700;}
+
+/* app icon mockup */
+.home{width:300px;height:200px;border-radius:24px;padding:22px;display:grid;grid-template-columns:repeat(4,1fr);gap:18px;align-content:start;
+  background:linear-gradient(160deg,#cfe9ff,#e7ddff);}
+.home .ic{width:56px;height:56px;border-radius:15px;box-shadow:0 6px 14px rgba(0,0,0,.16);}
+.home .ic.ph{background:rgba(255,255,255,.55);}
+.home .label{grid-column:1/2;text-align:center;font-size:10px;font-weight:700;color:#33415a;margin-top:-12px;}
+
+/* variants */
+.var{padding:30px;display:flex;align-items:center;justify-content:center;border-radius:18px;min-height:130px;}
+.var.dark{background:var(--ink);}
+.var.coral{background:var(--coral);}
+.var.light{background:#fff;border:1px solid var(--line);}
+.var.mono{background:var(--bg);}
+.cap{font-size:12px;color:var(--muted);font-weight:700;text-align:center;margin-top:10px;}
+
+/* do/don't */
+.dl{padding:22px;display:flex;flex-direction:column;align-items:center;gap:14px;text-align:center;}
+.dl .tag{font-size:12px;font-weight:800;border-radius:999px;padding:5px 13px;}
+.dl.ok .tag{background:#e6f8f3;color:#1f8a72;}
+.dl.no .tag{background:#fdebec;color:#c0454a;}
+.dl p{font-size:12.5px;color:var(--ink-2);margin:0;}
+.idea{font-size:14px;color:var(--ink-2);line-height:1.6;background:var(--coral-50);border:1px solid var(--coral-100);border-radius:16px;padding:18px 20px;margin-top:18px;}
+.idea b{color:var(--ink);}
+</style>
+</head>
+<body>
+<!-- ============ SVG SYMBOL DEFS ============ -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+<defs>
+  <linearGradient id="coralGrad" x1="0" y1="0" x2="1" y2="1">
+    <stop offset="0" stop-color="#ff8f7e"/><stop offset="1" stop-color="#f4604c"/>
+  </linearGradient>
+  <linearGradient id="mintGrad" x1="0" y1="0" x2="1" y2="1">
+    <stop offset="0" stop-color="#56d8ba"/><stop offset="1" stop-color="#39c6a7"/>
+  </linearGradient>
+
+  <!-- A · SPROUT F  (recommended) -->
+  <symbol id="markA" viewBox="0 0 100 100">
+    <rect x="2" y="2" width="96" height="96" rx="27" fill="url(#coralGrad)"/>
+    <!-- leaf sprouting from top-right of the F -->
+    <path d="M62 40 C61 27 70 19 84 17 C84 31 76 41 62 40 Z" fill="url(#mintGrad)"/>
+    <path d="M70 34 C74 30 78 28 81 27" stroke="#fff" stroke-width="2.4" stroke-linecap="round" fill="none" opacity=".75"/>
+    <!-- F -->
+    <rect x="33" y="30" width="13.5" height="44" rx="6.7" fill="#fff"/>
+    <rect x="33" y="30" width="30" height="13.5" rx="6.7" fill="#fff"/>
+    <rect x="33" y="48" width="22" height="12" rx="6" fill="#fff"/>
+  </symbol>
+
+  <!-- B · SPARK F -->
+  <symbol id="markB" viewBox="0 0 100 100">
+    <rect x="2" y="2" width="96" height="96" rx="27" fill="url(#coralGrad)"/>
+    <rect x="31" y="30" width="13.5" height="44" rx="6.7" fill="#fff"/>
+    <rect x="31" y="30" width="32" height="13.5" rx="6.7" fill="#fff"/>
+    <rect x="31" y="48" width="22" height="12" rx="6" fill="#fff"/>
+    <!-- spark -->
+    <path d="M72 20 C73.5 27 75 28.5 82 30 C75 31.5 73.5 33 72 40 C70.5 33 69 31.5 62 30 C69 28.5 70.5 27 72 20 Z" fill="url(#mintGrad)"/>
+  </symbol>
+
+  <!-- C · RING F (activity ring) -->
+  <symbol id="markC" viewBox="0 0 100 100">
+    <rect x="2" y="2" width="96" height="96" rx="27" fill="url(#coralGrad)"/>
+    <circle cx="50" cy="50" r="33" fill="none" stroke="#ffffff" stroke-opacity=".32" stroke-width="7"/>
+    <path d="M50 17 a33 33 0 1 1 -23 9.6" fill="none" stroke="url(#mintGrad)" stroke-width="7" stroke-linecap="round"/>
+    <rect x="40" y="36" width="11" height="30" rx="5.5" fill="#fff"/>
+    <rect x="40" y="36" width="22" height="11" rx="5.5" fill="#fff"/>
+    <rect x="40" y="49" width="16" height="10" rx="5" fill="#fff"/>
+  </symbol>
+
+  <!-- mono / inverse marks -->
+  <symbol id="markMono" viewBox="0 0 100 100">
+    <rect x="2" y="2" width="96" height="96" rx="27" fill="#20313f"/>
+    <path d="M62 40 C61 27 70 19 84 17 C84 31 76 41 62 40 Z" fill="#fff" opacity=".55"/>
+    <rect x="33" y="30" width="13.5" height="44" rx="6.7" fill="#fff"/>
+    <rect x="33" y="30" width="30" height="13.5" rx="6.7" fill="#fff"/>
+    <rect x="33" y="48" width="22" height="12" rx="6" fill="#fff"/>
+  </symbol>
+  <symbol id="markLineCoral" viewBox="0 0 100 100">
+    <rect x="4" y="4" width="92" height="92" rx="26" fill="none" stroke="#ff7f6e" stroke-width="4"/>
+    <path d="M62 40 C61 27 70 19 84 17 C84 31 76 41 62 40 Z" fill="#39c6a7"/>
+    <rect x="33" y="30" width="13.5" height="44" rx="6.7" fill="#ff7f6e"/>
+    <rect x="33" y="30" width="30" height="13.5" rx="6.7" fill="#ff7f6e"/>
+    <rect x="33" y="48" width="22" height="12" rx="6" fill="#ff7f6e"/>
+  </symbol>
+</defs>
+</svg>
+
+<div class="wrap">
+  <div class="eyebrow">FittyApp · Brand mark</div>
+  <h1>The FittyApp logo</h1>
+  <p class="sub">A friendly, soft mark built on the app's own DNA: a rounded coral tile, a warm wordmark, and a little sprout of mint — wellness, growth and gentle momentum in one glyph.</p>
+
+  <!-- HERO LOCKUP -->
+  <h2>Primary lockup</h2>
+  <div class="panel hero">
+    <div class="lockup">
+      <svg width="118" height="118"><use href="#markA"/></svg>
+      <div class="word">Fitty<span class="app">App</span></div>
+    </div>
+  </div>
+
+  <!-- CONCEPTS -->
+  <h2>The three concepts explored</h2>
+  <div class="grid g3">
+    <div class="panel concept rec">
+      <span class="pin">★ Chosen</span>
+      <svg class="tile" viewBox="0 0 100 100"><use href="#markA"/></svg>
+      <h3>Sprout F</h3>
+      <p>A rounded “F” with a mint leaf budding from the top arm. Reads as wellness, nutrition &amp; growth — the friendliest, most on-brand of the three.</p>
+    </div>
+    <div class="panel concept">
+      <svg class="tile" viewBox="0 0 100 100"><use href="#markB"/></svg>
+      <h3>Spark F</h3>
+      <p>The leaf becomes a sparkle — leans into the AI-coach side. Energetic, but slightly less “wellness”, more “tech”.</p>
+    </div>
+    <div class="panel concept">
+      <svg class="tile" viewBox="0 0 100 100"><use href="#markC"/></svg>
+      <h3>Ring F</h3>
+      <p>An activity ring wraps the F — ties to the Move/Meals/Body rings in the UI. Strong meaning, but busier at tiny sizes.</p>
+    </div>
+  </div>
+  <div class="idea"><b>Why Sprout F.</b> It carries the app's spirit in a single shape — the <b>F</b> keeps it unmistakably FittyApp, the <b>leaf</b> says wellness &amp; nutrition, the <b>upward growth</b> says progress, and the <b>rounded, soft forms</b> match the pastel, encouraging tone. It stays legible all the way down to a 16px favicon.</div>
+
+  <!-- COLOR -->
+  <h2>Logo colors</h2>
+  <div class="grid g3">
+    <div><div class="swatch" style="background:linear-gradient(135deg,#ff8f7e,#f4604c)">Coral</div><div class="sw-meta"><b>Coral · primary</b><span>#FF7F6E → #F4604C</span></div></div>
+    <div><div class="swatch" style="background:linear-gradient(135deg,#56d8ba,#39c6a7)">Mint</div><div class="sw-meta"><b>Mint · the sprout</b><span>#39C6A7</span></div></div>
+    <div><div class="swatch light" style="background:#20313f;color:#fff">Slate</div><div class="sw-meta"><b>Slate · wordmark</b><span>#20313F</span></div></div>
+  </div>
+
+  <!-- CLEARSPACE + SIZING -->
+  <h2>Clear space &amp; minimum size</h2>
+  <div class="grid g2">
+    <div class="panel cs">
+      <div class="cs-box"><svg width="96" height="96" viewBox="0 0 100 100"><use href="#markA"/></svg></div>
+      <p class="sub" style="font-size:14px;max-width:280px;">Keep clear space of at least <b>½ the tile height</b> on every side. Never crowd the mark with text or other logos.</p>
+    </div>
+    <div class="panel sizes">
+      <div class="size-item"><svg width="88" height="88" viewBox="0 0 100 100"><use href="#markA"/></svg><span>88 px</span></div>
+      <div class="size-item"><svg width="48" height="48" viewBox="0 0 100 100"><use href="#markA"/></svg><span>48 px</span></div>
+      <div class="size-item"><svg width="32" height="32" viewBox="0 0 100 100"><use href="#markA"/></svg><span>32 px</span></div>
+      <div class="size-item"><svg width="16" height="16" viewBox="0 0 100 100"><use href="#markA"/></svg><span>16 px · favicon</span></div>
+    </div>
+  </div>
+
+  <!-- APP ICON -->
+  <h2>App icon, in context</h2>
+  <div class="panel cs">
+    <div class="home">
+      <svg class="ic" viewBox="0 0 100 100"><use href="#markA"/></svg>
+      <div class="ic ph"></div><div class="ic ph"></div><div class="ic ph"></div>
+      <div class="label">FittyApp</div>
+    </div>
+    <p class="sub" style="font-size:14px;max-width:300px;">The rounded coral tile pops against a home screen and stays recognisable beside system icons — warm, calm, unmistakably wellness.</p>
+  </div>
+
+  <!-- VARIANTS -->
+  <h2>Variants</h2>
+  <div class="grid g3">
+    <div><div class="var coral"><svg width="200" height="40"><g><text x="0" y="30" font-family="Plus Jakarta Sans" font-weight="800" font-size="34" fill="#fff" letter-spacing="-1.4">FittyApp</text></g></svg></div><div class="cap">Wordmark · on coral</div></div>
+    <div><div class="var dark"><div style="display:flex;align-items:center;gap:14px;"><svg width="46" height="46" viewBox="0 0 100 100"><use href="#markA"/></svg><span style="font-size:30px;font-weight:800;letter-spacing:-1.2px;color:#fff;">Fitty<span style="color:#ff9f90">App</span></span></div></div><div class="cap">Lockup · on dark</div></div>
+    <div><div class="var mono"><svg width="64" height="64" viewBox="0 0 100 100"><use href="#markMono"/></svg></div><div class="cap">Monochrome · slate</div></div>
+  </div>
+  <div class="grid g3" style="margin-top:20px;">
+    <div><div class="var light"><svg width="64" height="64" viewBox="0 0 100 100"><use href="#markLineCoral"/></svg></div><div class="cap">Outline · light bg</div></div>
+    <div><div class="var coral"><svg width="64" height="64" viewBox="0 0 100 100"><use href="#markMono"/><rect x="2" y="2" width="96" height="96" rx="27" fill="#fff" opacity="0"/></svg></div><div class="cap">Reversed (white mark on coral)</div></div>
+    <div><div class="var light"><div style="display:flex;flex-direction:column;align-items:center;gap:10px;"><svg width="50" height="50" viewBox="0 0 100 100"><use href="#markA"/></svg><span style="font-size:18px;font-weight:800;letter-spacing:-.5px;">Fitty<span style="color:#ff7f6e">App</span></span></div></div><div class="cap">Stacked lockup</div></div>
+  </div>
+
+  <!-- DO / DON'T -->
+  <h2>Do &amp; don't</h2>
+  <div class="grid g3">
+    <div class="panel dl ok"><span class="tag">Do</span><svg width="60" height="60" viewBox="0 0 100 100"><use href="#markA"/></svg><p>Use the coral tile on light or neutral backgrounds with clear space.</p></div>
+    <div class="panel dl no"><span class="tag">Don't</span><svg width="60" height="60" viewBox="0 0 100 100" style="transform:rotate(-12deg) skewX(8deg)"><use href="#markA"/></svg><p>Don't rotate, skew or stretch the mark.</p></div>
+    <div class="panel dl no"><span class="tag">Don't</span><div style="filter:saturate(2.2) hue-rotate(40deg);"><svg width="60" height="60" viewBox="0 0 100 100"><use href="#markA"/></svg></div><p>Don't recolor it outside the brand palette.</p></div>
+  </div>
+</div>
+</body>
+</html>

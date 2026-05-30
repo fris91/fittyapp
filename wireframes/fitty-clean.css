@@ -47,9 +47,9 @@ body{
 }
 .brand{display:flex;align-items:center;gap:11px;}
 .brand .mark{
-  width:38px;height:38px;border-radius:12px;display:grid;place-items:center;color:#fff;font-weight:800;
-  font-size:19px;background:linear-gradient(140deg,var(--coral),var(--coral-600));box-shadow:0 6px 14px rgba(255,127,110,.4);
+  width:38px;height:38px;border-radius:11px;display:grid;place-items:center;overflow:hidden;box-shadow:0 6px 14px rgba(255,127,110,.4);
 }
+.brand .mark svg{width:100%;height:100%;display:block;}
 .brand b{font-size:20px;font-weight:800;letter-spacing:-.02em;display:block;line-height:1;}
 .brand small{font-size:11px;color:var(--muted);font-weight:600;letter-spacing:.04em;}
 

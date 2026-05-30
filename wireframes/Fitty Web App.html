@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Fitty · Web App</title>
+<link rel="stylesheet" href="fitty-app.css">
+</head>
+<body>
+<svg style="display:none"><defs>
+<linearGradient id="lgCoral" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ff8f7e"/><stop offset="1" stop-color="#f4604c"/></linearGradient>
+<linearGradient id="lgMint" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#56d8ba"/><stop offset="1" stop-color="#39c6a7"/></linearGradient>
+<symbol id="logo" viewBox="0 0 100 100"><rect x="2" y="2" width="96" height="96" rx="27" fill="url(#lgCoral)"/><path d="M62 40 C61 27 70 19 84 17 C84 31 76 41 62 40 Z" fill="url(#lgMint)"/><path d="M70 34 C74 30 78 28 81 27" stroke="#fff" stroke-width="2.4" stroke-linecap="round" fill="none" opacity=".75"/><rect x="33" y="30" width="13.5" height="44" rx="6.7" fill="#fff"/><rect x="33" y="30" width="30" height="13.5" rx="6.7" fill="#fff"/><rect x="33" y="48" width="22" height="12" rx="6" fill="#fff"/></symbol>
+<g id="i-home"><path d="M3 11l9-7 9 7"/><path d="M5 10v10h14V10"/></g>
+<g id="i-chart"><path d="M4 20V10"/><path d="M10 20V4"/><path d="M16 20v-7"/><path d="M21 20H3"/></g>
+<g id="i-plan"><rect x="5" y="4" width="14" height="17" rx="2"/><path d="M9 9h6M9 13h6M9 17h3"/></g>
+<g id="i-meal"><path d="M5 3v8a3 3 0 006 0V3M8 3v18M16 3c-1.5 1-2 3-2 6s.5 4 2 4v8"/></g>
+<g id="i-recipe"><circle cx="12" cy="12" r="9"/><path d="M9 12h6M12 9v6"/></g>
+<g id="i-spark"><path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10z"/></g>
+<g id="i-gear"><circle cx="12" cy="12" r="3.2"/><path d="M12 3v3M12 18v3M3 12h3M18 12h3M5.6 5.6l2.1 2.1M16.3 16.3l2.1 2.1M18.4 5.6l-2.1 2.1M7.7 16.3l-2.1 2.1"/></g>
+<g id="i-bell"><path d="M18 16v-5a6 6 0 10-12 0v5l-2 2h16z"/><path d="M10 21h4"/></g>
+</defs></svg>
+
+<div class="app">
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="s-brand"><span class="mark"><svg viewBox="0 0 100 100"><defs><linearGradient id="logoCoral" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ff8f7e"/><stop offset="1" stop-color="#f4604c"/></linearGradient><linearGradient id="logoMint" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#56d8ba"/><stop offset="1" stop-color="#39c6a7"/></linearGradient></defs><rect x="2" y="2" width="96" height="96" rx="27" fill="url(#logoCoral)"/><path d="M62 40 C61 27 70 19 84 17 C84 31 76 41 62 40 Z" fill="url(#logoMint)"/><path d="M70 34 C74 30 78 28 81 27" stroke="#fff" stroke-width="2.4" stroke-linecap="round" fill="none" opacity=".75"/><rect x="33" y="30" width="13.5" height="44" rx="6.7" fill="#fff"/><rect x="33" y="30" width="30" height="13.5" rx="6.7" fill="#fff"/><rect x="33" y="48" width="22" height="12" rx="6" fill="#fff"/></svg></span><div><b>Fitty</b><small>WEB APP</small></div></div>
+    <div class="s-cap">Daily</div>
+    <button class="s-item on" data-s="dashboard"><svg viewBox="0 0 24 24"><use href="#i-home"/></svg><span>Today</span></button>
+    <button class="s-item" data-s="progress"><svg viewBox="0 0 24 24"><use href="#i-chart"/></svg><span>Progress &amp; Body</span></button>
+    <button class="s-item" data-s="coach"><svg viewBox="0 0 24 24"><use href="#i-spark"/></svg><span>Coach</span><span class="badge">2</span></button>
+    <button class="s-item" data-s="goals"><svg viewBox="0 0 24 24"><use href="#i-chart"/></svg><span>Goals</span></button>
+    <div class="s-cap">Plans</div>
+    <button class="s-item" data-s="plans"><svg viewBox="0 0 24 24"><use href="#i-plan"/></svg><span>Workout plan</span></button>
+    <button class="s-item" data-s="nutrition"><svg viewBox="0 0 24 24"><use href="#i-meal"/></svg><span>Nutrition &amp; Meals</span></button>
+    <button class="s-item" data-s="recipes"><svg viewBox="0 0 24 24"><use href="#i-recipe"/></svg><span>Recipes</span></button>
+    <div class="s-cap">Account</div>
+    <button class="s-item" data-s="notif"><svg viewBox="0 0 24 24"><use href="#i-spark"/></svg><span>Notifications</span><span class="badge">5</span></button>
+    <button class="s-item" data-s="settings"><svg viewBox="0 0 24 24"><use href="#i-gear"/></svg><span>Settings</span></button>
+    <div class="s-foot">
+      <div class="s-user"><span class="av" style="width:36px;height:36px;">S</span><div class="col" style="display:flex;flex-direction:column;"><b style="font-size:13px;">Sara Rossi</b><span class="sm">Free plan</span></div></div>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <div class="main">
+    <header class="topbar">
+      <div><h1 id="pgTitle">Today</h1><div class="sub" id="pgSub">Tuesday, 28 May · day 12 of your streak</div></div>
+      <div class="search"><span>⌕</span><span>Search foods, recipes, exercises…</span></div>
+      <div class="t-actions">
+        <label class="chip" style="cursor:pointer;"><input type="checkbox" id="tgNotes" checked style="margin-right:6px;">UX notes</label>
+        <button class="icon-btn"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#i-bell"/></svg><span class="dot"></span></button>
+        <span class="pill">Free</span>
+        <span class="av" style="width:38px;height:38px;">S</span>
+      </div>
+    </header>
+
+    <div class="content">
+
+      <!-- ============ DASHBOARD ============ -->
+      <section class="screen on" id="s-dashboard">
+        <div class="grid g-32">
+          <div class="grid" style="gap:18px;">
+            <!-- focus -->
+            <div class="panel lg tint-coral">
+              <span class="cap" style="color:var(--coral-600)">Today's focus</span>
+              <div style="display:flex;align-items:center;gap:18px;margin-top:10px;flex-wrap:wrap;">
+                <div style="flex:1;min-width:200px;">
+                  <div style="font-size:22px;font-weight:800;letter-spacing:-.02em;">A 15-min walk + a protein-rich lunch</div>
+                  <p class="lead" style="margin:8px 0 0;">Keeps you on track for your <b>lose-weight</b> goal without overloading a busy day.</p>
+                </div>
+                <div style="display:flex;gap:10px;"><button class="btn cta">Start walk</button><button class="btn ghost">Why this?</button></div>
+              </div>
+            </div>
+            <!-- rings -->
+            <div class="grid g-3">
+              <div class="panel stat" style="align-items:center;text-align:center;">
+                <div class="ring" style="width:92px;height:92px;--p:60%;"><div class="hole" style="font-size:20px;">60%</div></div>
+                <b style="margin-top:10px;">Move</b><span class="sm">18 / 30 active min</span>
+              </div>
+              <div class="panel stat" style="align-items:center;text-align:center;">
+                <div class="ring mint" style="width:92px;height:92px;--p:66%;"><div class="hole" style="font-size:20px;">2/3</div></div>
+                <b style="margin-top:10px;">Meals</b><span class="sm">1 left to log</span>
+              </div>
+              <div class="panel stat" style="align-items:center;text-align:center;">
+                <div class="ring lav" style="width:92px;height:92px;--p:100%;"><div class="hole" style="font-size:22px;">✓</div></div>
+                <b style="margin-top:10px;">Body data</b><span class="sm">logged 64.2 kg</span>
+              </div>
+            </div>
+            <!-- week streak -->
+            <div class="panel">
+              <div class="panel-head"><h3>This week</h3><span class="badge amber" style="margin-left:auto;">🔥 12-day streak</span></div>
+              <div style="display:flex;gap:10px;">
+                <div style="flex:1;text-align:center;"><div class="ring mint" style="width:52px;height:52px;--p:100%;margin:0 auto;"><div class="hole" style="font-size:12px;">✓</div></div><span class="sm" style="display:block;margin-top:6px;">Mon</span></div>
+                <div style="flex:1;text-align:center;"><div class="ring mint" style="width:52px;height:52px;--p:100%;margin:0 auto;"><div class="hole" style="font-size:12px;">✓</div></div><span class="sm" style="display:block;margin-top:6px;">Tue</span></div>
+                <div style="flex:1;text-align:center;"><div class="ring" style="width:52px;height:52px;--p:75%;margin:0 auto;"><div class="hole" style="font-size:12px;">75</div></div><span class="sm" style="display:block;margin-top:6px;">Wed</span></div>
+                <div style="flex:1;text-align:center;"><div class="ring" style="width:52px;height:52px;--p:8%;margin:0 auto;"><div class="hole" style="font-size:11px;">·</div></div><span class="sm" style="display:block;margin-top:6px;">Thu</span></div>
+                <div style="flex:1;text-align:center;"><div class="ring" style="width:52px;height:52px;--p:8%;margin:0 auto;"><div class="hole" style="font-size:11px;">·</div></div><span class="sm" style="display:block;margin-top:6px;">Fri</span></div>
+                <div style="flex:1;text-align:center;opacity:.45;"><div style="width:52px;height:52px;border-radius:50%;border:2px dashed var(--line);margin:0 auto;"></div><span class="sm" style="display:block;margin-top:6px;">Sat</span></div>
+                <div style="flex:1;text-align:center;opacity:.45;"><div style="width:52px;height:52px;border-radius:50%;border:2px dashed var(--line);margin:0 auto;"></div><span class="sm" style="display:block;margin-top:6px;">Sun</span></div>
+              </div>
+            </div>
+          </div>
+          <!-- right rail -->
+          <div class="grid" style="gap:18px;align-content:start;">
+            <div class="panel tint-lav">
+              <div class="panel-head"><span class="dot-ic" style="background:#fff;">✨</span><h3>Coach</h3></div>
+              <p class="lead" style="color:var(--ink);">You slept 7.4h and you're on a roll. Want me to make tomorrow a lighter recovery day?</p>
+              <div style="display:flex;gap:8px;margin-top:12px;"><button class="btn sm dark">Yes, do it</button><button class="btn sm ghost">Later</button></div>
+            </div>
+            <div class="panel">
+              <div class="panel-head"><h3>Quick stats</h3></div>
+              <div class="list">
+                <div class="row"><span class="dot-ic tint-mint">👣</span><div style="flex:1;"><b style="font-size:13px;">8,420 steps</b><div class="sm">84% of goal</div></div><span class="delta up">▲ 12%</span></div>
+                <div class="row"><span class="dot-ic tint-lav">😴</span><div style="flex:1;"><b style="font-size:13px;">7.4h sleep</b><div class="sm">good night</div></div><span class="delta up">▲ 0.6h</span></div>
+                <div class="row"><span class="dot-ic tint-coral">❤️</span><div style="flex:1;"><b style="font-size:13px;">72 bpm resting</b><div class="sm">steady</div></div><span class="sm">—</span></div>
+              </div>
+            </div>
+            <div class="panel">
+              <div class="panel-head"><h3>Recent activity</h3><span class="link">All</span></div>
+              <div class="list">
+                <div class="row"><span class="dot-ic tint-mint">🥗</span><div style="flex:1;"><b style="font-size:13px;">Lunch logged</b><div class="sm">Coral lentil salad</div></div><span class="sm">1h</span></div>
+                <div class="row"><span class="dot-ic tint-coral">🏋</span><div style="flex:1;"><b style="font-size:13px;">Workout done</b><div class="sm">Lower body · 35 min</div></div><span class="sm">3h</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="note">Web Home mirrors the mobile "momentum" concept but uses the wider canvas for a right rail (coach + quick stats), never extra density. Same calm, one-focus philosophy.</div>
+      </section>
+
+      <!-- ============ PROGRESS ============ -->
+      <section class="screen" id="s-progress">
+        <div class="page-head"><div><h2>Progress &amp; Body</h2><p>The deep-analysis surface — full metrics live here, off the calm Home.</p></div>
+          <div class="actions"><div class="seg"><button class="on">Week</button><button>Month</button><button>Year</button></div><button class="btn cta">+ Add body data</button></div></div>
+        <div class="grid g-4" style="margin-bottom:18px;">
+          <div class="panel stat"><span class="ico tint-mint">⚖️</span><span class="cap">Weight</span><span class="num">64.2<span style="font-size:14px;color:var(--muted)"> kg</span></span><span class="delta down">▼ 0.3 this week</span></div>
+          <div class="panel stat"><span class="ico tint-lav">📊</span><span class="cap">BMI</span><span class="num">22.7</span><span class="sm">normal range</span></div>
+          <div class="panel stat"><span class="ico tint-coral">🔥</span><span class="cap">Body fat</span><span class="num">24%</span><span class="delta down">▼ 0.5</span></div>
+          <div class="panel stat"><span class="ico tint-amber">💪</span><span class="cap">Muscle</span><span class="num">41%</span><span class="sm">steady</span></div>
+        </div>
+        <div class="grid g-32" style="margin-bottom:18px;">
+          <div class="panel lg">
+            <div class="panel-head"><h3>Weight trend</h3><span class="badge green" style="margin-left:auto;">Trending toward goal</span></div>
+            <div class="chart">
+              <div class="col"><i style="height:95%"></i><span>W1</span></div>
+              <div class="col"><i style="height:88%"></i><span>W2</span></div>
+              <div class="col"><i style="height:90%"></i><span>W3</span></div>
+              <div class="col"><i style="height:74%"></i><span>W4</span></div>
+              <div class="col"><i style="height:68%"></i><span>W5</span></div>
+              <div class="col"><i style="height:60%"></i><span>W6</span></div>
+              <div class="col"><i style="height:52%"></i><span>Now</span></div>
+            </div>
+          </div>
+          <div class="panel lg tint-mint" style="text-align:center;">
+            <span class="cap" style="color:var(--mint-700)">Wellness score</span>
+            <div class="ring mint" style="width:128px;height:128px;--p:82%;margin:14px auto;"><div class="hole" style="font-size:38px;">82</div></div>
+            <div class="delta up">▲ 4 vs last week</div>
+            <p class="sm" style="margin-top:8px;">A blend of activity, sleep, nutrition &amp; consistency.</p>
+          </div>
+        </div>
+        <div class="panel">
+          <div class="panel-head"><h3>Body data history</h3><span class="link">Export CSV</span></div>
+          <div class="table-wrap" style="box-shadow:none;border:0;">
+            <table>
+              <thead><tr><th>Date</th><th>Weight</th><th>Body fat</th><th>Muscle</th><th>Source</th><th></th></tr></thead>
+              <tbody>
+                <tr><td>28 May</td><td><b style="color:var(--ink)">64.2 kg</b></td><td>24.0%</td><td>41%</td><td><span class="badge lav">Manual</span></td><td class="kebab">⋯</td></tr>
+                <tr><td>21 May</td><td><b style="color:var(--ink)">64.5 kg</b></td><td>24.5%</td><td>40.8%</td><td><span class="badge green">Google Fit</span></td><td class="kebab">⋯</td></tr>
+                <tr><td>14 May</td><td><b style="color:var(--ink)">65.1 kg</b></td><td>25.0%</td><td>40.5%</td><td><span class="badge green">Google Fit</span></td><td class="kebab">⋯</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <div class="note">Power-user "cockpit" lives here. Each row shows its <b>source</b> (manual vs synced) so data provenance is always clear.</div>
+      </section>
+
+      <!-- ============ PLANS / AI WORKOUT ============ -->
+      <section class="screen" id="s-plans">
+        <div class="page-head"><div><h2>Workout plan</h2><p>Your current plan, plus AI generation with editable, explainable output.</p></div>
+          <div class="actions"><button class="btn ghost">Create manually</button><button class="btn cta">✨ Generate with AI</button></div></div>
+        <div class="grid g-23">
+          <!-- AI generator panel -->
+          <div class="panel lg tint-lav">
+            <div class="panel-head"><span class="dot-ic" style="background:#fff;">✨</span><h3>AI plan generator</h3><span class="tag lav" style="margin-left:auto;">Beta</span></div>
+            <p class="lead" style="color:var(--ink);margin-bottom:14px;">Before I build this, I need a few things to make it safe &amp; useful:</p>
+            <div class="field"><label>Days per week</label><div style="display:flex;gap:7px;"><span class="chip">2</span><span class="chip on">3</span><span class="chip">4</span><span class="chip">5</span></div></div>
+            <div class="field"><label>Any injuries or limits?</label><div style="display:flex;gap:7px;flex-wrap:wrap;"><span class="chip">Knee</span><span class="chip">Lower back</span><span class="chip">Shoulder</span><span class="chip on">None</span></div></div>
+            <div class="field"><label>Equipment</label><div style="display:flex;gap:7px;"><span class="chip on">Gym</span><span class="chip">Home</span><span class="chip">Bodyweight</span></div></div>
+            <div class="note" style="margin:6px 0 14px;background:var(--amber-50);border-color:#f7e3b8;"><span style="color:var(--amber-700)">⚠ Wellness guidance, not medical advice. Stop if you feel pain.</span></div>
+            <button class="btn cta" style="width:100%;">✨ Generate my plan</button>
+          </div>
+          <!-- generated plan -->
+          <div class="panel lg">
+            <div class="panel-head"><h3>3-day full body · 4 weeks</h3><span class="badge mint" style="margin-left:auto;">Matches your goal</span></div>
+            <div class="grid g-3" style="margin-bottom:14px;">
+              <div class="panel tint-mint" style="padding:12px;"><span class="cap">Day 1</span><b style="display:block;margin-top:3px;">Lower</b><span class="sm">5 moves · 35 min</span></div>
+              <div class="panel" style="padding:12px;"><span class="cap">Day 2</span><b style="display:block;margin-top:3px;">Upper</b><span class="sm">6 moves · 40 min</span></div>
+              <div class="panel" style="padding:12px;"><span class="cap">Day 3</span><b style="display:block;margin-top:3px;">Full + core</b><span class="sm">5 moves · 30 min</span></div>
+            </div>
+            <div class="list">
+              <div class="row"><span class="dot-ic tint-coral">1</span><div style="flex:1;"><b style="font-size:13px;color:var(--ink)">Goblet squat</b><div class="sm">3 × 10 · 90s rest</div></div><span class="sm" style="letter-spacing:2px;">✎ ⇄ ✕</span></div>
+              <div class="row"><span class="dot-ic tint-coral">2</span><div style="flex:1;"><b style="font-size:13px;color:var(--ink)">Romanian deadlift</b><div class="sm">3 × 8 · 90s rest</div></div><span class="sm" style="letter-spacing:2px;">✎ ⇄ ✕</span></div>
+              <div class="row"><span class="dot-ic tint-coral">3</span><div style="flex:1;"><b style="font-size:13px;color:var(--ink)">Walking lunge</b><div class="sm">2 × 12 · 60s rest</div></div><span class="sm" style="letter-spacing:2px;">✎ ⇄ ✕</span></div>
+            </div>
+            <div class="panel tint-lav" style="padding:12px;margin-top:12px;display:flex;align-items:center;gap:10px;"><span>✨</span><span class="sm" style="color:var(--ink)"><b>Why these?</b> Low-impact, knee-safe compounds that fit 3 days/week in a gym.</span></div>
+            <div style="display:flex;gap:9px;margin-top:14px;"><button class="btn ghost" style="flex:1;">Reject</button><button class="btn ghost" style="flex:1;">Regenerate</button><button class="btn cta" style="flex:1;">Save plan</button></div>
+          </div>
+        </div>
+        <div class="note">AI is bounded &amp; trustworthy: it gathers missing inputs <b>before</b> generating, every exercise is editable/swappable/removable, and "Why these?" + the medical boundary are always visible.</div>
+      </section>
+
+      <!-- ============ NUTRITION ============ -->
+      <section class="screen" id="s-nutrition">
+        <div class="page-head"><div><h2>Nutrition &amp; Meals</h2><p>Today's meals, macro balance, and your nutrition plan.</p></div>
+          <div class="actions"><button class="btn ghost">✨ AI nutrition plan</button><button class="btn cta">+ Log meal</button></div></div>
+        <div class="grid g-4" style="margin-bottom:18px;">
+          <div class="panel stat"><span class="cap">Calories</span><span class="num">1,480<span style="font-size:13px;color:var(--muted)"> / 1,600</span></span><div class="bar" style="margin-top:8px;"><i style="width:92%"></i></div></div>
+          <div class="panel stat"><span class="cap">Protein</span><span class="num">96<span style="font-size:13px;color:var(--muted)"> / 120g</span></span><div class="bar mint" style="margin-top:8px;"><i style="width:80%"></i></div></div>
+          <div class="panel stat"><span class="cap">Carbs</span><span class="num">142<span style="font-size:13px;color:var(--muted)"> / 180g</span></span><div class="bar lav" style="margin-top:8px;"><i style="width:78%"></i></div></div>
+          <div class="panel stat"><span class="cap">Fat</span><span class="num">48<span style="font-size:13px;color:var(--muted)"> / 60g</span></span><div class="bar" style="margin-top:8px;"><i style="width:80%"></i></div></div>
+        </div>
+        <div class="grid g-32">
+          <div class="panel">
+            <div class="panel-head"><h3>Today's meals</h3><span class="badge green" style="margin-left:auto;">120 kcal under goal 🎉</span></div>
+            <div class="list">
+              <div class="row"><span class="dot-ic tint-amber">🌅</span><div style="flex:1;"><b style="font-size:13px;color:var(--ink)">Breakfast · Lavender berry oats</b><div class="sm">18g P · 70g C · 12g F · 420 kcal</div></div><span class="sm">✎</span></div>
+              <div class="row"><span class="dot-ic tint-mint">🥗</span><div style="flex:1;"><b style="font-size:13px;color:var(--ink)">Lunch · Coral lentil salad</b><div class="sm">24g P · 64g C · 18g F · 540 kcal</div></div><span class="sm">✎</span></div>
+              <div class="row"><span class="dot-ic tint-lav">🥛</span><div style="flex:1;"><b style="font-size:13px;color:var(--ink)">Snack · Greek yogurt</b><div class="sm">12g P · 9g C · 4g F · 120 kcal</div></div><span class="sm">✎</span></div>
+              <div class="row" style="border:1.5px dashed var(--line);border-radius:12px;padding:11px;margin-top:6px;justify-content:center;color:var(--muted);font-weight:700;font-size:13px;">+ Add dinner · search or scan</div>
+            </div>
+          </div>
+          <div class="panel tint-mint">
+            <div class="panel-head"><h3>Your nutrition plan</h3></div>
+            <b style="font-size:15px;">Balanced · 1,600 kcal</b>
+            <p class="sm" style="margin:6px 0 12px;">High-protein, moderate-carb. Built for steady weight loss.</p>
+            <div class="list">
+              <div class="row" style="border-color:rgba(0,0,0,.05)"><span class="sm" style="flex:1;color:var(--ink-2)">Meals / day</span><b style="font-size:13px;">3 + 1 snack</b></div>
+              <div class="row" style="border-color:rgba(0,0,0,.05)"><span class="sm" style="flex:1;color:var(--ink-2)">Protein target</span><b style="font-size:13px;">120 g</b></div>
+            </div>
+            <button class="btn ghost" style="width:100%;margin-top:12px;">View full plan</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ RECIPES ============ -->
+      <section class="screen" id="s-recipes">
+        <div class="page-head"><div><h2>Recipes</h2><p>Personalised to your goal and what you've logged.</p></div>
+          <div class="actions"><div class="search" style="max-width:260px;"><span>⌕</span><span>Search recipes…</span></div></div></div>
+        <div class="toolbar"><span class="chip on">For you</span><span class="chip">High protein</span><span class="chip">Quick &lt;15 min</span><span class="chip">Vegetarian</span><span class="chip">Low carb</span></div>
+        <div class="grid g-4">
+          <div class="panel" style="padding:0;overflow:hidden;"><div style="height:130px;background:linear-gradient(135deg,var(--mint-100),var(--lav-100));display:grid;place-items:center;font-size:36px;">🥗</div><div style="padding:14px;"><span class="badge mint">28g protein</span><b style="display:block;margin-top:8px;">Mint yogurt power bowl</b><span class="sm">12 min · ★ 4.8</span></div></div>
+          <div class="panel" style="padding:0;overflow:hidden;"><div style="height:130px;background:linear-gradient(135deg,var(--coral-100),var(--amber-50));display:grid;place-items:center;font-size:36px;">🍲</div><div style="padding:14px;"><span class="badge lav">24g protein</span><b style="display:block;margin-top:8px;">Coral lentil salad</b><span class="sm">18 min · ★ 4.7</span></div></div>
+          <div class="panel" style="padding:0;overflow:hidden;"><div style="height:130px;background:linear-gradient(135deg,var(--lav-100),var(--mint-100));display:grid;place-items:center;font-size:36px;">🥣</div><div style="padding:14px;"><span class="badge amber">Quick</span><b style="display:block;margin-top:8px;">Lavender berry oats</b><span class="sm">8 min · ★ 4.9</span></div></div>
+          <div class="panel" style="padding:0;overflow:hidden;"><div style="height:130px;background:linear-gradient(135deg,var(--amber-50),var(--coral-100));display:grid;place-items:center;font-size:36px;">🍳</div><div style="padding:14px;"><span class="badge green">High protein</span><b style="display:block;margin-top:8px;">Veggie egg scramble</b><span class="sm">10 min · ★ 4.6</span></div></div>
+        </div>
+        <div class="note">Imagery-led grid (real photos in production). "For you" personalises to goal + logged meals; one click opens a full recipe detail with macros &amp; "Add to today".</div>
+      </section>
+
+      <!-- ============ COACH ============ -->
+      <section class="screen" id="s-coach">
+        <div class="page-head"><div><h2>Coach</h2><p>Recommendations &amp; a conversational AI assistant — clearly bounded as wellness support.</p></div></div>
+        <div class="grid g-23">
+          <div class="grid" style="gap:18px;align-content:start;">
+            <div class="panel-head" style="margin:0;"><h3>This week's recommendations</h3></div>
+            <div class="panel tint-lav"><div style="display:flex;gap:10px;"><span>🌙</span><div><b style="font-size:14px;">Prioritise recovery tonight</b><p class="sm" style="margin:4px 0 0;color:var(--ink-2)">Light dinner, hydrate, consistent sleep window.</p></div></div></div>
+            <div class="panel tint-mint"><div style="display:flex;gap:10px;"><span>🍗</span><div><b style="font-size:14px;">Add protein to lunch</b><p class="sm" style="margin:4px 0 0;color:var(--ink-2)">Stabilises afternoon energy and supports your goal.</p></div></div></div>
+            <div class="panel"><div style="display:flex;gap:10px;"><span>💧</span><div><b style="font-size:14px;">3 glasses of water left</b><p class="sm" style="margin:4px 0 0;color:var(--ink-2)">A gentle nudge for the rest of the day.</p></div></div></div>
+          </div>
+          <div class="panel lg" style="display:flex;flex-direction:column;min-height:440px;">
+            <div class="panel-head"><span class="dot-ic tint-lav">✨</span><h3>Chat with Fitty</h3></div>
+            <div style="flex:1;display:flex;flex-direction:column;gap:12px;">
+              <div class="panel tint-lav" style="align-self:flex-start;max-width:75%;border-radius:6px 16px 16px 16px;padding:12px 14px;"><span class="lead" style="color:var(--ink)">Based on your week, want a lighter recovery day tomorrow?</span></div>
+              <div style="align-self:flex-end;max-width:70%;background:var(--ink);color:#fff;border-radius:16px 6px 16px 16px;padding:12px 14px;font-size:13.5px;font-weight:600;">Yes please</div>
+              <div class="panel tint-lav" style="align-self:flex-start;max-width:75%;border-radius:6px 16px 16px 16px;padding:12px 14px;"><span class="lead" style="color:var(--ink)">Done — swapped to mobility + a walk. Added to your Today.</span></div>
+            </div>
+            <div style="display:flex;gap:8px;margin:12px 0;"><span class="chip">Plan my week</span><span class="chip">Suggest a meal</span><span class="chip">Explain my score</span></div>
+            <div style="display:flex;gap:10px;"><input class="input" style="flex:1;" placeholder="Message Fitty…"><button class="btn cta">Send</button></div>
+            <p class="sm" style="text-align:center;margin-top:10px;">Wellness support · not a medical professional</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ SETTINGS ============ -->
+      <section class="screen" id="s-settings">
+        <div class="page-head"><div><h2>Settings</h2><p>Profile, integrations, subscription &amp; privacy.</p></div></div>
+        <div class="grid g-2">
+          <div class="panel lg">
+            <div class="panel-head"><h3>Connected integrations</h3></div>
+            <div class="list">
+              <div class="row"><span class="dot-ic tint-mint">G</span><div style="flex:1;"><b style="font-size:13px;color:var(--ink)">Google Fit</b><div class="sm">Synced 2h ago</div></div><span class="badge green">Connected</span><button class="btn sm ghost">Manage</button></div>
+              <div class="row"><span class="dot-ic" style="background:#f1f3f5;">🍎</span><div style="flex:1;"><b style="font-size:13px;color:var(--ink)">Apple Health</b><div class="sm" style="color:var(--rose-700)">Reconnect needed</div></div><span class="badge red">Error</span><button class="btn sm cta">Fix</button></div>
+              <div class="row"><span class="dot-ic" style="background:#f1f3f5;">Mi</span><div style="flex:1;"><b style="font-size:13px;color:var(--ink)">Xiaomi Health</b><div class="sm">Not connected</div></div><button class="btn sm ghost">Connect</button></div>
+              <div class="row" style="border:1.5px dashed var(--line);border-radius:12px;padding:11px;justify-content:center;color:var(--muted);font-weight:700;font-size:13px;">+ Manual data import (CSV)</div>
+            </div>
+            <div class="note">Sync status, last-sync &amp; a clear <b>Fix</b> action are always inline — connections never fail silently. Each connect explains exactly which permissions it requests.</div>
+          </div>
+          <div class="grid" style="gap:18px;align-content:start;">
+            <div class="panel tint-coral">
+              <div class="panel-head"><h3>Subscription</h3><span class="badge gray" style="margin-left:auto;">Free</span></div>
+              <p class="lead" style="color:var(--ink)">Unlock unlimited AI plans, deep insights &amp; all integrations.</p>
+              <div style="display:flex;align-items:baseline;gap:6px;margin:12px 0;"><span class="num">€7,99</span><span class="sm">/ month · 7-day free trial</span></div>
+              <button class="btn cta" style="width:100%;">Start free trial</button>
+              <p class="sm" style="text-align:center;margin-top:10px;">Billing history · Restore</p>
+            </div>
+            <div class="panel">
+              <div class="panel-head"><h3>Privacy &amp; consent</h3></div>
+              <div class="list">
+                <div class="row"><div style="flex:1;"><b style="font-size:13px;color:var(--ink)">Use my data for AI suggestions</b><div class="sm">Powers your coach</div></div><span class="sw on"></span></div>
+                <div class="row"><div style="flex:1;"><b style="font-size:13px;color:var(--ink)">Share anonymised analytics</b><div class="sm">Helps improve Fitty</div></div><span class="sw on"></span></div>
+                <div class="row"><div style="flex:1;"><b style="font-size:13px;color:var(--ink)">Marketing emails</b><div class="sm">Tips &amp; offers</div></div><span class="sw"></span></div>
+              </div>
+              <button class="btn ghost" style="width:100%;margin-top:12px;">Download my data · Delete account</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ RECIPE DETAIL ============ -->
+      <section class="screen" id="s-recipe-detail">
+        <div class="page-head"><div><h2 style="display:flex;align-items:center;gap:10px;"><span class="sm" data-go="recipes" style="cursor:pointer;">‹ Recipes</span></h2></div></div>
+        <div class="grid g-23">
+          <div class="panel lg" style="padding:0;overflow:hidden;align-self:start;">
+            <div style="height:280px;background:linear-gradient(135deg,var(--mint-100),var(--lav-100));display:grid;place-items:center;font-size:72px;">🥗</div>
+            <div style="padding:22px;">
+              <div style="display:flex;gap:8px;margin-bottom:10px;"><span class="badge mint">28g protein</span><span class="badge lav">Vegetarian</span><span class="badge amber">12 min</span></div>
+              <h2 style="font-size:24px;margin:0 0 6px;">Mint yogurt power bowl</h2>
+              <p class="lead">A fresh, high-protein breakfast bowl with Greek yogurt, berries, mint and toasted seeds. Built to fit your weight-loss macros.</p>
+              <div class="grid g-4" style="margin-top:18px;">
+                <div class="panel tint-mint" style="padding:12px;text-align:center;"><span class="cap">Calories</span><b style="display:block;font-size:18px;margin-top:2px;">420</b></div>
+                <div class="panel" style="padding:12px;text-align:center;"><span class="cap">Protein</span><b style="display:block;font-size:18px;margin-top:2px;">28g</b></div>
+                <div class="panel" style="padding:12px;text-align:center;"><span class="cap">Carbs</span><b style="display:block;font-size:18px;margin-top:2px;">44g</b></div>
+                <div class="panel" style="padding:12px;text-align:center;"><span class="cap">Fat</span><b style="display:block;font-size:18px;margin-top:2px;">12g</b></div>
+              </div>
+            </div>
+          </div>
+          <div class="grid" style="gap:18px;align-content:start;">
+            <div class="panel">
+              <div class="panel-head"><h3>Ingredients</h3><span class="sm" style="margin-left:auto;">1 serving</span></div>
+              <div class="list">
+                <div class="row"><span class="sm" style="flex:1;color:var(--ink-2)">Greek yogurt</span><b style="font-size:12.5px;color:var(--ink)">200 g</b></div>
+                <div class="row"><span class="sm" style="flex:1;color:var(--ink-2)">Mixed berries</span><b style="font-size:12.5px;color:var(--ink)">80 g</b></div>
+                <div class="row"><span class="sm" style="flex:1;color:var(--ink-2)">Pumpkin seeds</span><b style="font-size:12.5px;color:var(--ink)">15 g</b></div>
+                <div class="row"><span class="sm" style="flex:1;color:var(--ink-2)">Honey · fresh mint</span><b style="font-size:12.5px;color:var(--ink)">to taste</b></div>
+              </div>
+            </div>
+            <div class="panel">
+              <div class="panel-head"><h3>Steps</h3></div>
+              <div class="list">
+                <div class="row"><span class="dot-ic tint-lav">1</span><span class="sm" style="flex:1;color:var(--ink-2)">Spoon yogurt into a bowl.</span></div>
+                <div class="row"><span class="dot-ic tint-lav">2</span><span class="sm" style="flex:1;color:var(--ink-2)">Top with berries &amp; seeds.</span></div>
+                <div class="row"><span class="dot-ic tint-lav">3</span><span class="sm" style="flex:1;color:var(--ink-2)">Drizzle honey, add mint.</span></div>
+              </div>
+            </div>
+            <button class="btn cta" style="width:100%;">+ Add to today's meals</button>
+          </div>
+        </div>
+        <div class="note">Recipe detail shows macros first (goal-relevant), then ingredients + steps. One-click "Add to today" closes the loop straight into meal tracking.</div>
+      </section>
+
+      <!-- ============ WORKOUT SESSION PLAYER ============ -->
+      <section class="screen" id="s-session">
+        <div class="page-head"><div><h2 style="display:flex;align-items:center;gap:10px;"><span class="sm" data-go="plans" style="cursor:pointer;">‹ Plan</span></h2><p>Day 1 · Lower body · 35 min</p></div>
+          <div class="actions"><span class="badge lav">Exercise 1 of 5</span><button class="btn ghost">Pause</button></div></div>
+        <div class="grid g-23">
+          <div class="panel lg" style="text-align:center;">
+            <div style="height:240px;border-radius:var(--r-md);background:linear-gradient(135deg,var(--coral-100),var(--amber-50));display:grid;place-items:center;font-size:64px;margin-bottom:18px;">🏋</div>
+            <h2 style="font-size:26px;margin:0;">Goblet squat</h2>
+            <p class="lead">Keep your chest up, drive through your heels.</p>
+            <div class="grid g-3" style="margin:18px 0;">
+              <div class="panel tint-coral" style="padding:14px;"><span class="cap">Set</span><b style="display:block;font-size:22px;margin-top:2px;">2 / 3</b></div>
+              <div class="panel" style="padding:14px;"><span class="cap">Reps</span><b style="display:block;font-size:22px;margin-top:2px;">10</b></div>
+              <div class="panel" style="padding:14px;"><span class="cap">Rest</span><b style="display:block;font-size:22px;margin-top:2px;">90s</b></div>
+            </div>
+            <div style="display:flex;gap:10px;"><button class="btn ghost" style="flex:1;">Previous</button><button class="btn cta" style="flex:2;">Complete set ✓</button><button class="btn ghost" style="flex:1;">Skip</button></div>
+          </div>
+          <div class="panel" style="align-self:start;">
+            <div class="panel-head"><h3>Today's session</h3></div>
+            <div class="list">
+              <div class="row"><span class="dot-ic tint-mint">✓</span><div style="flex:1;"><b style="font-size:12.5px;color:var(--ink)">Warm-up</b><div class="sm">5 min · done</div></div></div>
+              <div class="row" style="background:var(--coral-50);border-radius:10px;margin:0 -8px;padding:11px 8px;"><span class="dot-ic tint-coral">▶</span><div style="flex:1;"><b style="font-size:12.5px;color:var(--ink)">Goblet squat</b><div class="sm">3 × 10 · in progress</div></div></div>
+              <div class="row"><span class="dot-ic" style="background:#f1f3f5;">3</span><div style="flex:1;"><b style="font-size:12.5px;color:var(--ink)">Romanian deadlift</b><div class="sm">3 × 8</div></div></div>
+              <div class="row"><span class="dot-ic" style="background:#f1f3f5;">4</span><div style="flex:1;"><b style="font-size:12.5px;color:var(--ink)">Walking lunge</b><div class="sm">2 × 12</div></div></div>
+              <div class="row"><span class="dot-ic" style="background:#f1f3f5;">5</span><div style="flex:1;"><b style="font-size:12.5px;color:var(--ink)">Plank</b><div class="sm">3 × 40s</div></div></div>
+            </div>
+            <div class="panel tint-mint" style="padding:12px;margin-top:12px;text-align:center;"><span class="cap">Session progress</span><div class="bar mint" style="margin-top:8px;"><i style="width:30%"></i></div><span class="sm" style="display:block;margin-top:6px;">30% · ~24 min left</span></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ NOTIFICATIONS ============ -->
+      <section class="screen" id="s-notif">
+        <div class="page-head"><div><h2>Notifications</h2><p>Nudges, achievements &amp; reminders.</p></div><div class="actions"><button class="btn ghost">Mark all read</button></div></div>
+        <div class="panel" style="max-width:760px;">
+          <div class="list">
+            <div class="row" style="background:var(--coral-50);border-radius:10px;margin:0 -8px;padding:13px 8px;"><span class="dot-ic tint-coral">🔥</span><div style="flex:1;"><b style="font-size:13px;color:var(--ink)">12-day streak! Keep it going</b><div class="sm">Log today to make it 13.</div></div><span class="sm">2m</span></div>
+            <div class="row"><span class="dot-ic tint-mint">🎉</span><div style="flex:1;"><b style="font-size:13px;color:var(--ink)">New best: 0.3 kg this week</b><div class="sm">You're trending toward your goal.</div></div><span class="sm">1h</span></div>
+            <div class="row"><span class="dot-ic tint-lav">✨</span><div style="flex:1;"><b style="font-size:13px;color:var(--ink)">Coach has a recovery tip</b><div class="sm">Tap to see tomorrow's lighter plan.</div></div><span class="sm">3h</span></div>
+            <div class="row"><span class="dot-ic tint-amber">💧</span><div style="flex:1;"><b style="font-size:13px;color:var(--ink)">Hydration reminder</b><div class="sm">3 glasses left to hit your goal.</div></div><span class="sm">5h</span></div>
+            <div class="row"><span class="dot-ic" style="background:#f1f3f5;">🍎</span><div style="flex:1;"><b style="font-size:13px;color:var(--ink)">Apple Health needs reconnecting</b><div class="sm">Fix it in Settings → Integrations.</div></div><span class="sm">1d</span></div>
+          </div>
+        </div>
+        <div class="note">Encouraging-first: streaks &amp; wins lead, system warnings (sync) sit lower. Each notification deep-links to the exact screen that resolves it.</div>
+      </section>
+
+      <!-- ============ BILLING ============ -->
+      <section class="screen" id="s-billing">
+        <div class="page-head"><div><h2 style="display:flex;align-items:center;gap:10px;"><span class="sm" data-go="settings" style="cursor:pointer;">‹ Settings</span></h2><p>Subscription &amp; billing history</p></div></div>
+        <div class="grid g-23">
+          <div class="panel lg tint-coral" style="align-self:start;">
+            <div class="panel-head"><h3>Current plan</h3><span class="badge gray" style="margin-left:auto;">Free</span></div>
+            <p class="lead" style="color:var(--ink)">You're on the free plan. Upgrade for unlimited AI plans, all integrations &amp; deep insights.</p>
+            <div style="display:flex;align-items:baseline;gap:6px;margin:14px 0;"><span class="num xl">€7,99</span><span class="sm">/ month</span></div>
+            <button class="btn cta" style="width:100%;">Start 7-day free trial</button>
+            <p class="sm" style="text-align:center;margin-top:10px;">Cancel anytime · no charge during trial</p>
+          </div>
+          <div class="panel" style="align-self:start;">
+            <div class="panel-head"><h3>Billing history</h3><span class="link">Download all</span></div>
+            <div class="table-wrap" style="border:0;box-shadow:none;"><table>
+              <thead><tr><th>Date</th><th>Description</th><th>Amount</th><th>Status</th><th></th></tr></thead>
+              <tbody>
+                <tr><td>16 May ’26</td><td>Account created · Free</td><td>—</td><td><span class="badge green">OK</span></td><td class="kebab">⋯</td></tr>
+                <tr><td colspan="5" style="text-align:center;color:var(--muted);padding:24px;">No payments yet — your billing history will appear here.</td></tr>
+              </tbody>
+            </table></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ GOALS ============ -->
+      <section class="screen" id="s-goals">
+        <div class="page-head"><div><h2>Goals</h2><p>What you're working toward — drives your whole experience.</p></div><div class="actions"><button class="btn cta">Save goals</button></div></div>
+        <div class="grid g-2">
+          <div class="panel lg">
+            <div class="panel-head"><h3>Primary goal</h3></div>
+            <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:18px;"><span class="chip on">Lose weight</span><span class="chip">Build muscle</span><span class="chip">Eat better</span><span class="chip">Feel healthier</span><span class="chip">Sleep &amp; recover</span></div>
+            <div class="field"><label>Target weight</label><div style="display:flex;align-items:center;gap:14px;"><span class="num">60 kg</span><div class="bar" style="flex:1;"><i style="width:65%"></i></div></div></div>
+            <div class="field"><label>Pace</label><div class="seg"><button>Relaxed</button><button class="on">Steady</button><button>Focused</button></div></div>
+            <div class="note">One primary goal keeps the app focused — it re-centres Home, the coach, and AI plans. Pace sets a realistic, encouraging timeline (never aggressive).</div>
+          </div>
+          <div class="grid" style="gap:18px;align-content:start;">
+            <div class="panel">
+              <div class="panel-head"><h3>Weekly targets</h3></div>
+              <div class="list">
+                <div class="row"><span class="sm" style="flex:1;color:var(--ink-2)">Active minutes</span><b style="font-size:13px;color:var(--ink)">150 / week</b></div>
+                <div class="row"><span class="sm" style="flex:1;color:var(--ink-2)">Workouts</span><b style="font-size:13px;color:var(--ink)">3 / week</b></div>
+                <div class="row"><span class="sm" style="flex:1;color:var(--ink-2)">Daily calories</span><b style="font-size:13px;color:var(--ink)">1,600 kcal</b></div>
+                <div class="row"><span class="sm" style="flex:1;color:var(--ink-2)">Protein</span><b style="font-size:13px;color:var(--ink)">120 g / day</b></div>
+              </div>
+            </div>
+            <div class="panel tint-mint">
+              <div class="panel-head"><h3>On track</h3><span class="badge green" style="margin-left:auto;">82% adherence</span></div>
+              <p class="lead" style="color:var(--ink)">At this pace you'll reach 60 kg in about 9 weeks. Steady and sustainable. 👏</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+    </div>
+  </div>
+</div>
+
+<script>
+  const titles = {dashboard:["Today","Tuesday, 28 May · day 12 of your streak"],progress:["Progress & Body","Your metrics over time"],coach:["Coach","Recommendations & AI assistant"],goals:["Goals","What you're working toward"],plans:["Workout plan","Current plan & AI generation"],nutrition:["Nutrition & Meals","Today's intake & plan"],recipes:["Recipes","Personalised for you"],notif:["Notifications","Nudges & achievements"],settings:["Settings","Account, integrations & privacy"],"recipe-detail":["Recipe","Mint yogurt power bowl"],session:["Workout session","Day 1 · Lower body"],billing:["Billing","Subscription & history"]};
+  const items = document.querySelectorAll('.s-item');
+  const screens = document.querySelectorAll('.screen');
+  function go(s){
+    items.forEach(x => x.classList.toggle('on', x.dataset.s === s));
+    screens.forEach(x => x.classList.remove('on'));
+    const el = document.getElementById('s-'+s); if(el) el.classList.add('on');
+    if(titles[s]){document.getElementById('pgTitle').textContent = titles[s][0];document.getElementById('pgSub').textContent = titles[s][1];}
+    document.querySelector('.content').scrollTo({top:0});
+  }
+  items.forEach(b => b.addEventListener('click', () => go(b.dataset.s)));
+  document.querySelectorAll('[data-go]').forEach(el => el.addEventListener('click', e => { e.stopPropagation(); go(el.dataset.go); }));
+  document.querySelectorAll('#s-recipes .panel[style*="padding:0"]').forEach(card => { card.style.cursor='pointer'; card.addEventListener('click', () => go('recipe-detail')); });
+  [...document.querySelectorAll('.btn')].filter(b => /Start walk/.test(b.textContent)).forEach(b => b.addEventListener('click', () => go('session')));
+  document.querySelectorAll('.sm').forEach(el => { if(/Billing history/.test(el.textContent)){ el.style.cursor='pointer'; el.addEventListener('click', () => go('billing')); } });
+  const tg = document.getElementById('tgNotes');
+  const apply = () => document.body.classList.toggle('no-notes', !tg.checked);
+  tg.addEventListener('change', apply); apply();
+</script>
+</body>
+</html>
