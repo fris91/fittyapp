@@ -8,6 +8,7 @@ import com.fitty.user_service.impl.repository.UserRepository;
 import com.fitty.user_service.mapper.UserMapper;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
@@ -20,6 +21,7 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class UserService {
     private final UserRepository repository;
     private final UserMapper mapper;
@@ -100,12 +102,20 @@ public class UserService {
     }
 
     private void publish(String topic, UserEntity user) {
-        kafkaTemplate.send(topic, user.getId(), Map.of(
-                "eventId", UUID.randomUUID().toString(),
-                "type", topic,
-                "occurredAt", Instant.now().toString(),
-                "userId", user.getId(),
-                "email", user.getEmail() == null ? "" : user.getEmail()
-        ));
+        try {
+            kafkaTemplate.send(topic, user.getId(), Map.of(
+                    "eventId", UUID.randomUUID().toString(),
+                    "type", topic,
+                    "occurredAt", Instant.now().toString(),
+                    "userId", user.getId(),
+                    "email", user.getEmail() == null ? "" : user.getEmail()
+            )).whenComplete((result, error) -> {
+                if (error != null) {
+                    log.warn("Could not publish {} event for user {}. Profile persistence already succeeded.", topic, user.getId(), error);
+                }
+            });
+        } catch (RuntimeException error) {
+            log.warn("Could not enqueue {} event for user {}. Profile persistence already succeeded.", topic, user.getId(), error);
+        }
     }
 }

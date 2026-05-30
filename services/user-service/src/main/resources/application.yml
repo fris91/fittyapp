@@ -7,6 +7,10 @@ spring:
     bootstrap-servers: ${SPRING_KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
     producer:
       value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+      properties:
+        max.block.ms: ${SPRING_KAFKA_PRODUCER_MAX_BLOCK_MS:1000}
+        request.timeout.ms: ${SPRING_KAFKA_PRODUCER_REQUEST_TIMEOUT_MS:1000}
+        delivery.timeout.ms: ${SPRING_KAFKA_PRODUCER_DELIVERY_TIMEOUT_MS:3000}
 server:
   port: ${SERVER_PORT:8082}
 management:
