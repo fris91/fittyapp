@@ -108,6 +108,26 @@ const fallbackData: FittyData = {
   ]
 };
 
+const emptyData: FittyData = {
+  today: {
+    focus: "Registra il primo dato per costruire il tuo piano",
+    focusReason: "Fitty mostrerà progressi e suggerimenti solo quando arriveranno dati reali dal tuo profilo.",
+    rings: { move: 0, meals: 0, body: 0 },
+    streakDays: 0,
+    coachLine: "Nessun suggerimento ancora: aggiungi un pasto, un dato corpo o un allenamento."
+  },
+  progress: {
+    weightKg: 0,
+    bmi: 0,
+    bodyFat: 0,
+    muscle: 0,
+    wellnessScore: 0,
+    trend: [0, 0, 0, 0, 0, 0, 0]
+  },
+  recommendations: [],
+  notifications: []
+};
+
 const pageMeta: Record<Page, { title: string; subtitle: string }> = {
   today: { title: "Oggi", subtitle: "Martedì, 28 maggio - giorno 12 della tua serie" },
   progress: { title: "Progressi e corpo", subtitle: "Le tue metriche nel tempo" },
@@ -152,7 +172,7 @@ function App() {
   const [session, setSession] = useState<Session | null>(() => loadSession());
   const [page, setPage] = useState<Page>("today");
   const [theme, setTheme] = useState<"light" | "dark">("light");
-  const data = useFittyData(session);
+  const { data, reload } = useFittyData(session);
   const isAdmin = session?.user.roles.includes("FITTY_ADMIN") ?? false;
   const meta = pageMeta[page];
 
@@ -238,7 +258,7 @@ function App() {
         <div className="content">
           {page === "admin-users" && <AdminUsers token={session.accessToken} />}
           {page === "today" && <TodayScreen data={data} onWorkout={() => setPage("workout")} />}
-          {page === "progress" && <ProgressScreen data={data} />}
+          {page === "progress" && <ProgressScreen data={data} token={session.accessToken} onSaved={reload} />}
           {page === "coach" && <CoachScreen data={data} />}
           {page === "goals" && <GoalsScreen />}
           {page === "workout" && <WorkoutScreen />}
@@ -252,7 +272,54 @@ function App() {
   );
 }
 
+type RegisterStep = "account" | "body" | "goal" | "plan";
+type RegisterForm = {
+  firstName: string;
+  lastName: string;
+  email: string;
+  password: string;
+  confirmPassword: string;
+  sex: "M" | "F" | "OTHER";
+  age: string;
+  heightCm: string;
+  weightKg: string;
+  goal: string;
+  activityLevel: string;
+  subscriptionPlan: "FREE" | "PREMIUM";
+  wellnessConsent: boolean;
+  medicalConsent: boolean;
+  marketingConsent: boolean;
+};
+
+const emptyRegisterForm: RegisterForm = {
+  firstName: "",
+  lastName: "",
+  email: "",
+  password: "",
+  confirmPassword: "",
+  sex: "M",
+  age: "",
+  heightCm: "",
+  weightKg: "",
+  goal: "Sentirmi meglio",
+  activityLevel: "Leggermente attivo",
+  subscriptionPlan: "FREE",
+  wellnessConsent: false,
+  medicalConsent: false,
+  marketingConsent: false
+};
+
+const registerSteps: { id: RegisterStep; label: string }[] = [
+  { id: "account", label: "Account" },
+  { id: "body", label: "Corpo" },
+  { id: "goal", label: "Obiettivo" },
+  { id: "plan", label: "Piano" }
+];
+
 function AnonymousHome({ onSession, theme, onTheme }: { onSession: (session: Session) => void; theme: string; onTheme: () => void }) {
+  const [mode, setMode] = useState<"login" | "register">("login");
+  const [registerStep, setRegisterStep] = useState<RegisterStep>("account");
+  const [registerForm, setRegisterForm] = useState<RegisterForm>(emptyRegisterForm);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -280,6 +347,63 @@ function AnonymousHome({ onSession, theme, onTheme }: { onSession: (session: Ses
     }
   }
 
+  async function submitRegister(event: React.FormEvent) {
+    event.preventDefault();
+    setError("");
+    const validationError = validateRegistration(registerForm);
+    if (validationError) {
+      setError(validationError);
+      setRegisterStep(validationError.includes("corporei") ? "body" : validationError.includes("consensi") || validationError.includes("piano") ? "plan" : "account");
+      return;
+    }
+    setIsLoading(true);
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/v1/identity/register`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          email: registerForm.email,
+          password: registerForm.password,
+          firstName: registerForm.firstName,
+          lastName: registerForm.lastName,
+          locale: "it-IT",
+          subscriptionPlan: registerForm.subscriptionPlan === "PREMIUM" ? "FREE" : registerForm.subscriptionPlan,
+          goals: [registerForm.goal],
+          bodyBasics: {
+            sex: registerForm.sex,
+            age: Number(registerForm.age),
+            heightCm: Number(registerForm.heightCm),
+            weightKg: Number(registerForm.weightKg)
+          },
+          activityProfile: {
+            activityLevel: registerForm.activityLevel
+          },
+          consent: {
+            wellnessDataProcessing: registerForm.wellnessConsent,
+            medicalBoundaryAccepted: registerForm.medicalConsent,
+            marketing: registerForm.marketingConsent
+          }
+        })
+      });
+      if (!response.ok) {
+        const body = await response.text();
+        throw new Error(body.includes("password") ? "La password non rispetta i requisiti richiesti" : "Registrazione non riuscita");
+      }
+      const identity = await response.json();
+      const session = sessionFromTokenResponse(identity.token);
+      localStorage.setItem(TOKEN_KEY, JSON.stringify(session));
+      onSession(session);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Registrazione non riuscita");
+    } finally {
+      setIsLoading(false);
+    }
+  }
+
+  function updateRegister<K extends keyof RegisterForm>(key: K, value: RegisterForm[K]) {
+    setRegisterForm((current) => ({ ...current, [key]: value }));
+  }
+
   return (
     <main className="public-shell">
       <header className="public-header">
@@ -299,26 +423,118 @@ function AnonymousHome({ onSession, theme, onTheme }: { onSession: (session: Ses
         </div>
 
         <div className="panel auth-card">
-          <div>
-            <span className="cap">Bentornato</span>
-            <h2>Accedi a Fitty</h2>
-            <p>Usa email e password oppure continua con un provider collegato.</p>
+          <div className="auth-switch" role="tablist" aria-label="Accesso o registrazione">
+            <button className={mode === "login" ? "on" : ""} onClick={() => { setMode("login"); setError(""); }}>Accedi</button>
+            <button className={mode === "register" ? "on" : ""} onClick={() => { setMode("register"); setError(""); }}>Registrati</button>
           </div>
-          <form className="auth-form" onSubmit={submitLogin}>
-            <label>Email<span className="auth-field"><Mail size={18} /><input type="email" autoComplete="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="nome@email.it" /></span></label>
-            <label>Password<span className="auth-field"><Lock size={18} /><input type="password" autoComplete="current-password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="La tua password" /></span></label>
-            {error && <div className="alert">{error}</div>}
-            <button className="btn cta full" disabled={isLoading}>{isLoading ? "Accesso in corso..." : "Accedi"} <ArrowRight size={18} /></button>
-          </form>
+
+          {mode === "login" ? (
+            <>
+              <div>
+                <span className="cap">Bentornato</span>
+                <h2>Accedi a Fitty</h2>
+                <p>Usa email e password oppure continua con Google o Facebook.</p>
+              </div>
+              <form className="auth-form" onSubmit={submitLogin}>
+                <label>Email o username<span className="auth-field"><Mail size={18} /><input type="text" autoComplete="username" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="nome@email.it" /></span></label>
+                <label>Password<span className="auth-field"><Lock size={18} /><input type="password" autoComplete="current-password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="La tua password" /></span></label>
+                {error && <div className="alert">{error}</div>}
+                <button className="btn cta full" disabled={isLoading}>{isLoading ? "Accesso in corso..." : "Accedi"} <ArrowRight size={18} /></button>
+              </form>
+            </>
+          ) : (
+            <>
+              <div>
+                <span className="cap">Nuovo account</span>
+                <h2>Crea il tuo profilo Fitty</h2>
+                <p>Partiamo dai dati essenziali, poi corpo, obiettivo e piano.</p>
+              </div>
+              <div className="step-tabs">
+                {registerSteps.map((step) => <button key={step.id} className={registerStep === step.id ? "on" : ""} onClick={() => setRegisterStep(step.id)}>{step.label}</button>)}
+              </div>
+              <form className="auth-form" onSubmit={submitRegister}>
+                {registerStep === "account" && (
+                  <div className="register-grid">
+                    <label>Nome<input value={registerForm.firstName} onChange={(e) => updateRegister("firstName", e.target.value)} autoComplete="given-name" /></label>
+                    <label>Cognome<input value={registerForm.lastName} onChange={(e) => updateRegister("lastName", e.target.value)} autoComplete="family-name" /></label>
+                    <label className="wide">Email<input type="email" value={registerForm.email} onChange={(e) => updateRegister("email", e.target.value)} autoComplete="email" /></label>
+                    <label>Password<input type="password" value={registerForm.password} onChange={(e) => updateRegister("password", e.target.value)} autoComplete="new-password" /></label>
+                    <label>Conferma password<input type="password" value={registerForm.confirmPassword} onChange={(e) => updateRegister("confirmPassword", e.target.value)} autoComplete="new-password" /></label>
+                    <p className="hint wide">Minimo 8 caratteri, almeno una maiuscola e un carattere speciale.</p>
+                  </div>
+                )}
+                {registerStep === "body" && (
+                  <div className="register-grid">
+                    <label>Sesso<select value={registerForm.sex} onChange={(e) => updateRegister("sex", e.target.value as RegisterForm["sex"])}><option value="M">Uomo</option><option value="F">Donna</option><option value="OTHER">Altro / preferisco non dirlo</option></select></label>
+                    <label>Età<input type="number" min="13" value={registerForm.age} onChange={(e) => updateRegister("age", e.target.value)} /></label>
+                    <label>Altezza (cm)<input type="number" min="80" value={registerForm.heightCm} onChange={(e) => updateRegister("heightCm", e.target.value)} /></label>
+                    <label>Peso (kg)<input type="number" min="20" value={registerForm.weightKg} onChange={(e) => updateRegister("weightKg", e.target.value)} /></label>
+                  </div>
+                )}
+                {registerStep === "goal" && (
+                  <div>
+                    <b>Obiettivo principale</b>
+                    <div className="choice-grid">
+                      {["Perdere peso", "Aumentare massa", "Mangiare meglio", "Sentirmi meglio", "Dormire e recuperare"].map((goal) => (
+                        <button type="button" key={goal} className={registerForm.goal === goal ? "choice-card on" : "choice-card"} onClick={() => updateRegister("goal", goal)}>{goal}</button>
+                      ))}
+                    </div>
+                    <label className="form-line">Livello di attività<select value={registerForm.activityLevel} onChange={(e) => updateRegister("activityLevel", e.target.value)}><option>Sedentario</option><option>Leggermente attivo</option><option>Attivo</option><option>Molto attivo</option></select></label>
+                  </div>
+                )}
+                {registerStep === "plan" && (
+                  <div>
+                    <b>Scegli il piano</b>
+                    <div className="choice-grid">
+                      <button type="button" className={registerForm.subscriptionPlan === "FREE" ? "choice-card plan on" : "choice-card plan"} onClick={() => updateRegister("subscriptionPlan", "FREE")}><strong>Free</strong><span>Dashboard, log manuali e consigli base.</span></button>
+                      <button type="button" className="choice-card plan disabled" disabled><strong>Premium</strong><span>Pagamenti non ancora attivi: lo abilitiamo dopo.</span></button>
+                    </div>
+                    <label className="check-row"><input type="checkbox" checked={registerForm.wellnessConsent} onChange={(e) => updateRegister("wellnessConsent", e.target.checked)} /> Autorizzo Fitty a trattare i miei dati wellness per suggerimenti personalizzati.</label>
+                    <label className="check-row"><input type="checkbox" checked={registerForm.medicalConsent} onChange={(e) => updateRegister("medicalConsent", e.target.checked)} /> Ho letto che Fitty offre supporto wellness e non pareri medici.</label>
+                    <label className="check-row muted-check"><input type="checkbox" checked={registerForm.marketingConsent} onChange={(e) => updateRegister("marketingConsent", e.target.checked)} /> Voglio ricevere email promozionali.</label>
+                  </div>
+                )}
+                {error && <div className="alert">{error}</div>}
+                <div className="wizard-actions">
+                  {registerStep !== "account" && <button className="btn ghost" type="button" onClick={() => setRegisterStep(previousRegisterStep(registerStep))}>Indietro</button>}
+                  {registerStep !== "plan" ? <button className="btn cta" type="button" onClick={() => setRegisterStep(nextRegisterStep(registerStep))}>Continua</button> : <button className="btn cta" disabled={isLoading}>{isLoading ? "Creazione..." : "Crea account"}</button>}
+                </div>
+              </form>
+            </>
+          )}
+
           <div className="divider"><span>oppure</span></div>
           <div className="social-grid">
-            <button className="social-button" onClick={() => startLogin("google")}><span>G</span> Continua con Google</button>
-            <button className="social-button" onClick={() => startLogin("facebook")}><span>f</span> Continua con Facebook</button>
+            <button className="social-button" onClick={() => startLogin("google")}><span>G</span> {mode === "register" ? "Registrati con Google" : "Continua con Google"}</button>
+            <button className="social-button" onClick={() => startLogin("facebook")}><span>f</span> {mode === "register" ? "Registrati con Facebook" : "Continua con Facebook"}</button>
           </div>
         </div>
       </section>
     </main>
   );
+}
+
+function validateRegistration(form: RegisterForm) {
+  if (!form.firstName.trim() || !form.lastName.trim() || !form.email.trim()) return "Nome, cognome ed email sono obbligatori.";
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) return "Inserisci un indirizzo email valido.";
+  if (!/^(?=.*[A-Z])(?=.*[^A-Za-z0-9]).{8,}$/.test(form.password)) return "La password deve avere almeno 8 caratteri, una maiuscola e un carattere speciale.";
+  if (form.password !== form.confirmPassword) return "Le password non coincidono.";
+  if (!form.age || !form.heightCm || !form.weightKg) return "Completa i dati corporei obbligatori.";
+  if (Number(form.age) < 13 || Number(form.heightCm) < 80 || Number(form.weightKg) < 20) return "Controlla i dati corporei inseriti.";
+  if (!form.wellnessConsent || !form.medicalConsent) return "Per completare la registrazione servono i consensi obbligatori.";
+  return "";
+}
+
+function nextRegisterStep(step: RegisterStep): RegisterStep {
+  if (step === "account") return "body";
+  if (step === "body") return "goal";
+  return "plan";
+}
+
+function previousRegisterStep(step: RegisterStep): RegisterStep {
+  if (step === "plan") return "goal";
+  if (step === "goal") return "body";
+  return "account";
 }
 
 function TodayScreen({ data, onWorkout }: { data: FittyData; onWorkout: () => void }) {
@@ -378,10 +594,12 @@ function TodayScreen({ data, onWorkout }: { data: FittyData; onWorkout: () => vo
   );
 }
 
-function ProgressScreen({ data }: { data: FittyData }) {
+function ProgressScreen({ data, token, onSaved }: { data: FittyData; token: string; onSaved: () => void }) {
+  const [isBodyModalOpen, setIsBodyModalOpen] = useState(false);
+
   return (
     <section className="screen">
-      <PageHead title="Progressi e corpo" text="Qui vive l'analisi completa: la home resta calma, i dettagli stanno qui." action={<><div className="seg"><button className="on">Settimana</button><button>Mese</button><button>Anno</button></div><button className="btn cta">+ Aggiungi dati corpo</button></>} />
+      <PageHead title="Progressi e corpo" text="Qui vive l'analisi completa: la home resta calma, i dettagli stanno qui." action={<><div className="seg"><button className="on">Settimana</button><button>Mese</button><button>Anno</button></div><button className="btn cta" onClick={() => setIsBodyModalOpen(true)}>+ Aggiungi dati corpo</button></>} />
       <div className="grid g-4">
         <Stat icon="⚖" label="Peso" value={`${data.progress.weightKg.toFixed(1)} kg`} meta="-0,3 questa settimana" />
         <Stat icon="📊" label="BMI" value={data.progress.bmi.toString()} meta="intervallo normale" />
@@ -410,7 +628,62 @@ function ProgressScreen({ data }: { data: FittyData }) {
           <tr><td>14 Mag</td><td><b>65,1 kg</b></td><td>25,0%</td><td>40,5%</td><td><span className="badge green">Google Fit</span></td><td>...</td></tr>
         </tbody></table>
       </div>
+      {isBodyModalOpen && <BodyDataModal token={token} onClose={() => setIsBodyModalOpen(false)} onSaved={() => { setIsBodyModalOpen(false); onSaved(); }} />}
     </section>
+  );
+}
+
+function BodyDataModal({ token, onClose, onSaved }: { token: string; onClose: () => void; onSaved: () => void }) {
+  const [weightKg, setWeightKg] = useState("");
+  const [heightCm, setHeightCm] = useState("");
+  const [sleepHours, setSleepHours] = useState("");
+  const [steps, setSteps] = useState("");
+  const [heartRateBpm, setHeartRateBpm] = useState("");
+  const [notes, setNotes] = useState("");
+  const [error, setError] = useState("");
+  const [isSaving, setIsSaving] = useState(false);
+
+  async function save(event: React.FormEvent) {
+    event.preventDefault();
+    setError("");
+    if (!weightKg && !heightCm && !sleepHours && !steps && !heartRateBpm) {
+      setError("Inserisci almeno una misurazione.");
+      return;
+    }
+    setIsSaving(true);
+    try {
+      await apiPost("/api/v1/health-data", token, {
+        weightKg: numberOrNull(weightKg),
+        heightCm: numberOrNull(heightCm),
+        sleepHours: numberOrNull(sleepHours),
+        steps: integerOrNull(steps),
+        heartRateBpm: integerOrNull(heartRateBpm),
+        notes: notes.trim() || null
+      });
+      onSaved();
+    } catch {
+      setError("Non sono riuscito a salvare i dati. Riprova tra poco.");
+    } finally {
+      setIsSaving(false);
+    }
+  }
+
+  return (
+    <div className="modal-backdrop" role="dialog" aria-modal="true" aria-label="Aggiungi dati corpo">
+      <form className="panel modal-card" onSubmit={save}>
+        <div className="panel-head"><div><h3>Aggiungi dati corpo</h3><p>Le misurazioni restano visibili solo al tuo account.</p></div><button type="button" className="icon-btn" onClick={onClose}>×</button></div>
+        <div className="register-grid">
+          <label>Peso (kg)<input type="number" min="20" step="0.1" value={weightKg} onChange={(e) => setWeightKg(e.target.value)} /></label>
+          <label>Altezza (cm)<input type="number" min="80" step="0.1" value={heightCm} onChange={(e) => setHeightCm(e.target.value)} /></label>
+          <label>Sonno (ore)<input type="number" min="0" max="24" step="0.1" value={sleepHours} onChange={(e) => setSleepHours(e.target.value)} /></label>
+          <label>Passi<input type="number" min="0" value={steps} onChange={(e) => setSteps(e.target.value)} /></label>
+          <label>Frequenza a riposo<input type="number" min="30" max="220" value={heartRateBpm} onChange={(e) => setHeartRateBpm(e.target.value)} /></label>
+          <label className="wide">Note<textarea value={notes} onChange={(e) => setNotes(e.target.value)} rows={3} placeholder="Come ti senti oggi?" /></label>
+        </div>
+        {error && <div className="alert">{error}</div>}
+        <div className="wizard-actions"><button type="button" className="btn ghost" onClick={onClose}>Annulla</button><button className="btn cta" disabled={isSaving}>{isSaving ? "Salvataggio..." : "Salva dati"}</button></div>
+      </form>
+    </div>
   );
 }
 
@@ -589,7 +862,8 @@ function AdminUsers({ token }: { token: string }) {
 }
 
 function useFittyData(session: Session | null) {
-  const [data, setData] = useState<FittyData>(fallbackData);
+  const [data, setData] = useState<FittyData>(emptyData);
+  const [refreshKey, setRefreshKey] = useState(0);
 
   useEffect(() => {
     if (!session) return;
@@ -616,9 +890,9 @@ function useFittyData(session: Session | null) {
       }));
     }).catch(() => undefined);
     return () => { active = false; };
-  }, [session]);
+  }, [session, refreshKey]);
 
-  return data;
+  return { data, reload: () => setRefreshKey((value) => value + 1) };
 }
 
 async function apiGet<T>(path: string, token: string): Promise<T> {
@@ -627,8 +901,26 @@ async function apiGet<T>(path: string, token: string): Promise<T> {
   return response.json();
 }
 
+async function apiPost<T>(path: string, token: string, payload: unknown): Promise<T> {
+  const response = await fetch(`${API_BASE_URL}${path}`, {
+    method: "POST",
+    headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
+    body: JSON.stringify(payload)
+  });
+  if (!response.ok) throw new Error(`POST ${path} failed`);
+  return response.json();
+}
+
+function numberOrNull(value: string) {
+  return value.trim() ? Number(value) : null;
+}
+
+function integerOrNull(value: string) {
+  return value.trim() ? Number.parseInt(value, 10) : null;
+}
+
 function normalizeTrend(values: number[]) {
-  if (values.length === 0) return fallbackData.progress.trend;
+  if (values.length === 0) return emptyData.progress.trend;
   const max = Math.max(...values);
   const min = Math.min(...values);
   if (max === min) return values.map(() => 70);
