@@ -14,9 +14,14 @@ public class HealthSnapshot {
     private String userId;
     private Double weightKg;
     private Double heightCm;
+    private Double bodyFatPercentage;
+    private Double muscleMassPercentage;
+    private Double waistCm;
     private Integer systolicBloodPressure;
     private Integer diastolicBloodPressure;
     private Integer heartRateBpm;
+    private Integer energyLevel;
+    private String mood;
     private Double sleepHours;
     private Integer steps;
     private String notes;
@@ -54,6 +59,30 @@ public class HealthSnapshot {
         this.heightCm = heightCm;
     }
 
+    public Double getBodyFatPercentage() {
+        return bodyFatPercentage;
+    }
+
+    public void setBodyFatPercentage(Double bodyFatPercentage) {
+        this.bodyFatPercentage = bodyFatPercentage;
+    }
+
+    public Double getMuscleMassPercentage() {
+        return muscleMassPercentage;
+    }
+
+    public void setMuscleMassPercentage(Double muscleMassPercentage) {
+        this.muscleMassPercentage = muscleMassPercentage;
+    }
+
+    public Double getWaistCm() {
+        return waistCm;
+    }
+
+    public void setWaistCm(Double waistCm) {
+        this.waistCm = waistCm;
+    }
+
     public Integer getSystolicBloodPressure() {
         return systolicBloodPressure;
     }
@@ -76,6 +105,22 @@ public class HealthSnapshot {
 
     public void setHeartRateBpm(Integer heartRateBpm) {
         this.heartRateBpm = heartRateBpm;
+    }
+
+    public Integer getEnergyLevel() {
+        return energyLevel;
+    }
+
+    public void setEnergyLevel(Integer energyLevel) {
+        this.energyLevel = energyLevel;
+    }
+
+    public String getMood() {
+        return mood;
+    }
+
+    public void setMood(String mood) {
+        this.mood = mood;
     }
 
     public Double getSleepHours() {

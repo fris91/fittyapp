@@ -61,6 +61,7 @@ Fitty owns the user experience:
 - `identity-service` stores identity attributes in Keycloak.
 - `identity-service` creates the Fitty user profile through `user-service`.
 - Login returns Keycloak tokens to the app.
+- Password reset is exposed as `POST /api/v1/identity/password-reset` and uses Keycloak action emails. Real email delivery requires SMTP configuration in the `fitty` realm.
 
 Do not implement direct Google/Facebook login inside the app services. Google/Facebook must be configured as Keycloak identity providers. The Fitty UI may show branded buttons, but Keycloak remains the broker/provider behind the integration.
 
@@ -68,6 +69,7 @@ Current local identity endpoints:
 
 - `POST /api/v1/identity/register`
 - `POST /api/v1/identity/login`
+- `POST /api/v1/identity/password-reset`
 
 Gateway route:
 

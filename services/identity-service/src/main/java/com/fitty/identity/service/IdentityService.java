@@ -2,6 +2,7 @@ package com.fitty.identity.service;
 
 import com.fitty.identity.dto.IdentityDtos.IdentityResponse;
 import com.fitty.identity.dto.IdentityDtos.LoginRequest;
+import com.fitty.identity.dto.IdentityDtos.PasswordResetRequest;
 import com.fitty.identity.dto.IdentityDtos.RegisterRequest;
 import com.fitty.identity.dto.IdentityDtos.TokenResponse;
 import org.springframework.stereotype.Service;
@@ -35,5 +36,9 @@ public class IdentityService {
 
     public TokenResponse login(LoginRequest request) {
         return keycloakClient.token(request.email(), request.password());
+    }
+
+    public void passwordReset(PasswordResetRequest request) {
+        keycloakClient.sendPasswordResetEmail(request.email());
     }
 }

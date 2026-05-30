@@ -111,6 +111,25 @@ public class KeycloakClient {
         );
     }
 
+    public void sendPasswordResetEmail(String email) {
+        String adminToken = adminToken();
+        String userId = findUserIdByEmail(email, adminToken);
+        if (userId == null) {
+            return;
+        }
+
+        restClient.put()
+                .uri(keycloakBuilder("/admin/realms/{realm}/users/{userId}/execute-actions-email")
+                        .queryParam("client_id", properties.keycloak().webClientId())
+                        .queryParam("redirect_uri", properties.keycloak().webRedirectUri())
+                        .build(properties.keycloak().realm(), userId))
+                .headers(headers -> headers.setBearerAuth(adminToken))
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(List.of("UPDATE_PASSWORD"))
+                .retrieve()
+                .toBodilessEntity();
+    }
+
     private String adminToken() {
         var form = new LinkedMultiValueMap<String, String>();
         form.add("grant_type", "password");

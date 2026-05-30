@@ -64,6 +64,16 @@ spec:
                 configMapKeyRef:
                   name: fitty-app-config
                   key: KEYCLOAK_TOKEN_CLIENT_ID
+            - name: KEYCLOAK_WEB_CLIENT_ID
+              valueFrom:
+                configMapKeyRef:
+                  name: fitty-app-config
+                  key: KEYCLOAK_WEB_CLIENT_ID
+            - name: KEYCLOAK_WEB_REDIRECT_URI
+              valueFrom:
+                configMapKeyRef:
+                  name: fitty-app-config
+                  key: KEYCLOAK_WEB_REDIRECT_URI
             - name: USER_SERVICE_URL
               valueFrom:
                 configMapKeyRef:

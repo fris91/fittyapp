@@ -37,6 +37,9 @@ public final class IdentityDtos {
     public record LoginRequest(@Email @NotBlank String email, @NotBlank String password) {
     }
 
+    public record PasswordResetRequest(@Email @NotBlank String email) {
+    }
+
     public record BodyBasics(String sex, Integer age, Integer heightCm, Integer weightKg) {
     }
 

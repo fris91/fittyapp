@@ -5,6 +5,8 @@ import com.fitty.health.dto.HealthDtos.HealthSnapshotRequest;
 import com.fitty.health.dto.HealthDtos.HealthSnapshotResponse;
 import com.fitty.health.dto.HealthDtos.ProviderPlaceholder;
 import com.fitty.health.repository.HealthSnapshotRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 
@@ -16,6 +18,7 @@ import java.util.UUID;
 @Service
 public class HealthDataService {
     private static final String MEDICAL_DISCLAIMER = "Fitty does not provide medical diagnosis. Consult a specialist when risk indicators are present.";
+    private static final Logger log = LoggerFactory.getLogger(HealthDataService.class);
 
     private final HealthSnapshotRepository repository;
     private final KafkaTemplate<String, Object> kafkaTemplate;
@@ -30,18 +33,31 @@ public class HealthDataService {
         snapshot.setUserId(userId);
         snapshot.setWeightKg(request.weightKg());
         snapshot.setHeightCm(request.heightCm());
+        snapshot.setBodyFatPercentage(request.bodyFatPercentage());
+        snapshot.setMuscleMassPercentage(request.muscleMassPercentage());
+        snapshot.setWaistCm(request.waistCm());
         snapshot.setSystolicBloodPressure(request.systolicBloodPressure());
         snapshot.setDiastolicBloodPressure(request.diastolicBloodPressure());
         snapshot.setHeartRateBpm(request.heartRateBpm());
+        snapshot.setEnergyLevel(request.energyLevel());
+        snapshot.setMood(request.mood());
         snapshot.setSleepHours(request.sleepHours());
         snapshot.setSteps(request.steps());
         snapshot.setNotes(request.notes());
         snapshot.setRecordedAt(Instant.now());
         HealthSnapshot saved = repository.save(snapshot);
 
-        kafkaTemplate.send("health-data-ingested", userId, event("health-data-ingested", userId, saved, "normal", null));
-        detectRisk(saved).forEach(risk -> kafkaTemplate.send("health-risk-detected", userId, event("health-risk-detected", userId, saved, risk, MEDICAL_DISCLAIMER)));
+        publishEvents(userId, saved);
         return toResponse(saved);
+    }
+
+    private void publishEvents(String userId, HealthSnapshot saved) {
+        try {
+            kafkaTemplate.send("health-data-ingested", userId, event("health-data-ingested", userId, saved, "normal", null));
+            detectRisk(saved).forEach(risk -> kafkaTemplate.send("health-risk-detected", userId, event("health-risk-detected", userId, saved, risk, MEDICAL_DISCLAIMER)));
+        } catch (RuntimeException error) {
+            log.warn("Health snapshot {} was saved, but Kafka publishing failed: {}", saved.getId(), error.getMessage());
+        }
     }
 
     public HealthSnapshotResponse latest(String userId) {
@@ -96,9 +112,14 @@ public class HealthDataService {
                 snapshot.getUserId(),
                 snapshot.getWeightKg(),
                 snapshot.getHeightCm(),
+                snapshot.getBodyFatPercentage(),
+                snapshot.getMuscleMassPercentage(),
+                snapshot.getWaistCm(),
                 snapshot.getSystolicBloodPressure(),
                 snapshot.getDiastolicBloodPressure(),
                 snapshot.getHeartRateBpm(),
+                snapshot.getEnergyLevel(),
+                snapshot.getMood(),
                 snapshot.getSleepHours(),
                 snapshot.getSteps(),
                 snapshot.getNotes(),

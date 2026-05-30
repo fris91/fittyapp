@@ -38,7 +38,7 @@
     <button class="s-item" data-s="notif"><svg viewBox="0 0 24 24"><use href="#i-spark"/></svg><span>Notifications</span><span class="badge">5</span></button>
     <button class="s-item" data-s="settings"><svg viewBox="0 0 24 24"><use href="#i-gear"/></svg><span>Settings</span></button>
     <div class="s-foot">
-      <div class="s-user"><span class="av" style="width:36px;height:36px;">S</span><div class="col" style="display:flex;flex-direction:column;"><b style="font-size:13px;">Sara Rossi</b><span class="sm">Free plan</span></div></div>
+      <a href="Fitty Web Auth.html" class="s-user" style="text-decoration:none;color:inherit;" title="Log out"><span class="av" style="width:36px;height:36px;">S</span><div class="col" style="display:flex;flex-direction:column;"><b style="font-size:13px;">Sara Rossi</b><span class="sm">Free plan</span></div></a>
     </div>
   </aside>
 
@@ -131,7 +131,7 @@
       <!-- ============ PROGRESS ============ -->
       <section class="screen" id="s-progress">
         <div class="page-head"><div><h2>Progress &amp; Body</h2><p>The deep-analysis surface — full metrics live here, off the calm Home.</p></div>
-          <div class="actions"><div class="seg"><button class="on">Week</button><button>Month</button><button>Year</button></div><button class="btn cta">+ Add body data</button></div></div>
+          <div class="actions"><div class="seg"><button class="on">Week</button><button>Month</button><button>Year</button></div><button class="btn cta" data-go="add-body">+ Add body data</button></div></div>
         <div class="grid g-4" style="margin-bottom:18px;">
           <div class="panel stat"><span class="ico tint-mint">⚖️</span><span class="cap">Weight</span><span class="num">64.2<span style="font-size:14px;color:var(--muted)"> kg</span></span><span class="delta down">▼ 0.3 this week</span></div>
           <div class="panel stat"><span class="ico tint-lav">📊</span><span class="cap">BMI</span><span class="num">22.7</span><span class="sm">normal range</span></div>
@@ -455,12 +455,81 @@
         </div>
       </section>
 
+      <!-- ============ ADD BODY DATA ============ -->
+      <section class="screen" id="s-add-body">
+        <div class="page-head"><div><h2 style="display:flex;align-items:center;gap:10px;"><span class="sm" data-go="progress" style="cursor:pointer;">‹ Progress</span></h2><p>Today · 30 May ’26 · pre-filled from your last entry</p></div>
+          <div class="actions"><button class="btn ghost" data-go="progress">Cancel</button><button class="btn cta" data-go="progress">Save entry</button></div></div>
+        <div class="grid g-23">
+          <!-- LEFT: the entry form -->
+          <div class="grid" style="gap:18px;align-content:start;">
+            <!-- weight (primary) -->
+            <div class="panel lg tint-coral">
+              <div class="panel-head"><span class="dot-ic" style="background:#fff;">⚖️</span><h3>Weight</h3><span class="badge gray" style="margin-left:auto;">Required</span></div>
+              <div style="display:flex;align-items:center;gap:18px;flex-wrap:wrap;margin-top:6px;">
+                <div style="display:flex;align-items:baseline;gap:6px;"><span class="num xl">64.2</span><div class="seg" style="margin-left:6px;"><button class="on">kg</button><button>lb</button></div></div>
+                <div style="flex:1;min-width:200px;">
+                  <div class="bar" style="height:12px;"><i style="width:48%"></i></div>
+                  <div class="row between" style="margin-top:6px;"><span class="sm">62</span><span class="sm" style="color:var(--coral-600);font-weight:800;">drag to adjust</span><span class="sm">66</span></div>
+                </div>
+              </div>
+              <div class="row" style="gap:8px;margin-top:14px;"><button class="btn ghost sm">−0.1</button><button class="btn ghost sm">+0.1</button><span class="sm" style="margin-left:auto;align-self:center;">Last: 64.5 kg · 7 days ago</span></div>
+            </div>
+
+            <!-- optional metrics -->
+            <div class="panel lg">
+              <div class="panel-head"><h3>More metrics</h3><span class="sm" style="margin-left:auto;">Optional · add what you have</span></div>
+              <div class="grid g-2">
+                <div class="field"><label>Body fat %</label><div style="display:flex;align-items:center;gap:10px;"><input class="input" style="flex:1;" value="24.0" inputmode="decimal"><span class="sm">%</span></div></div>
+                <div class="field"><label>Muscle mass %</label><div style="display:flex;align-items:center;gap:10px;"><input class="input" style="flex:1;" value="41.0" inputmode="decimal"><span class="sm">%</span></div></div>
+                <div class="field"><label>Waist</label><div style="display:flex;align-items:center;gap:10px;"><input class="input" style="flex:1;" placeholder="—"><span class="sm">cm</span></div></div>
+                <div class="field"><label>Resting HR</label><div style="display:flex;align-items:center;gap:10px;"><input class="input" style="flex:1;" placeholder="—"><span class="sm">bpm</span></div></div>
+              </div>
+              <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:4px;"><span class="chip">+ Hip</span><span class="chip">+ Chest</span><span class="chip">+ Hydration</span><span class="chip">+ Visceral fat</span></div>
+            </div>
+
+            <!-- wellness indicators (separated from medical) -->
+            <div class="panel lg">
+              <div class="panel-head"><h3>How are you feeling?</h3><span class="tag lav" style="margin-left:auto;">Wellness</span></div>
+              <div class="field"><label>Energy</label><div style="display:flex;gap:7px;"><span class="chip">Low</span><span class="chip on">Good</span><span class="chip">Great</span></div></div>
+              <div class="field"><label>Mood</label><div style="display:flex;gap:7px;font-size:20px;"><span class="chip" style="padding:6px 12px;">😔</span><span class="chip" style="padding:6px 12px;">😐</span><span class="chip on" style="padding:6px 12px;">🙂</span><span class="chip" style="padding:6px 12px;">😄</span></div></div>
+              <div class="field" style="margin-bottom:0;"><label>Note (optional)</label><input class="input" placeholder="e.g. slept well, busy day…"></div>
+            </div>
+          </div>
+
+          <!-- RIGHT: live feedback + source -->
+          <div class="grid" style="gap:18px;align-content:start;">
+            <div class="panel">
+              <div class="panel-head"><h3>Live preview</h3></div>
+              <div class="grid g-2">
+                <div class="panel tint-mint" style="padding:14px;"><span class="cap">Weight</span><b style="display:block;font-size:20px;margin-top:2px;">64.2 kg</b><span class="delta down">▼ 0.3 since last</span></div>
+                <div class="panel" style="padding:14px;"><span class="cap">BMI</span><b style="display:block;font-size:20px;margin-top:2px;">22.7</b><span class="sm">normal range</span></div>
+              </div>
+              <div class="panel" style="padding:14px;margin-top:12px;"><span class="cap">Recalculated on save</span><div class="spark" style="margin-top:10px;"><i style="height:95%"></i><i style="height:88%"></i><i style="height:90%"></i><i style="height:74%"></i><i style="height:68%"></i><i style="height:60%"></i><i style="height:52%;background:var(--coral)"></i></div></div>
+            </div>
+            <div class="panel tint-lav">
+              <div class="panel-head"><span class="dot-ic" style="background:#fff;">✨</span><h3>Coach</h3></div>
+              <p class="lead" style="color:var(--ink)">Nice, that's three weeks trending down. I'll keep your plan steady — no changes needed.</p>
+            </div>
+            <div class="panel">
+              <div class="panel-head"><h3>Or import instead</h3></div>
+              <div class="list">
+                <div class="row"><span class="dot-ic tint-mint">G</span><div style="flex:1;"><b style="font-size:12.5px;color:var(--ink)">Google Fit</b><div class="sm">Auto-syncs daily</div></div><span class="badge green">On</span></div>
+                <div class="row"><span class="dot-ic" style="background:#f1f3f5;">📷</span><div style="flex:1;"><b style="font-size:12.5px;color:var(--ink)">Scan smart scale</b><div class="sm">Read display via camera</div></div><span class="sm">›</span></div>
+                <div class="row"><span class="dot-ic" style="background:#f1f3f5;">📄</span><div style="flex:1;"><b style="font-size:12.5px;color:var(--ink)">CSV import</b><div class="sm">Bulk history</div></div><span class="sm">›</span></div>
+              </div>
+            </div>
+            <div class="panel" style="border:1px solid #f7e3b8;background:var(--amber-50);"><span class="sm" style="color:var(--amber-700);">ⓘ Body &amp; wellness data only. For clinical indicators (blood pressure, glucose…) use the dedicated medical section — Fitty's guidance is wellness, not medical advice.</span></div>
+          </div>
+        </div>
+        <div class="note">Entry stays fast &amp; pleasant: weight is the one required field (slider + ±steppers, no keypad), everything else optional &amp; progressively added. A live preview recalculates BMI/trend instantly, and wellness inputs (mood/energy) are kept visually separate from anything medical.</div>
+      </section>
+
     </div>
   </div>
 </div>
 
 <script>
-  const titles = {dashboard:["Today","Tuesday, 28 May · day 12 of your streak"],progress:["Progress & Body","Your metrics over time"],coach:["Coach","Recommendations & AI assistant"],goals:["Goals","What you're working toward"],plans:["Workout plan","Current plan & AI generation"],nutrition:["Nutrition & Meals","Today's intake & plan"],recipes:["Recipes","Personalised for you"],notif:["Notifications","Nudges & achievements"],settings:["Settings","Account, integrations & privacy"],"recipe-detail":["Recipe","Mint yogurt power bowl"],session:["Workout session","Day 1 · Lower body"],billing:["Billing","Subscription & history"]};
+  const titles = {dashboard:["Today","Tuesday, 28 May · day 12 of your streak"],progress:["Progress & Body","Your metrics over time"],coach:["Coach","Recommendations & AI assistant"],goals:["Goals","What you're working toward"],plans:["Workout plan","Current plan & AI generation"],nutrition:["Nutrition & Meals","Today's intake & plan"],recipes:["Recipes","Personalised for you"],notif:["Notifications","Nudges & achievements"],settings:["Settings","Account, integrations & privacy"],"recipe-detail":["Recipe","Mint yogurt power bowl"],session:["Workout session","Day 1 · Lower body"],billing:["Billing","Subscription & history"],"add-body":["Add body data","Log today's measurements"]};
   const items = document.querySelectorAll('.s-item');
   const screens = document.querySelectorAll('.screen');
   function go(s){

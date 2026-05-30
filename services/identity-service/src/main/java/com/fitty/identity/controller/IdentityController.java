@@ -2,6 +2,7 @@ package com.fitty.identity.controller;
 
 import com.fitty.identity.dto.IdentityDtos.IdentityResponse;
 import com.fitty.identity.dto.IdentityDtos.LoginRequest;
+import com.fitty.identity.dto.IdentityDtos.PasswordResetRequest;
 import com.fitty.identity.dto.IdentityDtos.RegisterRequest;
 import com.fitty.identity.dto.IdentityDtos.TokenResponse;
 import com.fitty.identity.service.IdentityService;
@@ -31,5 +32,11 @@ public class IdentityController {
     @PostMapping("/login")
     public TokenResponse login(@Valid @RequestBody LoginRequest request) {
         return service.login(request);
+    }
+
+    @PostMapping("/password-reset")
+    @ResponseStatus(HttpStatus.ACCEPTED)
+    public void passwordReset(@Valid @RequestBody PasswordResetRequest request) {
+        service.passwordReset(request);
     }
 }

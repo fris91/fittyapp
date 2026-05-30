@@ -739,8 +739,11 @@ The app does not send users to the Keycloak UI for normal registration. Mobile a
 
 - `POST http://fitty-cp-01:30080/api/v1/identity/register`
 - `POST http://fitty-cp-01:30080/api/v1/identity/login`
+- `POST http://fitty-cp-01:30080/api/v1/identity/password-reset`
 
 `identity-service` creates or updates the Keycloak user, assigns `FITTY_USER`, stores onboarding attributes and consent flags, creates the Fitty user profile through `user-service`, and returns Keycloak tokens for email/password registrations.
+
+Password reset is brokered through Keycloak `execute-actions-email` with the `fitty-web` client and local web redirect URI. It requires SMTP to be configured in the Fitty realm before real emails can leave the cluster. Until SMTP is configured, the endpoint exists but Keycloak cannot deliver reset/verification emails.
 
 Build and deploy the service after changing identity code:
 
@@ -754,7 +757,7 @@ kubectl rollout restart deployment -n fitty-app identity-service
 kubectl rollout restart deployment -n fitty-app api-gateway
 ```
 
-Google and Facebook login are configured as disabled Keycloak identity-provider placeholders. Enable them in the Keycloak admin console later and set real provider credentials there or through a secret-managed import. Do not put production OAuth credentials in plain YAML.
+Google and Facebook login are configured as disabled Keycloak identity-provider placeholders. Enable them in the Keycloak admin console later and set real provider credentials there or through a secret-managed import. Do not put production OAuth credentials in plain YAML. The web and mobile Fitty UIs should show Google/Facebook buttons, but the provider login must remain brokered by Keycloak behind the scenes.
 
 If the realm was already imported and you change `fitty-realm-configmap.yaml`, Keycloak will not always re-import over existing realm data. For local development, either adjust the realm in the admin console or delete the Keycloak deployment and its local PVC when you intentionally want a clean realm:
 

@@ -14,6 +14,8 @@ fitty:
     admin-username: ${KEYCLOAK_ADMIN_USERNAME:admin}
     admin-password: ${KEYCLOAK_ADMIN_PASSWORD:admin123}
     token-client-id: ${KEYCLOAK_TOKEN_CLIENT_ID:fitty-mobile}
+    web-client-id: ${KEYCLOAK_WEB_CLIENT_ID:fitty-web}
+    web-redirect-uri: ${KEYCLOAK_WEB_REDIRECT_URI:http://localhost:3000/}
   user-service:
     url: ${USER_SERVICE_URL:http://localhost:8082}
 

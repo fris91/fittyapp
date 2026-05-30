@@ -11,6 +11,8 @@ spring:
     bootstrap-servers: ${SPRING_KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
     producer:
       value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+      properties:
+        max.block.ms: ${SPRING_KAFKA_PRODUCER_MAX_BLOCK_MS:1000}
 
 management:
   endpoints:

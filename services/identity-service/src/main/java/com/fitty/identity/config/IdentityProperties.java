@@ -11,7 +11,9 @@ public record IdentityProperties(Keycloak keycloak, UserService userService) {
             String adminClientId,
             String adminUsername,
             String adminPassword,
-            String tokenClientId
+            String tokenClientId,
+            String webClientId,
+            String webRedirectUri
     ) {
     }
 

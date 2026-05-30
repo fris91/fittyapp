@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Fitty · Login, Register &amp; Onboarding</title>
+<link rel="stylesheet" href="fitty-app.css">
+<style>
+  body{height:auto;min-height:100vh;}
+  .auth{min-height:100vh;display:grid;grid-template-columns:1.05fr 1fr;}
+  @media(max-width:880px){.auth{grid-template-columns:1fr;}.brandside{display:none;}}
+
+  /* left brand panel */
+  .brandside{position:relative;overflow:hidden;color:#fff;padding:46px 52px;display:flex;flex-direction:column;
+    background:linear-gradient(150deg,#ff9f90,#f4604c 70%);}
+  .brandside::before{content:"";position:absolute;inset:0;background:
+    radial-gradient(420px 420px at 88% 12%, rgba(155,140,255,.45), transparent 60%),
+    radial-gradient(460px 460px at 10% 100%, rgba(57,198,167,.5), transparent 60%);}
+  .bs-top{display:flex;align-items:center;gap:13px;position:relative;}
+  .bs-top .mk{width:46px;height:46px;border-radius:13px;overflow:hidden;box-shadow:0 8px 18px rgba(0,0,0,.18);}
+  .bs-top b{font-size:24px;font-weight:800;letter-spacing:-.02em;}
+  .bs-top .wm-accent{color:#fff8;}
+  .bs-mid{margin-top:auto;position:relative;}
+  .bs-mid h2{font-size:38px;font-weight:800;letter-spacing:-.03em;line-height:1.08;margin:0 0 14px;max-width:11ch;}
+  .bs-mid p{font-size:16px;line-height:1.5;opacity:.92;max-width:34ch;margin:0;}
+  .bs-list{margin-top:26px;display:flex;flex-direction:column;gap:12px;position:relative;}
+  .bs-list .li{display:flex;align-items:center;gap:12px;font-size:14.5px;font-weight:600;}
+  .bs-list .ck{width:26px;height:26px;border-radius:9px;background:rgba(255,255,255,.22);display:grid;place-items:center;font-size:13px;flex:0 0 auto;}
+  .bs-foot{margin-top:34px;font-size:12.5px;opacity:.8;position:relative;}
+
+  /* right form side */
+  .formside{display:flex;align-items:center;justify-content:center;padding:40px 28px;}
+  .auth-card{width:100%;max-width:420px;}
+  .auth-card.wide{max-width:760px;}
+  .auth-h{font-size:28px;font-weight:800;letter-spacing:-.02em;margin:0 0 4px;}
+  .auth-sub{font-size:14px;color:var(--ink-2);margin:0 0 24px;}
+  .oauth{display:flex;flex-direction:column;gap:10px;margin-bottom:18px;}
+  .obtn{display:flex;align-items:center;justify-content:center;gap:10px;border:1.5px solid var(--line);background:#fff;
+    border-radius:12px;padding:12px;font-weight:700;font-size:14px;cursor:pointer;color:var(--ink);}
+  .obtn:hover{background:var(--bg);}
+  .divider{display:flex;align-items:center;gap:12px;color:var(--muted);font-size:12px;font-weight:700;margin:8px 0 18px;}
+  .divider::before,.divider::after{content:"";flex:1;height:1px;background:var(--line);}
+  .legal{font-size:12px;color:var(--muted);text-align:center;margin-top:18px;line-height:1.5;}
+  .legal a,.swap a{color:var(--coral-600);font-weight:700;cursor:pointer;text-decoration:none;}
+  .swap{text-align:center;font-size:13.5px;color:var(--ink-2);margin-top:20px;}
+  .pw-row{display:flex;justify-content:space-between;align-items:center;}
+  .pw-row a{font-size:12px;color:var(--coral-600);font-weight:700;cursor:pointer;}
+
+  /* stepper */
+  .stepper{display:flex;align-items:center;gap:0;margin-bottom:8px;}
+  .stepper .st{display:flex;align-items:center;gap:8px;flex:0 0 auto;}
+  .stepper .bub{width:26px;height:26px;border-radius:50%;display:grid;place-items:center;font-size:12px;font-weight:800;
+    background:#fff;border:2px solid var(--line);color:var(--muted);}
+  .stepper .st.done .bub{background:var(--mint);border-color:var(--mint);color:#fff;}
+  .stepper .st.cur .bub{background:var(--coral);border-color:var(--coral);color:#fff;}
+  .stepper .seg{flex:1;height:2px;background:var(--line);margin:0 6px;}
+  .stepper .st.done + .seg{background:var(--mint);}
+  .step-label{font-size:12px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;}
+
+  .wiz{display:none;}
+  .wiz.on{display:block;animation:fade .26s ease;}
+  .wiz-h{font-size:26px;font-weight:800;letter-spacing:-.02em;margin:18px 0 4px;}
+  .wiz-sub{font-size:14px;color:var(--ink-2);margin:0 0 22px;}
+  .opt-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+  @media(max-width:520px){.opt-grid{grid-template-columns:1fr;}}
+  .opt{display:flex;align-items:center;gap:13px;border:2px solid var(--line);border-radius:16px;padding:15px;cursor:pointer;background:#fff;transition:.12s;}
+  .opt:hover{border-color:var(--coral-100);}
+  .opt.sel{border-color:var(--coral);background:var(--coral-50);}
+  .opt .em{width:42px;height:42px;border-radius:12px;display:grid;place-items:center;font-size:20px;background:var(--bg);flex:0 0 auto;}
+  .opt.sel .em{background:#fff;}
+  .opt b{font-size:14.5px;display:block;}
+  .opt span{font-size:12px;color:var(--muted);}
+  .wiz-foot{display:flex;gap:12px;margin-top:26px;}
+  .wiz-screen{display:none;}
+  .wiz-screen.on{display:block;}
+  .pagewrap{display:none;}
+  .pagewrap.on{display:block;}
+</style>
+</head>
+<body>
+
+<!-- ====================== LOGIN ====================== -->
+<div class="pagewrap on" id="p-login">
+  <div class="auth">
+    <aside class="brandside">
+      <div class="bs-top"><span class="mk"><svg viewBox="0 0 100 100" width="46" height="46"><defs><linearGradient id="lc1" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ff8f7e"/><stop offset="1" stop-color="#f4604c"/></linearGradient><linearGradient id="lm1" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#56d8ba"/><stop offset="1" stop-color="#39c6a7"/></linearGradient></defs><rect x="2" y="2" width="96" height="96" rx="27" fill="url(#lc1)"/><path d="M62 40 C61 27 70 19 84 17 C84 31 76 41 62 40 Z" fill="url(#lm1)"/><path d="M70 34 C74 30 78 28 81 27" stroke="#fff" stroke-width="2.4" stroke-linecap="round" fill="none" opacity=".75"/><rect x="33" y="30" width="13.5" height="44" rx="6.7" fill="#fff"/><rect x="33" y="30" width="30" height="13.5" rx="6.7" fill="#fff"/><rect x="33" y="48" width="22" height="12" rx="6" fill="#fff"/></svg></span><b>Fitty<span class="wm-accent">App</span></b></div>
+      <div class="bs-mid">
+        <h2>Welcome back to your wellness.</h2>
+        <p>Your plans, progress and coach are right where you left them.</p>
+        <div class="bs-list">
+          <div class="li"><span class="ck">✓</span>Personalised workout &amp; nutrition plans</div>
+          <div class="li"><span class="ck">✓</span>One calm view of your whole day</div>
+          <div class="li"><span class="ck">✓</span>A friendly AI coach in your pocket</div>
+        </div>
+      </div>
+      <div class="bs-foot">Wellness guidance, not medical advice.</div>
+    </aside>
+    <main class="formside">
+      <div class="auth-card">
+        <h1 class="auth-h">Log in</h1>
+        <p class="auth-sub">Good to see you again.</p>
+        <div class="oauth">
+          <button class="obtn"><span style="font-weight:800;color:#4285F4;">G</span> Continue with Google</button>
+          <button class="obtn"><span style="font-weight:800;color:#1877F2;">f</span> Continue with Facebook</button>
+        </div>
+        <div class="divider">or</div>
+        <div class="field"><label>Email</label><input class="input" type="email" placeholder="you@email.com"></div>
+        <div class="field"><div class="pw-row"><label>Password</label><a data-go="forgot">Forgot?</a></div><input class="input" type="password" placeholder="••••••••"></div>
+        <button class="btn cta" style="width:100%;margin-top:6px;" data-go="app">Log in</button>
+        <p class="swap">New to Fitty? <a data-go="register">Create an account</a></p>
+      </div>
+    </main>
+  </div>
+</div>
+
+<!-- ====================== FORGOT ====================== -->
+<div class="pagewrap" id="p-forgot">
+  <div class="auth">
+    <aside class="brandside">
+      <div class="bs-top"><span class="mk"><svg viewBox="0 0 100 100" width="46" height="46"><defs><linearGradient id="lc2" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ff8f7e"/><stop offset="1" stop-color="#f4604c"/></linearGradient><linearGradient id="lm2" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#56d8ba"/><stop offset="1" stop-color="#39c6a7"/></linearGradient></defs><rect x="2" y="2" width="96" height="96" rx="27" fill="url(#lc2)"/><path d="M62 40 C61 27 70 19 84 17 C84 31 76 41 62 40 Z" fill="url(#lm2)"/><rect x="33" y="30" width="13.5" height="44" rx="6.7" fill="#fff"/><rect x="33" y="30" width="30" height="13.5" rx="6.7" fill="#fff"/><rect x="33" y="48" width="22" height="12" rx="6" fill="#fff"/></svg></span><b>Fitty<span class="wm-accent">App</span></b></div>
+      <div class="bs-mid"><h2>No worries.</h2><p>We'll send you a link to set a new password.</p></div>
+      <div class="bs-foot">Wellness guidance, not medical advice.</div>
+    </aside>
+    <main class="formside">
+      <div class="auth-card">
+        <h1 class="auth-h">Reset password</h1>
+        <p class="auth-sub">Enter your email and we'll send a reset link.</p>
+        <div class="field"><label>Email</label><input class="input" type="email" placeholder="you@email.com"></div>
+        <button class="btn cta" style="width:100%;margin-top:6px;" data-go="login">Send reset link</button>
+        <p class="swap"><a data-go="login">‹ Back to log in</a></p>
+      </div>
+    </main>
+  </div>
+</div>
+
+<!-- ====================== REGISTER ====================== -->
+<div class="pagewrap" id="p-register">
+  <div class="auth">
+    <aside class="brandside">
+      <div class="bs-top"><span class="mk"><svg viewBox="0 0 100 100" width="46" height="46"><defs><linearGradient id="lc3" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ff8f7e"/><stop offset="1" stop-color="#f4604c"/></linearGradient><linearGradient id="lm3" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#56d8ba"/><stop offset="1" stop-color="#39c6a7"/></linearGradient></defs><rect x="2" y="2" width="96" height="96" rx="27" fill="url(#lc3)"/><path d="M62 40 C61 27 70 19 84 17 C84 31 76 41 62 40 Z" fill="url(#lm3)"/><path d="M70 34 C74 30 78 28 81 27" stroke="#fff" stroke-width="2.4" stroke-linecap="round" fill="none" opacity=".75"/><rect x="33" y="30" width="13.5" height="44" rx="6.7" fill="#fff"/><rect x="33" y="30" width="30" height="13.5" rx="6.7" fill="#fff"/><rect x="33" y="48" width="22" height="12" rx="6" fill="#fff"/></svg></span><b>Fitty<span class="wm-accent">App</span></b></div>
+      <div class="bs-mid">
+        <h2>Start your plan in 2 minutes.</h2>
+        <p>Create your account, then we'll ask a few quick questions to build your first workout &amp; nutrition plan.</p>
+        <div class="bs-list">
+          <div class="li"><span class="ck">1</span>Create account</div>
+          <div class="li"><span class="ck">2</span>Tell us your goal &amp; body</div>
+          <div class="li"><span class="ck">3</span>Get your tailored plan</div>
+        </div>
+      </div>
+      <div class="bs-foot">Free to start · no card required.</div>
+    </aside>
+    <main class="formside">
+      <div class="auth-card">
+        <h1 class="auth-h">Create your account</h1>
+        <p class="auth-sub">Then we'll personalise everything for you.</p>
+        <div class="oauth">
+          <button class="obtn" data-go="wizard"><span style="font-weight:800;color:#4285F4;">G</span> Sign up with Google</button>
+          <button class="obtn" data-go="wizard"><span style="font-weight:800;color:#1877F2;">f</span> Sign up with Facebook</button>
+        </div>
+        <div class="divider">or</div>
+        <div class="field"><label>Name</label><input class="input" placeholder="Sara"></div>
+        <div class="field"><label>Email</label><input class="input" type="email" placeholder="you@email.com"></div>
+        <div class="field"><label>Password</label><input class="input" type="password" placeholder="At least 8 characters"></div>
+        <button class="btn cta" style="width:100%;margin-top:6px;" data-go="wizard">Create account &amp; continue</button>
+        <p class="legal">By continuing you agree to our <a>Terms</a> &amp; <a>Privacy Policy</a>. Fitty offers wellness guidance, not medical advice.</p>
+        <p class="swap">Already have an account? <a data-go="login">Log in</a></p>
+      </div>
+    </main>
+  </div>
+</div>
+
+<!-- ====================== ONBOARDING WIZARD ====================== -->
+<div class="pagewrap" id="p-wizard" style="background:
+  radial-gradient(1000px 640px at 8% -8%, var(--coral-50), transparent 55%),
+  radial-gradient(900px 640px at 108% 4%, #f1eeff, transparent 52%), var(--bg);min-height:100vh;">
+  <div style="max-width:760px;margin:0 auto;padding:36px 24px 80px;">
+    <!-- header + stepper -->
+    <div style="display:flex;align-items:center;gap:13px;margin-bottom:26px;">
+      <span style="width:40px;height:40px;border-radius:12px;overflow:hidden;box-shadow:0 6px 14px rgba(255,127,110,.4);display:block;"><svg viewBox="0 0 100 100" width="40" height="40"><defs><linearGradient id="lc4" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ff8f7e"/><stop offset="1" stop-color="#f4604c"/></linearGradient><linearGradient id="lm4" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#56d8ba"/><stop offset="1" stop-color="#39c6a7"/></linearGradient></defs><rect x="2" y="2" width="96" height="96" rx="27" fill="url(#lc4)"/><path d="M62 40 C61 27 70 19 84 17 C84 31 76 41 62 40 Z" fill="url(#lm4)"/><rect x="33" y="30" width="13.5" height="44" rx="6.7" fill="#fff"/><rect x="33" y="30" width="30" height="13.5" rx="6.7" fill="#fff"/><rect x="33" y="48" width="22" height="12" rx="6" fill="#fff"/></svg></span>
+      <b style="font-size:18px;font-weight:800;letter-spacing:-.02em;">Build my plan</b>
+      <span class="step-label" id="stepCount" style="margin-left:auto;">Step 1 of 6</span>
+    </div>
+    <div class="stepper" id="stepper">
+      <div class="st cur"><span class="bub">1</span></div><div class="seg"></div>
+      <div class="st"><span class="bub">2</span></div><div class="seg"></div>
+      <div class="st"><span class="bub">3</span></div><div class="seg"></div>
+      <div class="st"><span class="bub">4</span></div><div class="seg"></div>
+      <div class="st"><span class="bub">5</span></div><div class="seg"></div>
+      <div class="st"><span class="bub">6</span></div>
+    </div>
+
+    <div class="panel lg" style="margin-top:22px;min-height:380px;display:flex;flex-direction:column;">
+
+      <!-- STEP 1 · Goal -->
+      <div class="wiz-screen on" data-step="1">
+        <div class="wiz-h">What's your main goal?</div>
+        <p class="wiz-sub">This shapes both your plans and your whole experience.</p>
+        <div class="opt-grid">
+          <div class="opt sel"><span class="em">🔥</span><div><b>Lose weight</b><span>Steady, sustainable fat loss</span></div></div>
+          <div class="opt"><span class="em">💪</span><div><b>Build muscle</b><span>Strength &amp; lean mass</span></div></div>
+          <div class="opt"><span class="em">🥗</span><div><b>Eat better</b><span>Balanced, healthier habits</span></div></div>
+          <div class="opt"><span class="em">🌿</span><div><b>Feel healthier</b><span>Energy &amp; general wellness</span></div></div>
+          <div class="opt"><span class="em">😴</span><div><b>Sleep &amp; recover</b><span>Rest, stress &amp; recovery</span></div></div>
+          <div class="opt"><span class="em">🏃</span><div><b>Improve fitness</b><span>Endurance &amp; performance</span></div></div>
+        </div>
+      </div>
+
+      <!-- STEP 2 · About you -->
+      <div class="wiz-screen" data-step="2">
+        <div class="wiz-h">A bit about you</div>
+        <p class="wiz-sub">We use this to calculate calories &amp; safe training loads.</p>
+        <div class="grid g-2" style="gap:16px;">
+          <div class="field"><label>Sex</label><div class="seg"><button class="on">Female</button><button>Male</button><button>Other</button></div></div>
+          <div class="field"><label>Age</label><input class="input" value="29" inputmode="numeric"></div>
+          <div class="field"><label>Height</label><div style="display:flex;align-items:center;gap:10px;"><input class="input" style="flex:1;" value="168"><span class="sm">cm</span></div></div>
+          <div class="field"><label>Current weight</label><div style="display:flex;align-items:center;gap:10px;"><input class="input" style="flex:1;" value="64"><span class="sm">kg</span></div></div>
+        </div>
+        <div class="field" style="margin-bottom:0;"><label>Target weight <span class="sm" style="font-weight:600;">(optional)</span></label><div style="display:flex;align-items:center;gap:14px;"><span class="num" style="min-width:78px;">60 kg</span><div class="bar" style="flex:1;"><i style="width:62%"></i></div></div></div>
+      </div>
+
+      <!-- STEP 3 · Activity -->
+      <div class="wiz-screen" data-step="3">
+        <div class="wiz-h">How active are you day to day?</div>
+        <p class="wiz-sub">Outside of planned workouts.</p>
+        <div class="opt-grid" style="grid-template-columns:1fr;">
+          <div class="opt"><span class="em">🛋</span><div><b>Mostly resting</b><span>Desk job, little movement</span></div></div>
+          <div class="opt sel"><span class="em">🚶</span><div><b>Lightly active</b><span>On your feet sometimes, 1–2 workouts/week</span></div></div>
+          <div class="opt"><span class="em">🚴</span><div><b>Moderately active</b><span>Regular movement, 3–4 workouts/week</span></div></div>
+          <div class="opt"><span class="em">🏃</span><div><b>Very active</b><span>Physical job or 5+ workouts/week</span></div></div>
+        </div>
+      </div>
+
+      <!-- STEP 4 · Nutrition -->
+      <div class="wiz-screen" data-step="4">
+        <div class="wiz-h">Your eating preferences</div>
+        <p class="wiz-sub">So your nutrition plan fits how you actually eat.</p>
+        <div class="field"><label>Diet style</label><div style="display:flex;gap:8px;flex-wrap:wrap;"><span class="chip on">Balanced</span><span class="chip">Vegetarian</span><span class="chip">Vegan</span><span class="chip">High-protein</span><span class="chip">Low-carb</span><span class="chip">Mediterranean</span></div></div>
+        <div class="field"><label>Allergies &amp; intolerances</label><div style="display:flex;gap:8px;flex-wrap:wrap;"><span class="chip">Gluten</span><span class="chip on">Lactose</span><span class="chip">Nuts</span><span class="chip">Shellfish</span><span class="chip">Eggs</span><span class="chip">None</span></div></div>
+        <div class="grid g-2" style="gap:16px;">
+          <div class="field" style="margin-bottom:0;"><label>Meals per day</label><div class="seg"><button>2</button><button class="on">3</button><button>4</button><button>5</button></div></div>
+          <div class="field" style="margin-bottom:0;"><label>Cooking time</label><div class="seg"><button class="on">Quick</button><button>Medium</button><button>I love cooking</button></div></div>
+        </div>
+      </div>
+
+      <!-- STEP 5 · Training -->
+      <div class="wiz-screen" data-step="5">
+        <div class="wiz-h">Your training setup</div>
+        <p class="wiz-sub">So your workout plan is realistic &amp; safe.</p>
+        <div class="field"><label>Days per week</label><div class="seg"><button>2</button><button class="on">3</button><button>4</button><button>5</button><button>6</button></div></div>
+        <div class="field"><label>Where will you train?</label><div style="display:flex;gap:8px;flex-wrap:wrap;"><span class="chip on">Gym</span><span class="chip">Home</span><span class="chip">Bodyweight only</span><span class="chip">Outdoors</span></div></div>
+        <div class="field"><label>Experience level</label><div class="seg"><button class="on">Beginner</button><button>Intermediate</button><button>Advanced</button></div></div>
+        <div class="field" style="margin-bottom:14px;"><label>Any injuries or limits? <span class="sm" style="font-weight:600;">(we'll keep you safe)</span></label><div style="display:flex;gap:8px;flex-wrap:wrap;"><span class="chip">Knee</span><span class="chip">Lower back</span><span class="chip">Shoulder</span><span class="chip">Wrist</span><span class="chip on">None</span></div></div>
+        <div class="panel" style="background:var(--amber-50);border-color:#f7e3b8;padding:12px;"><span class="sm" style="color:var(--amber-700);">⚠ Fitty's plans are wellness guidance, not medical advice. If you have a health condition, check with a professional first.</span></div>
+      </div>
+
+      <!-- STEP 6 · Connect (optional) -->
+      <div class="wiz-screen" data-step="6">
+        <div class="wiz-h">Connect your health data?</div>
+        <p class="wiz-sub">Optional — auto-fills steps, sleep &amp; weight so you log less. You can do this later in Settings.</p>
+        <div class="opt-grid" style="grid-template-columns:1fr;">
+          <div class="opt"><span class="em">G</span><div style="flex:1;"><b>Google Fit</b><span>Steps, weight, activity</span></div><span class="chip">Connect</span></div>
+          <div class="opt"><span class="em">🍎</span><div style="flex:1;"><b>Apple Health</b><span>Full health data</span></div><span class="chip">Connect</span></div>
+          <div class="opt"><span class="em">Mi</span><div style="flex:1;"><b>Xiaomi Health</b><span>Band &amp; scale data</span></div><span class="chip">Connect</span></div>
+        </div>
+        <div class="panel tint-lav" style="margin-top:14px;padding:12px;display:flex;gap:9px;align-items:flex-start;">
+          <span style="font-size:13px;font-weight:800;color:var(--lav-700);">✓</span>
+          <span class="sm" style="color:var(--ink-2);">I agree to Fitty using my data to personalise plans &amp; coaching. <b>This is wellness guidance, not medical advice.</b></span>
+        </div>
+      </div>
+
+      <!-- footer -->
+      <div class="wiz-foot" style="margin-top:auto;">
+        <button class="btn ghost" id="btnBack" style="visibility:hidden;">‹ Back</button>
+        <span style="flex:1;"></span>
+        <button class="btn ghost" id="btnSkip">Skip</button>
+        <button class="btn cta" id="btnNext">Continue</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ====================== BUILDING ====================== -->
+<div class="pagewrap" id="p-building" style="background:linear-gradient(160deg,#fff,var(--coral-50));">
+  <div style="min-height:100vh;display:flex;align-items:center;justify-content:center;padding:30px;">
+    <div style="text-align:center;max-width:440px;">
+      <div class="ring lav" style="width:120px;height:120px;--p:72%;margin:0 auto 24px;"><div class="hole" style="font-size:34px;">✨</div></div>
+      <h1 style="font-size:30px;font-weight:800;letter-spacing:-.02em;margin:0 0 8px;">Building your plan…</h1>
+      <p style="font-size:15px;color:var(--ink-2);margin:0 0 26px;">Crunching your goal, body data &amp; preferences into a plan made for you.</p>
+      <div style="display:flex;flex-direction:column;gap:10px;text-align:left;">
+        <div class="panel tint-mint" style="padding:13px;display:flex;gap:10px;align-items:center;"><span>✓</span><b style="font-size:14px;">Read your goal &amp; targets</b></div>
+        <div class="panel tint-mint" style="padding:13px;display:flex;gap:10px;align-items:center;"><span>✓</span><b style="font-size:14px;">Designed your 3-day workout plan</b></div>
+        <div class="panel" style="padding:13px;display:flex;gap:10px;align-items:center;"><span>◌</span><b style="font-size:14px;color:var(--muted);">Balancing your nutrition plan…</b></div>
+      </div>
+      <button class="btn cta" style="margin-top:26px;" data-go="app">See my plan</button>
+    </div>
+  </div>
+</div>
+
+<!-- ====================== "into app" placeholder ====================== -->
+<div class="pagewrap" id="p-app">
+  <div style="min-height:100vh;display:flex;align-items:center;justify-content:center;padding:30px;text-align:center;">
+    <div class="panel lg" style="max-width:440px;">
+      <div style="font-size:46px;">🎉</div>
+      <h1 style="font-size:26px;font-weight:800;margin:10px 0 6px;">You're all set!</h1>
+      <p style="color:var(--ink-2);font-size:14.5px;margin:0 0 20px;">Your tailored workout &amp; nutrition plans are ready. This is where Fitty would open the dashboard.</p>
+      <a href="Fitty Web App.html" class="btn cta" style="text-decoration:none;display:inline-block;">Open the Fitty web app →</a>
+      <p class="swap" style="margin-top:18px;"><a data-go="login">Back to start</a></p>
+    </div>
+  </div>
+</div>
+
+<script>
+  const pages = document.querySelectorAll('.pagewrap');
+  function show(id){ pages.forEach(p=>p.classList.remove('on')); const el=document.getElementById('p-'+id); if(el){el.classList.add('on');window.scrollTo({top:0});} }
+  document.querySelectorAll('[data-go]').forEach(el => el.addEventListener('click', e => { e.preventDefault(); const t=el.dataset.go; if(t==='wizard'){show('wizard');setStep(1);} else show(t); }));
+
+  // wizard logic
+  let step = 1; const TOTAL = 6;
+  const screens = document.querySelectorAll('.wiz-screen');
+  const sts = document.querySelectorAll('#stepper .st');
+  function setStep(n){
+    step = n;
+    screens.forEach(s => s.classList.toggle('on', +s.dataset.step === n));
+    sts.forEach((s,i) => { s.classList.toggle('done', i < n-1); s.classList.toggle('cur', i === n-1); });
+    document.getElementById('stepCount').textContent = 'Step '+n+' of '+TOTAL;
+    document.getElementById('btnBack').style.visibility = n>1 ? 'visible':'hidden';
+    document.getElementById('btnNext').textContent = n===TOTAL ? 'Create my plan' : 'Continue';
+    document.getElementById('btnSkip').style.display = (n>=4) ? 'inline-flex':'none';
+    document.querySelector('#p-wizard .panel').scrollIntoView({block:'nearest'});
+  }
+  document.getElementById('btnNext').addEventListener('click', () => { if(step<TOTAL) setStep(step+1); else show('building'); });
+  document.getElementById('btnBack').addEventListener('click', () => { if(step>1) setStep(step-1); });
+  document.getElementById('btnSkip').addEventListener('click', () => { if(step<TOTAL) setStep(step+1); else show('building'); });
+
+  // option select toggles
+  document.querySelectorAll('.opt-grid').forEach(grid => {
+    grid.addEventListener('click', e => { const o=e.target.closest('.opt'); if(!o)return;
+      if(grid.closest('[data-step="6"]')) return; // integrations multi
+      grid.querySelectorAll('.opt').forEach(x=>x.classList.remove('sel')); o.classList.add('sel'); });
+  });
+  // chip + seg toggles
+  document.querySelectorAll('.chip').forEach(c => c.addEventListener('click', () => c.classList.toggle('on')));
+  document.querySelectorAll('.seg').forEach(seg => seg.addEventListener('click', e => { const b=e.target.closest('button'); if(!b)return; seg.querySelectorAll('button').forEach(x=>x.classList.remove('on')); b.classList.add('on'); }));
+</script>
+</body>
+</html>

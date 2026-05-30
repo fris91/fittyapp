@@ -72,7 +72,15 @@ public class MobileBffService {
                 .map(value -> ((Number) value).doubleValue())
                 .toList();
         Integer score = weightTrend.isEmpty() ? null : Math.min(100, 50 + weightTrend.size() * 5);
-        return new MobileProgressResponse(score, weightTrend);
+        Map<String, Object> latest = history.isEmpty() ? Collections.emptyMap() : history.get(0);
+        return new MobileProgressResponse(
+                score,
+                doubleValue(latest.get("weightKg")),
+                doubleValue(latest.get("bmi")),
+                doubleValue(latest.get("bodyFatPercentage")),
+                doubleValue(latest.get("muscleMassPercentage")),
+                weightTrend
+        );
     }
 
     private String safeFirstName(String userId) {
@@ -168,6 +176,10 @@ public class MobileBffService {
             return 0;
         }
         return Math.min(7, history.size());
+    }
+
+    private Double doubleValue(Object value) {
+        return value instanceof Number number ? number.doubleValue() : null;
     }
 
     private String pickFocus(Map<String, Object> latestRecommendation) {

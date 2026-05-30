@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { createRoot } from "react-dom/client";
 import {
-  Activity,
   ArrowRight,
   Bell,
   BookOpen,
@@ -317,11 +316,13 @@ const registerSteps: { id: RegisterStep; label: string }[] = [
 ];
 
 function AnonymousHome({ onSession, theme, onTheme }: { onSession: (session: Session) => void; theme: string; onTheme: () => void }) {
-  const [mode, setMode] = useState<"login" | "register">("login");
+  const [mode, setMode] = useState<"login" | "register" | "forgot">("login");
   const [registerStep, setRegisterStep] = useState<RegisterStep>("account");
   const [registerForm, setRegisterForm] = useState<RegisterForm>(emptyRegisterForm);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [resetEmail, setResetEmail] = useState("");
+  const [resetMessage, setResetMessage] = useState("");
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
@@ -342,6 +343,26 @@ function AnonymousHome({ onSession, theme, onTheme }: { onSession: (session: Ses
       onSession(session);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Accesso non riuscito");
+    } finally {
+      setIsLoading(false);
+    }
+  }
+
+  async function submitPasswordReset(event: React.FormEvent) {
+    event.preventDefault();
+    setError("");
+    setResetMessage("");
+    setIsLoading(true);
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/v1/identity/password-reset`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: resetEmail })
+      });
+      if (!response.ok) throw new Error("Non sono riuscito a inviare il link di reset");
+      setResetMessage("Se l'email esiste, riceverai un link per impostare una nuova password.");
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Reset password non riuscito");
     } finally {
       setIsLoading(false);
     }
@@ -405,50 +426,91 @@ function AnonymousHome({ onSession, theme, onTheme }: { onSession: (session: Ses
   }
 
   return (
-    <main className="public-shell">
-      <header className="public-header">
-        <button className="side-brand"><LogoMark /><span><b>Fitty</b><small>APP WEB</small></span></button>
-        <button className="icon-btn" aria-label="Cambia tema" onClick={onTheme}>{theme === "light" ? <Moon /> : <Sun />}</button>
-      </header>
-      <section className="login-hero">
-        <div className="login-copy">
-          <span className="tag">Benessere, nutrizione e allenamento</span>
-          <h2>Fitty</h2>
-          <p>Accedi al tuo spazio personale per seguire progressi, piani, pasti e consigli. I tuoi dati restano protetti e visibili solo dopo il login.</p>
-          <div className="hero-points">
-            <span><Activity size={17} /> Progressi</span>
-            <span><Utensils size={17} /> Nutrizione</span>
-            <span><Dumbbell size={17} /> Allenamento</span>
+    <main className="auth-page">
+      <aside className="auth-brand-panel">
+        <div className="auth-brand-top">
+          <LogoMark />
+          <b>Fitty<span>App</span></b>
+        </div>
+        <div className="auth-brand-copy">
+          <h1>{mode === "register" ? "Inizia il tuo piano in pochi minuti." : mode === "forgot" ? "Nessun problema." : "Bentornato nel tuo benessere."}</h1>
+          <p>
+            {mode === "register"
+              ? "Crea l'account, raccontaci obiettivo e dati corporei, poi Fitty prepara la tua prima esperienza."
+              : mode === "forgot"
+                ? "Ti inviamo un link sicuro per impostare una nuova password e tornare al tuo percorso."
+                : "Piani, progressi e coach restano dove li hai lasciati, protetti dal tuo account Fitty."}
+          </p>
+          <div className="auth-brand-list">
+            <span><b>1</b> Piani allenamento e nutrizione personalizzati</span>
+            <span><b>2</b> Una vista calma della giornata</span>
+            <span><b>3</b> Coach AI con limiti wellness chiari</span>
           </div>
         </div>
+        <div className="auth-brand-foot">Supporto wellness, non parere medico.</div>
+      </aside>
 
-        <div className="panel auth-card">
-          <div className="auth-switch" role="tablist" aria-label="Accesso o registrazione">
-            <button className={mode === "login" ? "on" : ""} onClick={() => { setMode("login"); setError(""); }}>Accedi</button>
-            <button className={mode === "register" ? "on" : ""} onClick={() => { setMode("register"); setError(""); }}>Registrati</button>
-          </div>
+      <section className="auth-form-side">
+        <button className="icon-btn auth-theme" aria-label="Cambia tema" onClick={onTheme}>
+          {theme === "light" ? <Moon /> : <Sun />}
+        </button>
 
-          {mode === "login" ? (
+        <div className={mode === "register" ? "panel auth-card wide" : "panel auth-card"}>
+          {mode === "login" && (
             <>
               <div>
-                <span className="cap">Bentornato</span>
-                <h2>Accedi a Fitty</h2>
-                <p>Usa email e password oppure continua con Google o Facebook.</p>
+                <h2 className="auth-title">Accedi</h2>
+                <p className="auth-subtitle">Bentornato, riprendiamo dal tuo ultimo progresso.</p>
               </div>
+              <div className="oauth-stack">
+                <button className="oauth-button" onClick={() => startLogin("google")}><span className="google-mark">G</span> Continua con Google</button>
+                <button className="oauth-button" onClick={() => startLogin("facebook")}><span className="facebook-mark">f</span> Continua con Facebook</button>
+              </div>
+              <div className="divider"><span>oppure</span></div>
               <form className="auth-form" onSubmit={submitLogin}>
                 <label>Email o username<span className="auth-field"><Mail size={18} /><input type="text" autoComplete="username" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="nome@email.it" /></span></label>
-                <label>Password<span className="auth-field"><Lock size={18} /><input type="password" autoComplete="current-password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="La tua password" /></span></label>
+                <label>
+                  <span className="password-row">Password <button type="button" onClick={() => { setMode("forgot"); setError(""); setResetEmail(email); }}>Password dimenticata?</button></span>
+                  <span className="auth-field"><Lock size={18} /><input type="password" autoComplete="current-password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="La tua password" /></span>
+                </label>
                 {error && <div className="alert">{error}</div>}
                 <button className="btn cta full" disabled={isLoading}>{isLoading ? "Accesso in corso..." : "Accedi"} <ArrowRight size={18} /></button>
               </form>
+              <p className="auth-swap">Nuovo su Fitty? <button onClick={() => { setMode("register"); setError(""); }}>Crea un account</button></p>
             </>
-          ) : (
+          )}
+
+          {mode === "forgot" && (
             <>
               <div>
-                <span className="cap">Nuovo account</span>
-                <h2>Crea il tuo profilo Fitty</h2>
-                <p>Partiamo dai dati essenziali, poi corpo, obiettivo e piano.</p>
+                <h2 className="auth-title">Reimposta password</h2>
+                <p className="auth-subtitle">Inserisci la tua email: ti inviamo un link sicuro di reset.</p>
               </div>
+              <form className="auth-form" onSubmit={submitPasswordReset}>
+                <label>Email<span className="auth-field"><Mail size={18} /><input type="email" autoComplete="email" value={resetEmail} onChange={(e) => setResetEmail(e.target.value)} placeholder="nome@email.it" /></span></label>
+                {error && <div className="alert">{error}</div>}
+                {resetMessage && <div className="alert success">{resetMessage}</div>}
+                <button className="btn cta full" disabled={isLoading}>{isLoading ? "Invio..." : "Invia link di reset"}</button>
+              </form>
+              <p className="auth-swap"><button onClick={() => { setMode("login"); setError(""); }}>Torna all'accesso</button></p>
+            </>
+          )}
+
+          {mode === "register" && (
+            <>
+              <div>
+                <h2 className="auth-title">Crea il tuo account</h2>
+                <p className="auth-subtitle">Prima l'account, poi personalizziamo dati corporei, obiettivo e piano.</p>
+              </div>
+              {registerStep === "account" && (
+                <>
+                  <div className="oauth-stack">
+                    <button className="oauth-button" onClick={() => startLogin("google")}><span className="google-mark">G</span> Registrati con Google</button>
+                    <button className="oauth-button" onClick={() => startLogin("facebook")}><span className="facebook-mark">f</span> Registrati con Facebook</button>
+                  </div>
+                  <div className="divider"><span>oppure</span></div>
+                </>
+              )}
               <div className="step-tabs">
                 {registerSteps.map((step) => <button key={step.id} className={registerStep === step.id ? "on" : ""} onClick={() => setRegisterStep(step.id)}>{step.label}</button>)}
               </div>
@@ -500,14 +562,10 @@ function AnonymousHome({ onSession, theme, onTheme }: { onSession: (session: Ses
                   {registerStep !== "plan" ? <button className="btn cta" type="button" onClick={() => setRegisterStep(nextRegisterStep(registerStep))}>Continua</button> : <button className="btn cta" disabled={isLoading}>{isLoading ? "Creazione..." : "Crea account"}</button>}
                 </div>
               </form>
+              <p className="auth-swap">Hai gia un account? <button onClick={() => { setMode("login"); setError(""); }}>Accedi</button></p>
+              <p className="legal-copy">Continuando accetti privacy, consenso wellness e confine medico: Fitty non sostituisce un professionista sanitario.</p>
             </>
           )}
-
-          <div className="divider"><span>oppure</span></div>
-          <div className="social-grid">
-            <button className="social-button" onClick={() => startLogin("google")}><span>G</span> {mode === "register" ? "Registrati con Google" : "Continua con Google"}</button>
-            <button className="social-button" onClick={() => startLogin("facebook")}><span>f</span> {mode === "register" ? "Registrati con Facebook" : "Continua con Facebook"}</button>
-          </div>
         </div>
       </section>
     </main>
@@ -634,20 +692,28 @@ function ProgressScreen({ data, token, onSaved }: { data: FittyData; token: stri
 }
 
 function BodyDataModal({ token, onClose, onSaved }: { token: string; onClose: () => void; onSaved: () => void }) {
-  const [weightKg, setWeightKg] = useState("");
-  const [heightCm, setHeightCm] = useState("");
+  const [weightKg, setWeightKg] = useState("64.2");
+  const [heightCm, setHeightCm] = useState("170");
+  const [bodyFatPercentage, setBodyFatPercentage] = useState("");
+  const [muscleMassPercentage, setMuscleMassPercentage] = useState("");
+  const [waistCm, setWaistCm] = useState("");
   const [sleepHours, setSleepHours] = useState("");
   const [steps, setSteps] = useState("");
   const [heartRateBpm, setHeartRateBpm] = useState("");
+  const [energyLevel, setEnergyLevel] = useState(3);
+  const [mood, setMood] = useState("Bene");
   const [notes, setNotes] = useState("");
   const [error, setError] = useState("");
   const [isSaving, setIsSaving] = useState(false);
+  const weight = Number(weightKg);
+  const height = Number(heightCm);
+  const bmi = weight > 0 && height > 0 ? weight / ((height / 100) * (height / 100)) : 0;
 
   async function save(event: React.FormEvent) {
     event.preventDefault();
     setError("");
-    if (!weightKg && !heightCm && !sleepHours && !steps && !heartRateBpm) {
-      setError("Inserisci almeno una misurazione.");
+    if (!weightKg) {
+      setError("Il peso è obbligatorio.");
       return;
     }
     setIsSaving(true);
@@ -655,14 +721,19 @@ function BodyDataModal({ token, onClose, onSaved }: { token: string; onClose: ()
       await apiPost("/api/v1/health-data", token, {
         weightKg: numberOrNull(weightKg),
         heightCm: numberOrNull(heightCm),
+        bodyFatPercentage: numberOrNull(bodyFatPercentage),
+        muscleMassPercentage: numberOrNull(muscleMassPercentage),
+        waistCm: numberOrNull(waistCm),
         sleepHours: numberOrNull(sleepHours),
         steps: integerOrNull(steps),
         heartRateBpm: integerOrNull(heartRateBpm),
+        energyLevel,
+        mood,
         notes: notes.trim() || null
       });
       onSaved();
-    } catch {
-      setError("Non sono riuscito a salvare i dati. Riprova tra poco.");
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Non sono riuscito a salvare i dati. Riprova tra poco.");
     } finally {
       setIsSaving(false);
     }
@@ -670,18 +741,73 @@ function BodyDataModal({ token, onClose, onSaved }: { token: string; onClose: ()
 
   return (
     <div className="modal-backdrop" role="dialog" aria-modal="true" aria-label="Aggiungi dati corpo">
-      <form className="panel modal-card" onSubmit={save}>
-        <div className="panel-head"><div><h3>Aggiungi dati corpo</h3><p>Le misurazioni restano visibili solo al tuo account.</p></div><button type="button" className="icon-btn" onClick={onClose}>×</button></div>
-        <div className="register-grid">
-          <label>Peso (kg)<input type="number" min="20" step="0.1" value={weightKg} onChange={(e) => setWeightKg(e.target.value)} /></label>
-          <label>Altezza (cm)<input type="number" min="80" step="0.1" value={heightCm} onChange={(e) => setHeightCm(e.target.value)} /></label>
-          <label>Sonno (ore)<input type="number" min="0" max="24" step="0.1" value={sleepHours} onChange={(e) => setSleepHours(e.target.value)} /></label>
-          <label>Passi<input type="number" min="0" value={steps} onChange={(e) => setSteps(e.target.value)} /></label>
-          <label>Frequenza a riposo<input type="number" min="30" max="220" value={heartRateBpm} onChange={(e) => setHeartRateBpm(e.target.value)} /></label>
-          <label className="wide">Note<textarea value={notes} onChange={(e) => setNotes(e.target.value)} rows={3} placeholder="Come ti senti oggi?" /></label>
+      <form className="modal-card body-entry-card" onSubmit={save}>
+        <div className="body-entry-top">
+          <div><button type="button" className="link-button" onClick={onClose}>‹ Progressi</button><h3>Aggiungi dati corpo</h3><p>Oggi · precompilato dall’ultimo inserimento</p></div>
+          <div className="actions"><button type="button" className="btn ghost" onClick={onClose}>Annulla</button><button className="btn cta" disabled={isSaving}>{isSaving ? "Salvataggio..." : "Salva dato"}</button></div>
+        </div>
+
+        <div className="body-entry-grid">
+          <div className="grid">
+            <section className="panel lg tint-coral weight-entry">
+              <div className="panel-head"><span className="dot-ic tint-coral">⚖</span><h3>Peso</h3><span className="badge gray">Obbligatorio</span></div>
+              <div className="weight-row">
+                <strong>{weightKg || "0"}</strong>
+                <span className="unit-toggle"><b>kg</b><i>lb</i></span>
+                <input type="range" min="30" max="180" step="0.1" value={weightKg || "64.2"} onChange={(e) => setWeightKg(e.target.value)} />
+              </div>
+              <div className="stepper-row">
+                <button type="button" className="btn sm ghost" onClick={() => setWeightKg(stepDecimal(weightKg, -0.1))}>-0,1</button>
+                <button type="button" className="btn sm ghost" onClick={() => setWeightKg(stepDecimal(weightKg, 0.1))}>+0,1</button>
+                <span>Ultimo: 64,5 kg · 7 giorni fa</span>
+              </div>
+            </section>
+
+            <section className="panel lg">
+              <div className="panel-head"><h3>Altre metriche</h3><span className="sm">Opzionali</span></div>
+              <div className="register-grid">
+                <label>Altezza<input type="number" min="80" step="0.1" value={heightCm} onChange={(e) => setHeightCm(e.target.value)} placeholder="cm" /></label>
+                <label>Massa grassa %<input type="number" min="0" max="80" step="0.1" value={bodyFatPercentage} onChange={(e) => setBodyFatPercentage(e.target.value)} /></label>
+                <label>Massa muscolare %<input type="number" min="0" max="100" step="0.1" value={muscleMassPercentage} onChange={(e) => setMuscleMassPercentage(e.target.value)} /></label>
+                <label>Vita<input type="number" min="30" step="0.1" value={waistCm} onChange={(e) => setWaistCm(e.target.value)} placeholder="cm" /></label>
+                <label>Frequenza a riposo<input type="number" min="30" max="220" value={heartRateBpm} onChange={(e) => setHeartRateBpm(e.target.value)} placeholder="bpm" /></label>
+                <label>Passi<input type="number" min="0" value={steps} onChange={(e) => setSteps(e.target.value)} /></label>
+                <label>Sonno<input type="number" min="0" max="24" step="0.1" value={sleepHours} onChange={(e) => setSleepHours(e.target.value)} placeholder="ore" /></label>
+              </div>
+              <div className="chips compact-chips"><span>+ Fianchi</span><span>+ Torace</span><span>+ Idratazione</span><span>+ Grasso viscerale</span></div>
+            </section>
+
+            <section className="panel lg">
+              <div className="panel-head"><h3>Come ti senti?</h3><span className="tag">Wellness</span></div>
+              <FormChoice label="Energia" items={["Bassa", "Buona", "Ottima"]} active={energyLabel(energyLevel)} />
+              <input type="range" min="1" max="5" value={energyLevel} onChange={(e) => setEnergyLevel(Number(e.target.value))} />
+              <FormChoice label="Umore" items={["Sereno", "Normale", "Stanco", "Stressato"]} active={mood} />
+              <div className="chips compact-chips">{["Sereno", "Normale", "Stanco", "Stressato"].map((item) => <span key={item} className={mood === item ? "on" : ""} onClick={() => setMood(item)}>{item}</span>)}</div>
+              <label className="form-line">Note opzionali<textarea value={notes} onChange={(e) => setNotes(e.target.value)} rows={3} placeholder="es. ho dormito bene, giornata piena..." /></label>
+            </section>
+          </div>
+
+          <aside className="grid">
+            <section className="panel lg">
+              <h3>Anteprima live</h3>
+              <div className="preview-grid">
+                <div className="panel compact tint-mint"><span className="cap">Peso</span><strong>{weightKg || "0"} kg</strong><small>si aggiorna al salvataggio</small></div>
+                <div className="panel compact"><span className="cap">BMI</span><strong>{bmi ? bmi.toFixed(1) : "-"}</strong><small>{bmi ? "calcolato da peso e altezza" : "serve altezza"}</small></div>
+              </div>
+              <div className="recalc-strip"><i /><i /><i /><i /><i className="hot" /></div>
+            </section>
+            <section className="panel lg tint-lav"><div className="panel-head"><span className="dot-ic tint-lav">✨</span><h3>Coach</h3></div><p>Ottimo: con dati costanti posso aggiornare andamento, BMI e suggerimenti senza inventare nulla.</p></section>
+            <section className="panel lg">
+              <h3>Oppure importa</h3>
+              <div className="list">
+                <InfoRow icon="G" title="Google Fit" text="Sincronizzazione giornaliera" meta="On" tone="mint" />
+                <InfoRow icon="CSV" title="Import CSV" text="Caricamento storico" meta="›" tone="plain" />
+              </div>
+            </section>
+          </aside>
         </div>
         {error && <div className="alert">{error}</div>}
-        <div className="wizard-actions"><button type="button" className="btn ghost" onClick={onClose}>Annulla</button><button className="btn cta" disabled={isSaving}>{isSaving ? "Salvataggio..." : "Salva dati"}</button></div>
+        <div className="note">Solo dati corpo e wellness. Per indicatori clinici dedicati useremo una sezione medica separata e ancora più protetta.</div>
       </form>
     </div>
   );
@@ -870,7 +996,7 @@ function useFittyData(session: Session | null) {
     let active = true;
     Promise.all([
       apiGet<Partial<{ focus: string; rings: { move: number; meals: number; body: number }; streakDays: number; coachLine: string }>>("/api/v1/mobile/today", session.accessToken),
-      apiGet<Partial<{ wellnessScore: number; weightTrend: number[] }>>("/api/v1/mobile/progress", session.accessToken)
+      apiGet<Partial<{ wellnessScore: number; weightKg: number; bmi: number; bodyFatPercentage: number; muscleMassPercentage: number; weightTrend: number[] }>>("/api/v1/mobile/progress", session.accessToken)
     ]).then(([today, progress]) => {
       if (!active) return;
       setData((current) => ({
@@ -885,6 +1011,10 @@ function useFittyData(session: Session | null) {
         progress: {
           ...current.progress,
           wellnessScore: progress.wellnessScore ?? current.progress.wellnessScore,
+          weightKg: progress.weightKg ?? current.progress.weightKg,
+          bmi: progress.bmi ?? current.progress.bmi,
+          bodyFat: progress.bodyFatPercentage ?? current.progress.bodyFat,
+          muscle: progress.muscleMassPercentage ?? current.progress.muscle,
           trend: progress.weightTrend?.length ? normalizeTrend(progress.weightTrend) : current.progress.trend
         }
       }));
@@ -905,10 +1035,18 @@ async function apiPost<T>(path: string, token: string, payload: unknown): Promis
   const response = await fetch(`${API_BASE_URL}${path}`, {
     method: "POST",
     headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
-    body: JSON.stringify(payload)
+    body: JSON.stringify(stripNulls(payload))
   });
-  if (!response.ok) throw new Error(`POST ${path} failed`);
+  if (!response.ok) {
+    const details = await response.text().catch(() => "");
+    throw new Error(`Salvataggio non riuscito (${response.status})${details ? `: ${details.slice(0, 180)}` : ""}`);
+  }
   return response.json();
+}
+
+function stripNulls(payload: unknown) {
+  if (!payload || typeof payload !== "object" || Array.isArray(payload)) return payload;
+  return Object.fromEntries(Object.entries(payload).filter(([, value]) => value !== null && value !== undefined && value !== ""));
 }
 
 function numberOrNull(value: string) {
@@ -917,6 +1055,17 @@ function numberOrNull(value: string) {
 
 function integerOrNull(value: string) {
   return value.trim() ? Number.parseInt(value, 10) : null;
+}
+
+function stepDecimal(value: string, delta: number) {
+  const next = (Number(value || "0") + delta).toFixed(1);
+  return String(Math.max(20, Number(next)));
+}
+
+function energyLabel(value: number) {
+  if (value <= 2) return "Bassa";
+  if (value >= 4) return "Ottima";
+  return "Buona";
 }
 
 function normalizeTrend(values: number[]) {

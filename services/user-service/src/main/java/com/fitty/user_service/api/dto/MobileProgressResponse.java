@@ -8,6 +8,10 @@ import java.util.List;
  */
 public record MobileProgressResponse(
         Integer wellnessScore,
+        Double weightKg,
+        Double bmi,
+        Double bodyFatPercentage,
+        Double muscleMassPercentage,
         List<Double> weightTrend
 ) {
 }
