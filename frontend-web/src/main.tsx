@@ -2,11 +2,14 @@ import React, { useEffect, useState } from "react";
 import { createRoot } from "react-dom/client";
 import {
   Activity,
+  ArrowRight,
+  Dumbbell,
+  Lock,
   LogOut,
+  Mail,
   Moon,
   Ruler,
   Settings,
-  ShieldCheck,
   Sparkles,
   Sun,
   Target,
@@ -70,7 +73,13 @@ function App() {
   }, []);
 
   if (!session) {
-    return <AnonymousHome onLogin={() => startLogin()} theme={theme} onTheme={() => setTheme(theme === "light" ? "dark" : "light")} />;
+    return (
+      <AnonymousHome
+        onSession={setSession}
+        theme={theme}
+        onTheme={() => setTheme(theme === "light" ? "dark" : "light")}
+      />
+    );
   }
 
   const nav = isAdmin ? [{ page: "admin-users" as Page, label: "Users", icon: <Users size={19} /> }, ...userNav] : userNav;
@@ -80,7 +89,7 @@ function App() {
     <div className="app">
       <aside className="sidebar">
         <button className="brand" onClick={() => setPage(isAdmin ? "admin-users" : "dashboard")}>
-          <span className="brand-mark">F</span>
+          <LogoMark />
           <span>Fitty</span>
         </button>
         <nav>
@@ -124,31 +133,100 @@ function App() {
   );
 }
 
-function AnonymousHome({ onLogin, theme, onTheme }: { onLogin: () => void; theme: string; onTheme: () => void }) {
+function AnonymousHome({ onSession, theme, onTheme }: { onSession: (session: Session) => void; theme: string; onTheme: () => void }) {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+
+  async function submitLogin(event: React.FormEvent) {
+    event.preventDefault();
+    setError("");
+    setIsLoading(true);
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/v1/identity/login`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password })
+      });
+      if (!response.ok) throw new Error("Email o password non validi");
+      const token = await response.json();
+      const session = sessionFromTokenResponse(token);
+      localStorage.setItem(TOKEN_KEY, JSON.stringify(session));
+      onSession(session);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Accesso non riuscito");
+    } finally {
+      setIsLoading(false);
+    }
+  }
+
   return (
     <main className="public-shell">
       <header className="public-header">
-        <button className="brand"><span className="brand-mark">F</span><span>Fitty</span></button>
+        <button className="brand"><LogoMark /><span>Fitty</span></button>
         <button className="icon-button" aria-label="Toggle theme" onClick={onTheme}>{theme === "light" ? <Moon /> : <Sun />}</button>
       </header>
       <section className="hero">
         <div className="hero-copy">
-          <span className="pill">Keycloak protected local platform</span>
+          <span className="pill">Wellness, nutrizione e allenamento</span>
           <h2>Fitty</h2>
-          <p>Personal wellness, nutrition, body composition, training and recommendations. Sign in before viewing any personal data.</p>
-          <div className="actions">
-            <button className="primary" onClick={onLogin}><ShieldCheck size={18} /> Sign in with Keycloak</button>
-            <a className="secondary link-button" href={`${KEYCLOAK_URL}/realms/${KEYCLOAK_REALM}/account/`}>Account console</a>
-          </div>
-          <div className="actions">
-            <button className="ghost" onClick={() => startLogin("google")}>Google via Keycloak</button>
-            <button className="ghost" onClick={() => startLogin("facebook")}>Facebook via Keycloak</button>
+          <p>Accedi al tuo spazio personale per seguire progressi, piani, pasti e consigli. I dati restano visibili solo dopo il login.</p>
+          <div className="hero-points">
+            <span><Activity size={17} /> Progressi</span>
+            <span><Utensils size={17} /> Nutrizione</span>
+            <span><Dumbbell size={17} /> Allenamento</span>
           </div>
         </div>
-        <div className="panel">
-          <h2>No demo data before login</h2>
-          <p>Dashboards stay empty until Keycloak authenticates the user and APIs return user-scoped data.</p>
-          <div className="empty-state">Use `fitty.user / user123` or `fitty.admin / admin123` in the local realm.</div>
+
+        <div className="panel auth-card">
+          <div>
+            <span className="caption">Bentornato</span>
+            <h2>Accedi a Fitty</h2>
+            <p>Usa email e password oppure continua con un provider collegato.</p>
+          </div>
+
+          <form className="auth-form" onSubmit={submitLogin}>
+            <label>
+              Email
+              <span className="field">
+                <Mail size={18} />
+                <input
+                  type="email"
+                  autoComplete="email"
+                  value={email}
+                  onChange={(event) => setEmail(event.target.value)}
+                  placeholder="nome@email.it"
+                />
+              </span>
+            </label>
+            <label>
+              Password
+              <span className="field">
+                <Lock size={18} />
+                <input
+                  type="password"
+                  autoComplete="current-password"
+                  value={password}
+                  onChange={(event) => setPassword(event.target.value)}
+                  placeholder="La tua password"
+                />
+              </span>
+            </label>
+            {error && <div className="alert">{error}</div>}
+            <button className="primary wide-button" disabled={isLoading}>
+              {isLoading ? "Accesso in corso..." : "Accedi"}
+              <ArrowRight size={18} />
+            </button>
+          </form>
+
+          <div className="divider"><span>oppure</span></div>
+          <div className="social-grid">
+            <button className="social-button" onClick={() => startLogin("google")}><span>G</span> Continua con Google</button>
+            <button className="social-button" onClick={() => startLogin("facebook")}><span>f</span> Continua con Facebook</button>
+          </div>
+
+          <p className="auth-note">La registrazione completa passa dall'onboarding Fitty, dove confermi obiettivi, consenso e dati iniziali.</p>
         </div>
       </section>
     </main>
@@ -340,14 +418,31 @@ async function completeLogin() {
     headers: { "Content-Type": "application/x-www-form-urlencoded" },
     body
   });
-  if (!response.ok) throw new Error("Could not complete Keycloak login");
+  if (!response.ok) throw new Error("Could not complete login");
   const token = await response.json();
-  const claims = parseJwt(token.access_token);
-  const session: Session = {
-    accessToken: token.access_token,
-    refreshToken: token.refresh_token,
-    idToken: token.id_token,
-    expiresAt: Date.now() + token.expires_in * 1000,
+  const session = sessionFromTokenResponse(token);
+  localStorage.setItem(TOKEN_KEY, JSON.stringify(session));
+  sessionStorage.removeItem(VERIFIER_KEY);
+  return session;
+}
+
+function sessionFromTokenResponse(token: {
+  access_token?: string;
+  refresh_token?: string;
+  id_token?: string;
+  expires_in?: number;
+  accessToken?: string;
+  refreshToken?: string;
+  idToken?: string;
+  expiresIn?: number;
+}): Session {
+  const accessToken = token.accessToken ?? token.access_token ?? "";
+  const claims = parseJwt(accessToken);
+  return {
+    accessToken,
+    refreshToken: token.refreshToken ?? token.refresh_token,
+    idToken: token.idToken ?? token.id_token,
+    expiresAt: Date.now() + (token.expiresIn ?? token.expires_in ?? 300) * 1000,
     user: {
       id: claims.sub,
       email: claims.email ?? "",
@@ -356,9 +451,6 @@ async function completeLogin() {
       subscriptionPlan: firstAttribute(claims.subscriptionPlan) ?? "FREE"
     }
   };
-  localStorage.setItem(TOKEN_KEY, JSON.stringify(session));
-  sessionStorage.removeItem(VERIFIER_KEY);
-  return session;
 }
 
 function logout(session: Session) {
@@ -406,6 +498,31 @@ async function pkceChallenge(verifier: string) {
 
 function initials(name: string) {
   return name.split(" ").map((part) => part[0]).join("").slice(0, 2).toUpperCase();
+}
+
+function LogoMark() {
+  return (
+    <span className="logo-mark" aria-hidden="true">
+      <svg viewBox="0 0 100 100">
+        <defs>
+          <linearGradient id="logoCoral" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0" stopColor="#ff8f7e" />
+            <stop offset="1" stopColor="#f4604c" />
+          </linearGradient>
+          <linearGradient id="logoMint" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0" stopColor="#56d8ba" />
+            <stop offset="1" stopColor="#39c6a7" />
+          </linearGradient>
+        </defs>
+        <rect x="2" y="2" width="96" height="96" rx="27" fill="url(#logoCoral)" />
+        <path d="M62 40 C61 27 70 19 84 17 C84 31 76 41 62 40 Z" fill="url(#logoMint)" />
+        <path d="M70 34 C74 30 78 28 81 27" stroke="#fff" strokeWidth="2.4" strokeLinecap="round" fill="none" opacity=".75" />
+        <rect x="33" y="30" width="13.5" height="44" rx="6.7" fill="#fff" />
+        <rect x="33" y="30" width="30" height="13.5" rx="6.7" fill="#fff" />
+        <rect x="33" y="48" width="22" height="12" rx="6" fill="#fff" />
+      </svg>
+    </span>
+  );
 }
 
 type AdminUser = {
