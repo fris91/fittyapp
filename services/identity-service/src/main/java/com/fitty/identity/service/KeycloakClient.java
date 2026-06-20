@@ -26,23 +26,25 @@ public class KeycloakClient {
     public String createUser(RegisterRequest request) {
         String adminToken = adminToken();
         String existingUserId = findUserIdByEmail(request.email(), adminToken);
-        Map<String, Object> payload = Map.of(
-                "username", request.email(),
-                "email", request.email(),
-                "firstName", request.firstName(),
-                "lastName", request.lastName(),
-                "enabled", true,
-                "emailVerified", request.socialIdentity() != null,
-                "attributes", attributes(request)
-        );
+        boolean emailVerified = request.socialIdentity() != null;
+        Map<String, List<String>> attributes = attributes(request);
 
         String userId;
         if (existingUserId == null) {
+            Map<String, Object> createPayload = Map.of(
+                    "username", request.email(),
+                    "email", request.email(),
+                    "firstName", request.firstName(),
+                    "lastName", request.lastName(),
+                    "enabled", true,
+                    "emailVerified", emailVerified,
+                    "attributes", attributes
+            );
             URI location = restClient.post()
                     .uri(keycloakUri("/admin/realms/{realm}/users", properties.keycloak().realm()))
                     .headers(headers -> headers.setBearerAuth(adminToken))
                     .contentType(MediaType.APPLICATION_JSON)
-                    .body(payload)
+                    .body(createPayload)
                     .retrieve()
                     .toBodilessEntity()
                     .getHeaders()
@@ -54,11 +56,20 @@ public class KeycloakClient {
             userId = location.getPath().substring(location.getPath().lastIndexOf('/') + 1);
         } else {
             userId = existingUserId;
+            // Keycloak 26 treats username as read-only on update (edit-username disabled), so the
+            // update payload must omit it; only mutable fields are sent.
+            Map<String, Object> updatePayload = Map.of(
+                    "email", request.email(),
+                    "firstName", request.firstName(),
+                    "lastName", request.lastName(),
+                    "enabled", true,
+                    "attributes", attributes
+            );
             restClient.put()
                     .uri(keycloakUri("/admin/realms/{realm}/users/{userId}", properties.keycloak().realm(), userId))
                     .headers(headers -> headers.setBearerAuth(adminToken))
                     .contentType(MediaType.APPLICATION_JSON)
-                    .body(payload)
+                    .body(updatePayload)
                     .retrieve()
                     .toBodilessEntity();
         }
