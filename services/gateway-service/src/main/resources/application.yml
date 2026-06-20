@@ -5,27 +5,8 @@ spring:
     name: gateway-service
   cloud:
     gateway:
-      globalcors:
-        # Lets the gateway answer CORS preflight (OPTIONS) requests that don't otherwise map to a
-        # route handler. Without this, preflights fall through and are rejected (403).
-        add-to-simple-url-handler-mapping: true
-        corsConfigurations:
-          '[/**]':
-            allowedOriginPatterns:
-              - "http://localhost:3000"
-              - "http://127.0.0.1:3000"
-              - "http://192.168.1.192:30000"
-              - "http://fitty-cp-01:30000"
-              - "http://fitty.local:30000"
-            allowedMethods:
-              - GET
-              - POST
-              - PUT
-              - PATCH
-              - DELETE
-              - OPTIONS
-            allowedHeaders: "*"
-            allowCredentials: true
+      # CORS is handled by Spring Security via the CorsConfigurationSource bean in SecurityConfig,
+      # not by gateway globalcors, so preflight is answered before authorization for all routes.
       routes:
         - id: identity-service
           uri: ${IDENTITY_SERVICE_URL:http://localhost:8087}

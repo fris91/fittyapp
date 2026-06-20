@@ -112,7 +112,7 @@ const emptyData: FittyData = {
 };
 
 const pageMeta: Record<Page, { title: string; subtitle: string }> = {
-  today: { title: "Oggi", subtitle: "Martedì, 28 maggio - giorno 12 della tua serie" },
+  today: { title: "Oggi", subtitle: "La tua giornata in sintesi" },
   progress: { title: "Progressi e corpo", subtitle: "Le tue metriche nel tempo" },
   coach: { title: "Coach", subtitle: "Consigli e assistente Fitty" },
   goals: { title: "Obiettivi", subtitle: "Cosa stai costruendo" },
@@ -130,7 +130,7 @@ const navGroups: { title: string; items: { page: Page; label: string; icon: Reac
     items: [
       { page: "today", label: "Oggi", icon: <Home /> },
       { page: "progress", label: "Progressi e corpo", icon: <LineChart /> },
-      { page: "coach", label: "Coach", icon: <Sparkles />, badge: 2 },
+      { page: "coach", label: "Coach", icon: <Sparkles /> },
       { page: "goals", label: "Obiettivi", icon: <Target /> }
     ]
   },
@@ -145,7 +145,7 @@ const navGroups: { title: string; items: { page: Page; label: string; icon: Reac
   {
     title: "Account",
     items: [
-      { page: "notifications", label: "Notifiche", icon: <Bell />, badge: 5 },
+      { page: "notifications", label: "Notifiche", icon: <Bell /> },
       { page: "settings", label: "Impostazioni", icon: <Settings /> }
     ]
   }
@@ -726,8 +726,8 @@ function ProgressScreen({ data, token, onSaved }: { data: FittyData; token: stri
 }
 
 function BodyDataModal({ token, onClose, onSaved }: { token: string; onClose: () => void; onSaved: () => void }) {
-  const [weightKg, setWeightKg] = useState("64.2");
-  const [heightCm, setHeightCm] = useState("170");
+  const [weightKg, setWeightKg] = useState("");
+  const [heightCm, setHeightCm] = useState("");
   const [bodyFatPercentage, setBodyFatPercentage] = useState("");
   const [muscleMassPercentage, setMuscleMassPercentage] = useState("");
   const [waistCm, setWaistCm] = useState("");
@@ -777,7 +777,7 @@ function BodyDataModal({ token, onClose, onSaved }: { token: string; onClose: ()
     <div className="modal-backdrop" role="dialog" aria-modal="true" aria-label="Aggiungi dati corpo">
       <form className="modal-card body-entry-card" onSubmit={save}>
         <div className="body-entry-top">
-          <div><button type="button" className="link-button" onClick={onClose}>‹ Progressi</button><h3>Aggiungi dati corpo</h3><p>Oggi · precompilato dall’ultimo inserimento</p></div>
+          <div><button type="button" className="link-button" onClick={onClose}>‹ Progressi</button><h3>Aggiungi dati corpo</h3><p>Oggi · inserisci i tuoi dati</p></div>
           <div className="actions"><button type="button" className="btn ghost" onClick={onClose}>Annulla</button><button className="btn cta" disabled={isSaving}>{isSaving ? "Salvataggio..." : "Salva dato"}</button></div>
         </div>
 
@@ -788,12 +788,12 @@ function BodyDataModal({ token, onClose, onSaved }: { token: string; onClose: ()
               <div className="weight-row">
                 <strong>{weightKg || "0"}</strong>
                 <span className="unit-toggle"><b>kg</b><i>lb</i></span>
-                <input type="range" min="30" max="180" step="0.1" value={weightKg || "64.2"} onChange={(e) => setWeightKg(e.target.value)} />
+                <input type="range" min="30" max="180" step="0.1" value={weightKg || "70"} onChange={(e) => setWeightKg(e.target.value)} />
               </div>
               <div className="stepper-row">
-                <button type="button" className="btn sm ghost" onClick={() => setWeightKg(stepDecimal(weightKg, -0.1))}>-0,1</button>
-                <button type="button" className="btn sm ghost" onClick={() => setWeightKg(stepDecimal(weightKg, 0.1))}>+0,1</button>
-                <span>Ultimo: 64,5 kg · 7 giorni fa</span>
+                <button type="button" className="btn sm ghost" onClick={() => setWeightKg(stepDecimal(weightKg || "70", -0.1))}>-0,1</button>
+                <button type="button" className="btn sm ghost" onClick={() => setWeightKg(stepDecimal(weightKg || "70", 0.1))}>+0,1</button>
+                <span>Imposta il peso con lo slider o i pulsanti</span>
               </div>
             </section>
 
@@ -834,8 +834,8 @@ function BodyDataModal({ token, onClose, onSaved }: { token: string; onClose: ()
             <section className="panel lg">
               <h3>Oppure importa</h3>
               <div className="list">
-                <InfoRow icon="G" title="Google Fit" text="Sincronizzazione giornaliera" meta="On" tone="mint" />
-                <InfoRow icon="CSV" title="Import CSV" text="Caricamento storico" meta="›" tone="plain" />
+                <InfoRow icon="G" title="Google Fit" text="Non ancora disponibile" meta="In arrivo" tone="plain" />
+                <InfoRow icon="CSV" title="Import CSV" text="Non ancora disponibile" meta="In arrivo" tone="plain" />
               </div>
             </section>
           </aside>
@@ -880,15 +880,12 @@ function GoalsScreen() {
         <div className="panel lg">
           <h3>Obiettivo principale</h3>
           <div className="chips"><span className="on">Perdere peso</span><span>Aumentare muscolo</span><span>Mangiare meglio</span><span>Sentirsi meglio</span><span>Sonno e recupero</span></div>
-          <label className="form-line">Peso target <b>60 kg</b><span className="bar"><i style={{ width: "65%" }} /></span></label>
           <label className="form-line">Ritmo <span className="seg"><button>Rilassato</button><button className="on">Costante</button><button>Intenso</button></span></label>
           <div className="note">Un obiettivo primario mantiene Fitty focalizzata su home, coach e piani.</div>
         </div>
         <div className="grid">
-          <div className="panel"><h3>Target settimanali</h3><div className="list">
-            <Line label="Minuti attivi" value="150 / settimana" /><Line label="Allenamenti" value="3 / settimana" /><Line label="Calorie giornaliere" value="1.600 kcal" /><Line label="Proteine" value="120 g / giorno" />
-          </div></div>
-          <div className="panel tint-mint"><div className="panel-head"><h3>In linea</h3><span className="badge green">82% aderenza</span></div><p>Con questo ritmo raggiungerai 60 kg in circa 9 settimane. Costante e sostenibile.</p></div>
+          <div className="panel"><h3>Target settimanali</h3><div className="empty">Salva i tuoi obiettivi per generare i target settimanali.</div></div>
+          <div className="panel"><h3>Andamento verso l'obiettivo</h3><div className="empty">Apparirà quando avrai registrato dati sufficienti.</div></div>
         </div>
       </div>
     </section>
@@ -910,11 +907,8 @@ function WorkoutScreen() {
           <button className="btn cta full">Genera il mio piano</button>
         </div>
         <div className="panel lg">
-          <div className="panel-head"><h3>Full body 3 giorni - 4 settimane</h3><span className="badge green">allineato all'obiettivo</span></div>
-          <div className="grid g-3"><SmallPlan day="Giorno 1" title="Lower" text="5 esercizi - 35 min" active /><SmallPlan day="Giorno 2" title="Upper" text="6 esercizi - 40 min" /><SmallPlan day="Giorno 3" title="Full + core" text="5 esercizi - 30 min" /></div>
-          <div className="list margin-top"><InfoRow icon="1" title="Goblet squat" text="3 x 10 - recupero 90s" meta="modifica" tone="coral" /><InfoRow icon="2" title="Romanian deadlift" text="3 x 8 - recupero 90s" meta="modifica" tone="coral" /><InfoRow icon="3" title="Walking lunge" text="2 x 12 - recupero 60s" meta="modifica" tone="coral" /></div>
-          <div className="panel tint-lav compact"><b>Perché questi?</b> Esercizi composti, a basso impatto e coerenti con 3 giorni in palestra.</div>
-          <div className="actions stretch"><button className="btn ghost">Rifiuta</button><button className="btn ghost">Rigenera</button><button className="btn cta">Salva piano</button></div>
+          <div className="panel-head"><h3>Piano attivo</h3></div>
+          <div className="empty">Nessun piano di allenamento attivo. Genera un piano con l'AI oppure creane uno manualmente: apparirà qui con esercizi, serie e progressione.</div>
         </div>
       </div>
     </section>
@@ -925,27 +919,20 @@ function NutritionScreen() {
   return (
     <section className="screen">
       <PageHead title="Nutrizione e pasti" text="Pasti di oggi, bilancio macro e piano nutrizionale." action={<><button className="btn ghost">Piano nutrizionale AI</button><button className="btn cta">+ Registra pasto</button></>} />
-      <div className="grid g-4"><Macro label="Calorie" value="1.480" target="/ 1.600" pct="88%" tone="coral" /><Macro label="Proteine" value="96" target="/ 120g" pct="78%" tone="mint" /><Macro label="Carboidrati" value="142" target="/ 180g" pct="76%" tone="lav" /><Macro label="Grassi" value="48" target="/ 60g" pct="82%" tone="coral" /></div>
+      <div className="grid g-4"><Macro label="Calorie" value="—" target="/ —" pct="0%" tone="coral" /><Macro label="Proteine" value="—" target="/ —" pct="0%" tone="mint" /><Macro label="Carboidrati" value="—" target="/ —" pct="0%" tone="lav" /><Macro label="Grassi" value="—" target="/ —" pct="0%" tone="coral" /></div>
       <div className="grid g-32 margin-top">
-        <div className="panel"><div className="panel-head"><h3>Pasti di oggi</h3><span className="badge green">120 kcal sotto obiettivo</span></div><div className="list"><InfoRow icon="🥣" title="Colazione - avena e frutti rossi" text="18P - 70C - 12G - 420 kcal" meta="modifica" tone="lav" /><InfoRow icon="🥗" title="Pranzo - insalata di lenticchie" text="24P - 64C - 18G - 540 kcal" meta="modifica" tone="mint" /><InfoRow icon="🥛" title="Snack - yogurt greco" text="12P - 9C - 4G - 120 kcal" meta="modifica" tone="lav" /></div><button className="dashed">+ Aggiungi cena - cerca o scansiona</button></div>
-        <div className="panel tint-mint"><h3>Il tuo piano nutrizionale</h3><p><b>Bilanciato - 1.600 kcal</b><br />Alto in proteine, carboidrati moderati. Creato per una perdita peso costante.</p><Line label="Pasti / giorno" value="3 + 1 snack" /><Line label="Target proteine" value="120 g" /><button className="btn ghost full">Vedi piano completo</button></div>
+        <div className="panel"><div className="panel-head"><h3>Pasti di oggi</h3></div><div className="empty">Nessun pasto registrato oggi. Usa “+ Registra pasto” per iniziare.</div></div>
+        <div className="panel tint-mint"><h3>Il tuo piano nutrizionale</h3><div className="empty">Nessun piano nutrizionale ancora. Generane uno con l'AI in base ai tuoi obiettivi.</div></div>
       </div>
     </section>
   );
 }
 
 function RecipesScreen() {
-  const cards = [
-    ["🥗", "28g proteine", "Bowl yogurt menta", "12 min - 4,8"],
-    ["🍲", "24g proteine", "Insalata lenticchie corallo", "18 min - 4,7"],
-    ["🫐", "Veloce", "Avena lavanda e frutti rossi", "8 min - 4,9"],
-    ["🍳", "Alte proteine", "Uova e verdure", "10 min - 4,6"]
-  ];
   return (
     <section className="screen">
       <PageHead title="Ricette" text="Personalizzate sui tuoi obiettivi e su ciò che hai registrato." action={<div className="searchbar small"><Search size={14} />Cerca ricette...</div>} />
-      <div className="chips"><span className="on">Per te</span><span>Alte proteine</span><span>Veloce &lt; 15 min</span><span>Vegetariano</span><span>Low carb</span></div>
-      <div className="recipe-grid">{cards.map(([icon, badge, title, text]) => <div className="recipe-card" key={title}><div>{icon}</div><span className="badge lav">{badge}</span><h3>{title}</h3><p>{text}</p></div>)}</div>
+      <div className="panel"><div className="empty">Le ricette personalizzate appariranno qui in base ai tuoi obiettivi e ai pasti registrati.</div></div>
     </section>
   );
 }
@@ -954,7 +941,7 @@ function NotificationsScreen({ data }: { data: FittyData }) {
   return (
     <section className="screen">
       <PageHead title="Notifiche" text="Promemoria, risultati e avvisi." action={<button className="btn ghost">Segna tutte come lette</button>} />
-      <div className="panel notification-panel"><div className="list">{data.notifications.map((item) => <InfoRow key={item.title} icon="✦" title={item.title} text={item.text} meta={item.time} tone={item.tone} />)}</div></div>
+      <div className="panel notification-panel">{data.notifications.length > 0 ? <div className="list">{data.notifications.map((item) => <InfoRow key={item.title} icon="✦" title={item.title} text={item.text} meta={item.time} tone={item.tone} />)}</div> : <div className="empty">Nessuna notifica per ora.</div>}</div>
     </section>
   );
 }
@@ -964,7 +951,7 @@ function SettingsScreen({ session }: { session: Session }) {
     <section className="screen">
       <PageHead title="Impostazioni" text="Profilo, integrazioni, abbonamento e privacy." />
       <div className="grid g-2">
-        <div className="panel lg"><h3>Integrazioni collegate</h3><div className="list"><InfoRow icon="G" title="Google Fit" text="Sincronizzato 2h fa" meta="Connesso" tone="mint" /><InfoRow icon="A" title="Apple Health" text="Riconnessione richiesta" meta="Correggi" tone="coral" /><InfoRow icon="Mi" title="Xiaomi Health" text="Non collegato" meta="Connetti" tone="plain" /></div><button className="dashed">+ Importazione manuale dati (CSV)</button></div>
+        <div className="panel lg"><h3>Integrazioni</h3><div className="list"><InfoRow icon="G" title="Google Fit" text="Non ancora disponibile" meta="In arrivo" tone="plain" /><InfoRow icon="A" title="Apple Health" text="Non ancora disponibile" meta="In arrivo" tone="plain" /><InfoRow icon="Mi" title="Xiaomi Health" text="Non ancora disponibile" meta="In arrivo" tone="plain" /></div><div className="note">Le sincronizzazioni con app salute non sono ancora attive: te lo diremo quando i dati verranno importati davvero.</div></div>
         <div className="grid">
           <div className="panel tint-coral"><div className="panel-head"><h3>Abbonamento</h3><span className="badge gray">{planLabel(session.user.subscriptionPlan)}</span></div><p>Sblocca piani AI illimitati, insight avanzati e tutte le integrazioni.</p><div className="price">€7,99 <span>/ mese - 7 giorni di prova</span></div><button className="btn cta full">Inizia prova gratuita</button></div>
           <div className="panel"><h3>Privacy e consenso</h3><Line label="Usa i miei dati per suggerimenti AI" value="Attivo" /><Line label="Condividi analitiche anonime" value="Attivo" /><Line label="Email promozionali" value="Disattivo" /><button className="btn ghost full">Scarica i miei dati - Elimina account</button></div>
