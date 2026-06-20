@@ -6,15 +6,24 @@ spring:
   cloud:
     gateway:
       globalcors:
+        # Lets the gateway answer CORS preflight (OPTIONS) requests that don't otherwise map to a
+        # route handler. Without this, preflights fall through and are rejected (403).
+        add-to-simple-url-handler-mapping: true
         corsConfigurations:
           '[/**]':
-            allowedOrigins:
+            allowedOriginPatterns:
               - "http://localhost:3000"
               - "http://127.0.0.1:3000"
               - "http://192.168.1.192:30000"
               - "http://fitty-cp-01:30000"
               - "http://fitty.local:30000"
-            allowedMethods: "*"
+            allowedMethods:
+              - GET
+              - POST
+              - PUT
+              - PATCH
+              - DELETE
+              - OPTIONS
             allowedHeaders: "*"
             allowCredentials: true
       routes:
