@@ -75,4 +75,13 @@ public final class IdentityDtos {
             String tokenType
     ) {
     }
+
+    public record SyncProfileResponse(
+            String appUserId,
+            String email,
+            String firstName,
+            String lastName,
+            boolean created
+    ) {
+    }
 }

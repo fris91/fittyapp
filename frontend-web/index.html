@@ -1,9 +1,12 @@
 <!doctype html>
-<html lang="en">
+<html lang="it">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Fitty</title>
+    <!-- Runtime config: replaced at container start from env vars (see docker-entrypoint.sh).
+         In local `vite dev` the placeholder in public/ is served and build-time VITE_* vars win. -->
+    <script src="/env-config.js"></script>
   </head>
   <body>
     <div id="root"></div>

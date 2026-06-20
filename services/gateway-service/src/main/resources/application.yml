@@ -46,6 +46,10 @@ spring:
           uri: ${RECOMMENDATION_SERVICE_URL:http://localhost:8084}
           predicates:
             - Path=/api/v1/recommendations/**
+        - id: ai-service
+          uri: ${RECOMMENDATION_SERVICE_URL:http://localhost:8084}
+          predicates:
+            - Path=/api/v1/ai/**
         - id: meal-service
           uri: ${MEAL_SERVICE_URL:http://localhost:8085}
           predicates:

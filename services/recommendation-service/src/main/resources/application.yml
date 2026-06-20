@@ -19,6 +19,19 @@ spring:
     producer:
       value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
 
+fitty:
+  ai:
+    enabled: ${FITTY_AI_ENABLED:true}
+    base-url: ${LM_STUDIO_BASE_URL:http://host.docker.internal:1234}
+    api-key: ${LM_STUDIO_API_KEY:}
+    connect-timeout-ms: ${FITTY_AI_CONNECT_TIMEOUT_MS:1500}
+    read-timeout-ms: ${FITTY_AI_READ_TIMEOUT_MS:8000}
+    max-tokens: ${FITTY_AI_MAX_TOKENS:512}
+    models:
+      fitness: ${FITTY_AI_MODEL_FITNESS:Llama 3.2 1B FitnessAssistant}
+      medical: ${FITTY_AI_MODEL_MEDICAL:Llama Doctor 3.2 3B Instruct}
+      reasoning: ${FITTY_AI_MODEL_REASONING:mistralai/devstral-small-2-2512}
+
 management:
   endpoints:
     web:

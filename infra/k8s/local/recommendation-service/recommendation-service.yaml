@@ -37,6 +37,13 @@ spec:
               value: "8084"
             - name: SPRING_DATA_MONGODB_URI
               value: mongodb://fitty:fitty@mongo.fitty-data.svc.cluster.local:27017/fitty-recommendations?authSource=admin
+            # Optional local LM Studio API key. Absent in the default local lab (LM Studio needs no key).
+            - name: LM_STUDIO_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: fitty-app-secrets
+                  key: LM_STUDIO_API_KEY
+                  optional: true
           envFrom:
             - configMapRef:
                 name: fitty-app-config

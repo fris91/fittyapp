@@ -69,43 +69,27 @@ type FittyData = {
   notifications: { title: string; text: string; time: string; tone: "coral" | "mint" | "lav" | "amber" | "plain" }[];
 };
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? "http://localhost:8080";
-const KEYCLOAK_URL = import.meta.env.VITE_KEYCLOAK_URL ?? "http://localhost:30081";
-const KEYCLOAK_REALM = import.meta.env.VITE_KEYCLOAK_REALM ?? "fitty";
-const KEYCLOAK_CLIENT_ID = import.meta.env.VITE_KEYCLOAK_CLIENT_ID ?? "fitty-web";
+// Config resolution order: runtime (window.__FITTY_ENV__, injected by the container at start) ->
+// build-time Vite env -> safe fallback. Runtime wins so a single image works across environments
+// without rebuilding, and a stale localhost default can never silently break login.
+const runtimeEnv: Record<string, string | undefined> =
+  (typeof window !== "undefined" && (window as unknown as { __FITTY_ENV__?: Record<string, string> }).__FITTY_ENV__) || {};
+
+function readConfig(key: string, fallback: string): string {
+  const runtimeValue = runtimeEnv[key];
+  if (runtimeValue && !runtimeValue.startsWith("__")) return runtimeValue;
+  const buildValue = (import.meta.env as Record<string, string | undefined>)[key];
+  if (buildValue) return buildValue;
+  return fallback;
+}
+
+const API_BASE_URL = readConfig("VITE_API_BASE_URL", "http://fitty-cp-01:30080");
+const KEYCLOAK_URL = readConfig("VITE_KEYCLOAK_URL", "http://fitty-cp-01:30081");
+const KEYCLOAK_REALM = readConfig("VITE_KEYCLOAK_REALM", "fitty");
+const KEYCLOAK_CLIENT_ID = readConfig("VITE_KEYCLOAK_CLIENT_ID", "fitty-web");
 const REDIRECT_URI = window.location.origin + window.location.pathname;
 const TOKEN_KEY = "fitty.session";
 const VERIFIER_KEY = "fitty.pkce.verifier";
-
-const fallbackData: FittyData = {
-  today: {
-    focus: "Camminata da 15 min + pranzo ricco di proteine",
-    focusReason: "Ti mantiene in linea con l'obiettivo di perdere peso senza appesantire una giornata piena.",
-    rings: { move: 60, meals: 66, body: 100 },
-    streakDays: 12,
-    coachLine: "Hai dormito 7,4 ore e sei in buon ritmo. Vuoi rendere domani una giornata di recupero più leggera?"
-  },
-  progress: {
-    weightKg: 64.2,
-    bmi: 22.7,
-    bodyFat: 24,
-    muscle: 41,
-    wellnessScore: 82,
-    trend: [95, 88, 90, 74, 68, 60, 52]
-  },
-  recommendations: [
-    { title: "Priorità al recupero stasera", text: "Cena leggera, idratazione e una finestra di sonno costante.", tone: "lav" },
-    { title: "Aggiungi proteine a pranzo", text: "Stabilizza l'energia del pomeriggio e sostiene il tuo obiettivo.", tone: "mint" },
-    { title: "Mancano 3 bicchieri d'acqua", text: "Un promemoria gentile per il resto della giornata.", tone: "plain" }
-  ],
-  notifications: [
-    { title: "Serie di 12 giorni: continua così", text: "Registra oggi per arrivare a 13.", time: "2m", tone: "coral" },
-    { title: "Nuovo miglioramento: 0,3 kg questa settimana", text: "Stai andando verso il tuo obiettivo.", time: "1h", tone: "mint" },
-    { title: "Il coach ha un consiglio di recupero", text: "Tocca per vedere il piano più leggero di domani.", time: "3h", tone: "lav" },
-    { title: "Promemoria idratazione", text: "Mancano 3 bicchieri al tuo obiettivo.", time: "5h", tone: "amber" },
-    { title: "Apple Health richiede riconnessione", text: "Sistema da Impostazioni e integrazioni.", time: "1g", tone: "plain" }
-  ]
-};
 
 const emptyData: FittyData = {
   today: {
@@ -324,11 +308,18 @@ function AnonymousHome({ onSession, theme, onTheme }: { onSession: (session: Ses
   const [resetEmail, setResetEmail] = useState("");
   const [resetMessage, setResetMessage] = useState("");
   const [error, setError] = useState("");
+  const [loginErrors, setLoginErrors] = useState<{ email?: string; password?: string }>({});
+  const [registerErrors, setRegisterErrors] = useState<RegisterErrors>({});
   const [isLoading, setIsLoading] = useState(false);
 
   async function submitLogin(event: React.FormEvent) {
     event.preventDefault();
     setError("");
+    const fieldErrors: { email?: string; password?: string } = {};
+    if (!email.trim()) fieldErrors.email = "Inserisci email o username.";
+    if (!password) fieldErrors.password = "Inserisci la password.";
+    setLoginErrors(fieldErrors);
+    if (Object.keys(fieldErrors).length > 0) return;
     setIsLoading(true);
     try {
       const response = await fetch(`${API_BASE_URL}/api/v1/identity/login`, {
@@ -336,13 +327,15 @@ function AnonymousHome({ onSession, theme, onTheme }: { onSession: (session: Ses
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password })
       });
-      if (!response.ok) throw new Error("Email o password non validi");
+      if (!response.ok) {
+        throw new Error(response.status === 401 ? "Email o password non validi." : "Accesso non riuscito. Riprova tra poco.");
+      }
       const token = await response.json();
       const session = sessionFromTokenResponse(token);
       localStorage.setItem(TOKEN_KEY, JSON.stringify(session));
       onSession(session);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Accesso non riuscito");
+      setError(err instanceof TypeError ? "Impossibile contattare il server. Controlla la connessione e riprova." : err instanceof Error ? err.message : "Accesso non riuscito");
     } finally {
       setIsLoading(false);
     }
@@ -371,10 +364,11 @@ function AnonymousHome({ onSession, theme, onTheme }: { onSession: (session: Ses
   async function submitRegister(event: React.FormEvent) {
     event.preventDefault();
     setError("");
-    const validationError = validateRegistration(registerForm);
-    if (validationError) {
-      setError(validationError);
-      setRegisterStep(validationError.includes("corporei") ? "body" : validationError.includes("consensi") || validationError.includes("piano") ? "plan" : "account");
+    const errors = validateRegistration(registerForm);
+    setRegisterErrors(errors);
+    if (Object.keys(errors).length > 0) {
+      setRegisterStep(firstErrorStep(errors));
+      setError("Controlla i campi evidenziati per continuare.");
       return;
     }
     setIsLoading(true);
@@ -407,15 +401,31 @@ function AnonymousHome({ onSession, theme, onTheme }: { onSession: (session: Ses
         })
       });
       if (!response.ok) {
-        const body = await response.text();
-        throw new Error(body.includes("password") ? "La password non rispetta i requisiti richiesti" : "Registrazione non riuscita");
+        if (response.status === 409) {
+          setRegisterStep("account");
+          setRegisterErrors((current) => ({ ...current, email: "Esiste già un account con questa email." }));
+          throw new Error("Esiste già un account con questa email.");
+        }
+        const body = await response.text().catch(() => "");
+        if (body.toLowerCase().includes("password")) {
+          setRegisterStep("account");
+          setRegisterErrors((current) => ({ ...current, password: "La password non rispetta i requisiti richiesti." }));
+          throw new Error("La password non rispetta i requisiti richiesti.");
+        }
+        throw new Error("Registrazione non riuscita. Riprova tra poco.");
       }
       const identity = await response.json();
+      if (!identity.token || !identity.token.access_token && !identity.token.accessToken) {
+        // No token returned (e.g. email verification required): send the user to login.
+        setMode("login");
+        setError("Account creato. Accedi con le tue credenziali.");
+        return;
+      }
       const session = sessionFromTokenResponse(identity.token);
       localStorage.setItem(TOKEN_KEY, JSON.stringify(session));
       onSession(session);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Registrazione non riuscita");
+      setError(err instanceof TypeError ? "Impossibile contattare il server. Controlla la connessione e riprova." : err instanceof Error ? err.message : "Registrazione non riuscita");
     } finally {
       setIsLoading(false);
     }
@@ -467,11 +477,12 @@ function AnonymousHome({ onSession, theme, onTheme }: { onSession: (session: Ses
                 <button className="oauth-button" onClick={() => startLogin("facebook")}><span className="facebook-mark">f</span> Continua con Facebook</button>
               </div>
               <div className="divider"><span>oppure</span></div>
-              <form className="auth-form" onSubmit={submitLogin}>
-                <label>Email o username<span className="auth-field"><Mail size={18} /><input type="text" autoComplete="username" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="nome@email.it" /></span></label>
+              <form className="auth-form" onSubmit={submitLogin} noValidate>
+                <label>Email o username<span className={loginErrors.email ? "auth-field invalid" : "auth-field"}><Mail size={18} /><input type="text" autoComplete="username" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="nome@email.it" /></span><FieldError msg={loginErrors.email} /></label>
                 <label>
                   <span className="password-row">Password <button type="button" onClick={() => { setMode("forgot"); setError(""); setResetEmail(email); }}>Password dimenticata?</button></span>
-                  <span className="auth-field"><Lock size={18} /><input type="password" autoComplete="current-password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="La tua password" /></span>
+                  <span className={loginErrors.password ? "auth-field invalid" : "auth-field"}><Lock size={18} /><input type="password" autoComplete="current-password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="La tua password" /></span>
+                  <FieldError msg={loginErrors.password} />
                 </label>
                 {error && <div className="alert">{error}</div>}
                 <button className="btn cta full" disabled={isLoading}>{isLoading ? "Accesso in corso..." : "Accedi"} <ArrowRight size={18} /></button>
@@ -517,20 +528,20 @@ function AnonymousHome({ onSession, theme, onTheme }: { onSession: (session: Ses
               <form className="auth-form" onSubmit={submitRegister}>
                 {registerStep === "account" && (
                   <div className="register-grid">
-                    <label>Nome<input value={registerForm.firstName} onChange={(e) => updateRegister("firstName", e.target.value)} autoComplete="given-name" /></label>
-                    <label>Cognome<input value={registerForm.lastName} onChange={(e) => updateRegister("lastName", e.target.value)} autoComplete="family-name" /></label>
-                    <label className="wide">Email<input type="email" value={registerForm.email} onChange={(e) => updateRegister("email", e.target.value)} autoComplete="email" /></label>
-                    <label>Password<input type="password" value={registerForm.password} onChange={(e) => updateRegister("password", e.target.value)} autoComplete="new-password" /></label>
-                    <label>Conferma password<input type="password" value={registerForm.confirmPassword} onChange={(e) => updateRegister("confirmPassword", e.target.value)} autoComplete="new-password" /></label>
+                    <label>Nome<input className={registerErrors.firstName ? "invalid" : ""} value={registerForm.firstName} onChange={(e) => updateRegister("firstName", e.target.value)} autoComplete="given-name" /><FieldError msg={registerErrors.firstName} /></label>
+                    <label>Cognome<input className={registerErrors.lastName ? "invalid" : ""} value={registerForm.lastName} onChange={(e) => updateRegister("lastName", e.target.value)} autoComplete="family-name" /><FieldError msg={registerErrors.lastName} /></label>
+                    <label className="wide">Email<input type="email" className={registerErrors.email ? "invalid" : ""} value={registerForm.email} onChange={(e) => updateRegister("email", e.target.value)} autoComplete="email" /><FieldError msg={registerErrors.email} /></label>
+                    <label>Password<input type="password" className={registerErrors.password ? "invalid" : ""} value={registerForm.password} onChange={(e) => updateRegister("password", e.target.value)} autoComplete="new-password" /><FieldError msg={registerErrors.password} /></label>
+                    <label>Conferma password<input type="password" className={registerErrors.confirmPassword ? "invalid" : ""} value={registerForm.confirmPassword} onChange={(e) => updateRegister("confirmPassword", e.target.value)} autoComplete="new-password" /><FieldError msg={registerErrors.confirmPassword} /></label>
                     <p className="hint wide">Minimo 8 caratteri, almeno una maiuscola e un carattere speciale.</p>
                   </div>
                 )}
                 {registerStep === "body" && (
                   <div className="register-grid">
                     <label>Sesso<select value={registerForm.sex} onChange={(e) => updateRegister("sex", e.target.value as RegisterForm["sex"])}><option value="M">Uomo</option><option value="F">Donna</option><option value="OTHER">Altro / preferisco non dirlo</option></select></label>
-                    <label>Età<input type="number" min="13" value={registerForm.age} onChange={(e) => updateRegister("age", e.target.value)} /></label>
-                    <label>Altezza (cm)<input type="number" min="80" value={registerForm.heightCm} onChange={(e) => updateRegister("heightCm", e.target.value)} /></label>
-                    <label>Peso (kg)<input type="number" min="20" value={registerForm.weightKg} onChange={(e) => updateRegister("weightKg", e.target.value)} /></label>
+                    <label>Età<input type="number" min="13" className={registerErrors.age ? "invalid" : ""} value={registerForm.age} onChange={(e) => updateRegister("age", e.target.value)} /><FieldError msg={registerErrors.age} /></label>
+                    <label>Altezza (cm)<input type="number" min="80" className={registerErrors.heightCm ? "invalid" : ""} value={registerForm.heightCm} onChange={(e) => updateRegister("heightCm", e.target.value)} /><FieldError msg={registerErrors.heightCm} /></label>
+                    <label>Peso (kg)<input type="number" min="20" className={registerErrors.weightKg ? "invalid" : ""} value={registerForm.weightKg} onChange={(e) => updateRegister("weightKg", e.target.value)} /><FieldError msg={registerErrors.weightKg} /></label>
                   </div>
                 )}
                 {registerStep === "goal" && (
@@ -552,7 +563,9 @@ function AnonymousHome({ onSession, theme, onTheme }: { onSession: (session: Ses
                       <button type="button" className="choice-card plan disabled" disabled><strong>Premium</strong><span>Pagamenti non ancora attivi: lo abilitiamo dopo.</span></button>
                     </div>
                     <label className="check-row"><input type="checkbox" checked={registerForm.wellnessConsent} onChange={(e) => updateRegister("wellnessConsent", e.target.checked)} /> Autorizzo Fitty a trattare i miei dati wellness per suggerimenti personalizzati.</label>
+                    <FieldError msg={registerErrors.wellnessConsent} />
                     <label className="check-row"><input type="checkbox" checked={registerForm.medicalConsent} onChange={(e) => updateRegister("medicalConsent", e.target.checked)} /> Ho letto che Fitty offre supporto wellness e non pareri medici.</label>
+                    <FieldError msg={registerErrors.medicalConsent} />
                     <label className="check-row muted-check"><input type="checkbox" checked={registerForm.marketingConsent} onChange={(e) => updateRegister("marketingConsent", e.target.checked)} /> Voglio ricevere email promozionali.</label>
                   </div>
                 )}
@@ -572,15 +585,44 @@ function AnonymousHome({ onSession, theme, onTheme }: { onSession: (session: Ses
   );
 }
 
-function validateRegistration(form: RegisterForm) {
-  if (!form.firstName.trim() || !form.lastName.trim() || !form.email.trim()) return "Nome, cognome ed email sono obbligatori.";
-  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) return "Inserisci un indirizzo email valido.";
-  if (!/^(?=.*[A-Z])(?=.*[^A-Za-z0-9]).{8,}$/.test(form.password)) return "La password deve avere almeno 8 caratteri, una maiuscola e un carattere speciale.";
-  if (form.password !== form.confirmPassword) return "Le password non coincidono.";
-  if (!form.age || !form.heightCm || !form.weightKg) return "Completa i dati corporei obbligatori.";
-  if (Number(form.age) < 13 || Number(form.heightCm) < 80 || Number(form.weightKg) < 20) return "Controlla i dati corporei inseriti.";
-  if (!form.wellnessConsent || !form.medicalConsent) return "Per completare la registrazione servono i consensi obbligatori.";
-  return "";
+type RegisterErrors = Partial<Record<keyof RegisterForm, string>>;
+
+const stepOfField: Record<keyof RegisterForm, RegisterStep> = {
+  firstName: "account", lastName: "account", email: "account", password: "account", confirmPassword: "account",
+  sex: "body", age: "body", heightCm: "body", weightKg: "body",
+  goal: "goal", activityLevel: "goal",
+  subscriptionPlan: "plan", wellnessConsent: "plan", medicalConsent: "plan", marketingConsent: "plan"
+};
+
+function validateRegistration(form: RegisterForm): RegisterErrors {
+  const errors: RegisterErrors = {};
+  if (!form.firstName.trim()) errors.firstName = "Il nome è obbligatorio.";
+  if (!form.lastName.trim()) errors.lastName = "Il cognome è obbligatorio.";
+  if (!form.email.trim()) errors.email = "L'email è obbligatoria.";
+  else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) errors.email = "Inserisci un indirizzo email valido.";
+  if (!/^(?=.*[A-Z])(?=.*[^A-Za-z0-9]).{8,}$/.test(form.password)) errors.password = "Minimo 8 caratteri, una maiuscola e un carattere speciale.";
+  if (form.password !== form.confirmPassword) errors.confirmPassword = "Le password non coincidono.";
+  if (!form.age) errors.age = "Inserisci l'età.";
+  else if (Number(form.age) < 13) errors.age = "Devi avere almeno 13 anni.";
+  if (!form.heightCm) errors.heightCm = "Inserisci l'altezza.";
+  else if (Number(form.heightCm) < 80) errors.heightCm = "Controlla l'altezza inserita.";
+  if (!form.weightKg) errors.weightKg = "Inserisci il peso.";
+  else if (Number(form.weightKg) < 20) errors.weightKg = "Controlla il peso inserito.";
+  if (!form.wellnessConsent) errors.wellnessConsent = "Consenso necessario per personalizzare i suggerimenti.";
+  if (!form.medicalConsent) errors.medicalConsent = "Devi accettare il confine wellness/medico.";
+  return errors;
+}
+
+function firstErrorStep(errors: RegisterErrors): RegisterStep {
+  const order: RegisterStep[] = ["account", "body", "goal", "plan"];
+  for (const step of order) {
+    if ((Object.keys(errors) as (keyof RegisterForm)[]).some((field) => stepOfField[field] === step)) return step;
+  }
+  return "account";
+}
+
+function FieldError({ msg }: { msg?: string }) {
+  return msg ? <small className="field-error" role="alert">{msg}</small> : null;
 }
 
 function nextRegisterStep(step: RegisterStep): RegisterStep {
@@ -609,16 +651,16 @@ function TodayScreen({ data, onWorkout }: { data: FittyData; onWorkout: () => vo
             <div className="actions"><button className="btn cta" onClick={onWorkout}>Inizia camminata</button><button className="btn ghost">Perché?</button></div>
           </div>
           <div className="grid g-3">
-            <RingCard tone="coral" value={data.today.rings.move} label="Movimento" detail="18 / 30 minuti attivi" />
-            <RingCard tone="mint" value={data.today.rings.meals} label="Pasti" detail="1 pasto da registrare" center="2/3" />
-            <RingCard tone="lav" value={data.today.rings.body} label="Dati corpo" detail="64,2 kg registrati" center="✓" />
+            <RingCard tone="coral" value={data.today.rings.move} label="Movimento" detail="Minuti attivi" />
+            <RingCard tone="mint" value={data.today.rings.meals} label="Pasti" detail="Pasti registrati" />
+            <RingCard tone="lav" value={data.today.rings.body} label="Dati corpo" detail="Aggiornamento di oggi" />
           </div>
           <div className="panel">
-            <div className="panel-head"><h3>Questa settimana</h3><span className="badge amber">serie di {data.today.streakDays} giorni</span></div>
+            <div className="panel-head"><h3>Questa settimana</h3>{data.today.streakDays > 0 ? <span className="badge amber">serie di {data.today.streakDays} giorni</span> : <span className="badge gray">nessuna serie attiva</span>}</div>
             <div className="week-row">
-              {["Lun", "Mar", "Mer", "Gio", "Ven", "Sab", "Dom"].map((day, index) => (
-                <div key={day} className={index > 4 ? "muted-day" : ""}>
-                  <div className={index < 2 ? "mini-ring done" : index === 2 ? "mini-ring partial" : "mini-ring empty"}>{index < 2 ? "✓" : index === 2 ? "75" : ""}</div>
+              {["Lun", "Mar", "Mer", "Gio", "Ven", "Sab", "Dom"].map((day) => (
+                <div key={day}>
+                  <div className="mini-ring empty" />
                   <span>{day}</span>
                 </div>
               ))}
@@ -629,22 +671,14 @@ function TodayScreen({ data, onWorkout }: { data: FittyData; onWorkout: () => vo
           <div className="panel tint-lav">
             <div className="panel-head"><span className="dot-ic">✨</span><h3>Coach</h3></div>
             <p className="lead">{data.today.coachLine}</p>
-            <div className="actions"><button className="btn sm dark">Sì, fallo</button><button className="btn sm ghost">Più tardi</button></div>
           </div>
           <div className="panel">
             <div className="panel-head"><h3>Statistiche rapide</h3></div>
-            <div className="list">
-              <InfoRow icon="👣" title="8.420 passi" text="84% dell'obiettivo" meta="+12%" tone="mint" />
-              <InfoRow icon="🌙" title="7,4h sonno" text="buona notte" meta="+0,6h" tone="lav" />
-              <InfoRow icon="♥" title="72 bpm a riposo" text="stabile" meta="-" tone="coral" />
-            </div>
+            <div className="empty">Collega un'integrazione o registra dati per vedere passi, sonno e frequenza cardiaca.</div>
           </div>
           <div className="panel">
-            <div className="panel-head"><h3>Attività recente</h3><span className="link">Tutte</span></div>
-            <div className="list">
-              <InfoRow icon="🥗" title="Pranzo registrato" text="Insalata di lenticchie" meta="1h" tone="mint" />
-              <InfoRow icon="🏋" title="Allenamento completato" text="Lower body - 35 min" meta="3h" tone="coral" />
-            </div>
+            <div className="panel-head"><h3>Attività recente</h3></div>
+            <div className="empty">Nessuna attività registrata di recente.</div>
           </div>
         </div>
       </div>
@@ -654,37 +688,37 @@ function TodayScreen({ data, onWorkout }: { data: FittyData; onWorkout: () => vo
 
 function ProgressScreen({ data, token, onSaved }: { data: FittyData; token: string; onSaved: () => void }) {
   const [isBodyModalOpen, setIsBodyModalOpen] = useState(false);
+  const hasTrend = data.progress.trend.some((value) => value > 0);
 
   return (
     <section className="screen">
       <PageHead title="Progressi e corpo" text="Qui vive l'analisi completa: la home resta calma, i dettagli stanno qui." action={<><div className="seg"><button className="on">Settimana</button><button>Mese</button><button>Anno</button></div><button className="btn cta" onClick={() => setIsBodyModalOpen(true)}>+ Aggiungi dati corpo</button></>} />
       <div className="grid g-4">
-        <Stat icon="⚖" label="Peso" value={`${data.progress.weightKg.toFixed(1)} kg`} meta="-0,3 questa settimana" />
-        <Stat icon="📊" label="BMI" value={data.progress.bmi.toString()} meta="intervallo normale" />
-        <Stat icon="🔥" label="Massa grassa" value={`${data.progress.bodyFat}%`} meta="-0,5" />
-        <Stat icon="💪" label="Muscolo" value={`${data.progress.muscle}%`} meta="stabile" />
+        <Stat icon="⚖" label="Peso" value={data.progress.weightKg > 0 ? `${data.progress.weightKg.toFixed(1)} kg` : "—"} meta="Ultimo valore registrato" />
+        <Stat icon="📊" label="BMI" value={data.progress.bmi > 0 ? data.progress.bmi.toFixed(1) : "—"} meta="Calcolato da peso e altezza" />
+        <Stat icon="🔥" label="Massa grassa" value={data.progress.bodyFat > 0 ? `${data.progress.bodyFat}%` : "—"} meta="Ultimo valore registrato" />
+        <Stat icon="💪" label="Muscolo" value={data.progress.muscle > 0 ? `${data.progress.muscle}%` : "—"} meta="Ultimo valore registrato" />
       </div>
       <div className="grid g-32 margin-top">
         <div className="panel lg">
-          <div className="panel-head"><h3>Andamento peso</h3><span className="badge green">verso l'obiettivo</span></div>
-          <div className="bar-chart">
-            {data.progress.trend.map((height, index) => <div key={index}><i style={{ height: `${height}%` }} /><span>{index === data.progress.trend.length - 1 ? "Ora" : `S${index + 1}`}</span></div>)}
-          </div>
+          <div className="panel-head"><h3>Andamento peso</h3></div>
+          {hasTrend ? (
+            <div className="bar-chart">
+              {data.progress.trend.map((height, index) => <div key={index}><i style={{ height: `${height}%` }} /><span>{index === data.progress.trend.length - 1 ? "Ora" : `S${index + 1}`}</span></div>)}
+            </div>
+          ) : (
+            <div className="empty">Registra almeno due rilevazioni di peso per vedere l'andamento.</div>
+          )}
         </div>
         <div className="panel lg tint-mint center">
           <span className="cap mint">Punteggio wellness</span>
-          <div className="big-score">{data.progress.wellnessScore}</div>
-          <span className="delta up">+4 rispetto alla scorsa settimana</span>
-          <p>Combinazione di attività, sonno, nutrizione e costanza.</p>
+          <div className="big-score">{data.progress.wellnessScore > 0 ? data.progress.wellnessScore : "—"}</div>
+          <p>Combinazione di attività, sonno, nutrizione e costanza. Appare quando ci sono dati sufficienti.</p>
         </div>
       </div>
       <div className="panel margin-top">
-        <div className="panel-head"><h3>Storico dati corpo</h3><span className="link">Esporta CSV</span></div>
-        <table><thead><tr><th>Data</th><th>Peso</th><th>Massa grassa</th><th>Muscolo</th><th>Fonte</th><th></th></tr></thead><tbody>
-          <tr><td>28 Mag</td><td><b>64,2 kg</b></td><td>24,0%</td><td>41%</td><td><span className="badge lav">Manuale</span></td><td>...</td></tr>
-          <tr><td>21 Mag</td><td><b>64,5 kg</b></td><td>24,5%</td><td>40,8%</td><td><span className="badge green">Google Fit</span></td><td>...</td></tr>
-          <tr><td>14 Mag</td><td><b>65,1 kg</b></td><td>25,0%</td><td>40,5%</td><td><span className="badge green">Google Fit</span></td><td>...</td></tr>
-        </tbody></table>
+        <div className="panel-head"><h3>Storico dati corpo</h3></div>
+        <div className="empty">Nessun dato corpo registrato. Usa “+ Aggiungi dati corpo” per iniziare lo storico.</div>
       </div>
       {isBodyModalOpen && <BodyDataModal token={token} onClose={() => setIsBodyModalOpen(false)} onSaved={() => { setIsBodyModalOpen(false); onSaved(); }} />}
     </section>
@@ -821,7 +855,9 @@ function CoachScreen({ data }: { data: FittyData }) {
         <div>
           <h3>Consigli della settimana</h3>
           <div className="grid">
-            {data.recommendations.map((item) => <div key={item.title} className={`panel tint-${item.tone === "plain" ? "none" : item.tone}`}><h3>{item.title}</h3><p>{item.text}</p></div>)}
+            {data.recommendations.length > 0
+              ? data.recommendations.map((item) => <div key={item.title} className={`panel tint-${item.tone === "plain" ? "none" : item.tone}`}><h3>{item.title}</h3><p>{item.text}</p></div>)
+              : <div className="panel"><div className="empty">Ancora nessun consiglio. Registra dati corpo, pasti o attività e Fitty preparerà suggerimenti personalizzati.</div></div>}
           </div>
         </div>
         <div className="panel lg">
@@ -1148,9 +1184,22 @@ async function completeLogin() {
   if (!response.ok) throw new Error("Login non completato");
   const token = await response.json();
   const session = sessionFromTokenResponse(token);
+  // Social login is brokered by Keycloak; the Fitty profile may not exist yet. Ensure it does.
+  await ensureProfile(session.accessToken);
   localStorage.setItem(TOKEN_KEY, JSON.stringify(session));
   sessionStorage.removeItem(VERIFIER_KEY);
   return session;
+}
+
+async function ensureProfile(accessToken: string) {
+  try {
+    await fetch(`${API_BASE_URL}/api/v1/identity/sync-profile`, {
+      method: "POST",
+      headers: { Authorization: `Bearer ${accessToken}` }
+    });
+  } catch {
+    // Non-blocking: the app still loads; profile sync is retried on next login.
+  }
 }
 
 function sessionFromTokenResponse(token: { access_token?: string; refresh_token?: string; id_token?: string; expires_in?: number; accessToken?: string; refreshToken?: string; idToken?: string; expiresIn?: number }): Session {

@@ -70,10 +70,14 @@ Current local identity endpoints:
 - `POST /api/v1/identity/register`
 - `POST /api/v1/identity/login`
 - `POST /api/v1/identity/password-reset`
+- `POST /api/v1/identity/sync-profile` — creates the Fitty profile for the authenticated Keycloak
+  user if missing (used after Google/Facebook social login). Reads identity from the bearer token via
+  Keycloak `userinfo`; never trusts client-supplied identity.
 
-Gateway route:
+Gateway routes:
 
 - `/api/v1/identity/**` -> `identity-service`
+- `/api/v1/ai/**` -> `recommendation-service` (LM Studio-backed AI layer, JWT-protected)
 
 Current Keycloak clients:
 
@@ -274,6 +278,90 @@ kubectl logs -n fitty-app deploy/api-gateway --tail=200
 7. Add backend enforcement that admins cannot read sensitive health/body measurement endpoints.
 8. Replace random recommendations with deterministic rule-based recommendations based on actual user data.
 9. Add tests around identity registration, JWT role mapping, health access control, and admin subscription update.
+
+## Reliability + AI Slice (2026-06-20)
+
+Vertical slice: web auth/UX reliability, social-login profile sync, first LM Studio AI endpoint, and
+the supporting K8s config/secrets. Delivered as code + manifests + docs; **not yet deployed/verified**
+on the cluster (the dev machine could not reach the cluster and runs Java 8, so backend builds happen
+in Docker only). Frontend `npm run build` and the `recommendation-service` Docker build both pass.
+
+### Decisions
+
+- AI lives **inside `recommendation-service`** (not a separate `ai-service` yet) to keep the first
+  slice small. New endpoints under `/api/v1/ai/**`. Revisit extracting `ai-service` later.
+- Web config is now **runtime-injected**: the web image is a multi-stage nginx build; an entrypoint
+  writes `/env-config.js` from env vars (`VITE_*`) at container start, read via `window.__FITTY_ENV__`
+  with build-time/fallback behind it. This removes the baked `localhost:8080` default that made login
+  unreliable. Web Dockerfile no longer runs `vite dev`.
+- Frontend now shows **inline field errors** (login + registration), friendly network/API messages,
+  and **real empty states** instead of fabricated authenticated data on Today/Progress/Coach.
+
+### Changed/added files
+
+- AI: `services/recommendation-service/src/main/java/com/fitty/recommendation/ai/*` (AiController,
+  AiSuggestionService, LmStudioClient, AiProperties, AiDtos) + `application.yml` + a unit test.
+- identity: `IdentityController`/`IdentityService` add `sync-profile`; `KeycloakClient.userInfo`;
+  `UserProfileClient.exists` + `createProfile` overload; `GlobalExceptionHandler` is status-aware.
+- gateway: `application.yml` adds the `/api/v1/ai/**` route.
+- web: `src/main.tsx` (runtime config, inline errors, empty states, profile sync), `styles.css`,
+  `index.html`, `public/env-config.js`, `Dockerfile`, `nginx.conf`, `docker-entrypoint.sh`,
+  `package.json` (added `@types/react*`).
+- k8s: `configmaps/app-config.yaml` (AI + provider config), `secrets/app-secrets.template.yaml`
+  (LM Studio + provider secrets), `keycloak/keycloak-secrets.template.yaml` (provider creds),
+  `recommendation-service/recommendation-service.yaml` (LM_STUDIO_API_KEY).
+- docs: `docs/integrations/lm-studio-ai.md`, `oauth-google-facebook.md`, `smtp-email.md`.
+
+### Build & deploy
+
+```powershell
+cd E:\workspace\fittyApp
+
+docker build -t fitty-cp-01:5000/fitty/recommendation-service:local .\services\recommendation-service
+docker build -t fitty-cp-01:5000/fitty/identity-service:local .\services\identity-service
+docker build -t fitty-cp-01:5000/fitty/api-gateway:local .\services\gateway-service
+docker build -t fitty-cp-01:5000/fitty/web-app:local .\frontend-web
+
+docker push fitty-cp-01:5000/fitty/recommendation-service:local
+docker push fitty-cp-01:5000/fitty/identity-service:local
+docker push fitty-cp-01:5000/fitty/api-gateway:local
+docker push fitty-cp-01:5000/fitty/web-app:local
+
+# Secrets: copy templates to gitignored *.yaml, fill values, then apply.
+kubectl apply -f .\infra\k8s\local\configmaps\
+kubectl apply -f .\infra\k8s\local\secrets\
+kubectl apply -f .\infra\k8s\local\recommendation-service\
+kubectl apply -f .\infra\k8s\local\identity-service\
+kubectl apply -f .\infra\k8s\local\api-gateway\
+kubectl apply -f .\infra\k8s\local\web-app\
+
+kubectl rollout restart deployment -n fitty-app recommendation-service identity-service api-gateway web-app
+kubectl get pods -n fitty-app -w
+```
+
+### Verify
+
+```powershell
+# AI with LM Studio reachable -> source LM_STUDIO; unreachable/disabled -> RULE_BASED_FALLBACK (still 200).
+curl.exe -X POST http://fitty-cp-01:30080/api/v1/ai/recommendations `
+  -H "Authorization: Bearer <JWT>" -H "Content-Type: application/json" `
+  -d "{\"context\":{\"goals\":[\"Perdere peso\"],\"activityLevel\":\"Sedentario\",\"sleepHours\":6,\"hydrationGlasses\":4}}"
+
+# Social profile sync (after a Google/Facebook login token):
+curl.exe -X POST http://fitty-cp-01:30080/api/v1/identity/sync-profile -H "Authorization: Bearer <JWT>"
+
+# Web: open http://fitty-cp-01:30000 -> register (invalid password shows field error), login, dashboard
+# shows empty states (no fabricated numbers).
+```
+
+### Still requires external credentials
+
+- **LM Studio**: `LM_STUDIO_BASE_URL` must be the LAN IP of the LM Studio host (not localhost), with
+  the three models loaded and "serve on local network" enabled. `LM_STUDIO_API_KEY` optional.
+- **Google/Facebook OAuth**: client id/secret + reachable redirect URIs — see
+  `docs/integrations/oauth-google-facebook.md`. Disabled until configured.
+- **SMTP**: no `smtpServer` in the realm yet → reset/verification emails are not delivered. See
+  `docs/integrations/smtp-email.md` for the exact env/secrets and realm snippet.
 
 ## How Agents Should Work Here
 

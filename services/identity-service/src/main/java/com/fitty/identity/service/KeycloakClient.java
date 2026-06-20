@@ -111,6 +111,22 @@ public class KeycloakClient {
         );
     }
 
+    /**
+     * Resolves the authenticated user's claims from Keycloak using their access token.
+     * Returns sub, email, given_name and family_name. Throws if the token is invalid/expired.
+     */
+    public Map<?, ?> userInfo(String accessToken) {
+        Map<?, ?> response = restClient.get()
+                .uri(keycloakUri("/realms/{realm}/protocol/openid-connect/userinfo", properties.keycloak().realm()))
+                .headers(headers -> headers.setBearerAuth(accessToken))
+                .retrieve()
+                .body(Map.class);
+        if (response == null || response.get("sub") == null) {
+            throw new IllegalStateException("Keycloak userinfo returned no subject");
+        }
+        return response;
+    }
+
     public void sendPasswordResetEmail(String email) {
         String adminToken = adminToken();
         String userId = findUserIdByEmail(email, adminToken);

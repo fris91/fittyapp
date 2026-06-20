@@ -21,13 +21,22 @@ public class UserProfileClient {
     }
 
     public String createProfile(String keycloakUserId, RegisterRequest request) {
+        return createProfile(
+                keycloakUserId,
+                request.firstName(),
+                request.lastName(),
+                request.email(),
+                request.subscriptionPlan() == null ? "FREE" : request.subscriptionPlan());
+    }
+
+    public String createProfile(String keycloakUserId, String firstName, String lastName, String email, String plan) {
         Map<String, Object> payload = Map.of(
                 "id", keycloakUserId,
-                "firstName", request.firstName(),
-                "lastName", request.lastName(),
-                "email", request.email(),
+                "firstName", firstName == null ? "" : firstName,
+                "lastName", lastName == null ? "" : lastName,
+                "email", email == null ? "" : email,
                 "role", "FITTY_USER",
-                "subscriptionPlan", request.subscriptionPlan() == null ? "FREE" : request.subscriptionPlan()
+                "subscriptionPlan", plan == null ? "FREE" : plan
         );
 
         return restClient.post()
@@ -36,6 +45,17 @@ public class UserProfileClient {
                 .body(payload)
                 .retrieve()
                 .body(String.class);
+    }
+
+    /** Returns true if a Fitty profile already exists for the given Keycloak user id. */
+    public boolean exists(String keycloakUserId) {
+        Boolean exists = restClient.get()
+                .uri(UriComponentsBuilder.fromUriString(properties.userService().url())
+                        .path("/api/v1/user-service/exists/{id}")
+                        .build(keycloakUserId))
+                .retrieve()
+                .body(Boolean.class);
+        return Boolean.TRUE.equals(exists);
     }
 
     private URI userServiceUri() {
