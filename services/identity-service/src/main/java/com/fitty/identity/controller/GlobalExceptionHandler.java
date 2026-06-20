@@ -1,5 +1,7 @@
 package com.fitty.identity.controller;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
@@ -14,6 +16,7 @@ import java.util.Map;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
+    private static final Logger log = LoggerFactory.getLogger(GlobalExceptionHandler.class);
     @ExceptionHandler(MethodArgumentNotValidException.class)
     ResponseEntity<Map<String, Object>> validation(MethodArgumentNotValidException exception) {
         return ResponseEntity.badRequest().body(error("validation_error", "I dati inseriti non sono validi."));
@@ -32,6 +35,8 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(RestClientResponseException.class)
     ResponseEntity<Map<String, Object>> upstream(RestClientResponseException exception) {
         HttpStatusCode status = exception.getStatusCode();
+        // Server-side only: surface the real upstream status + body so failures are diagnosable.
+        log.warn("identity.upstream.error status={} body={}", status.value(), exception.getResponseBodyAsString());
         if (status.value() == 401 || status.value() == 403) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                     .body(error("invalid_credentials", "Email o password non validi."));
@@ -46,6 +51,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(Exception.class)
     ResponseEntity<Map<String, Object>> generic(Exception exception) {
+        log.error("identity.unexpected.error", exception);
         return ResponseEntity.status(HttpStatus.BAD_GATEWAY)
                 .body(error("identity_provider_error", "Si è verificato un problema. Riprova tra poco."));
     }
