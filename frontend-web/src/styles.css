@@ -573,3 +573,25 @@ select.invalid {
   background: var(--coral-50);
 }
 .auth-field.invalid input { background: transparent; }
+
+/* --- Body-data entry: physical measurements + body composition --- */
+.measure-toolbar { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; padding: 12px 14px; border: 1px solid var(--line); border-radius: 14px; background: var(--surface); color: var(--ink-2); font-size: 12.5px; font-weight: 800; }
+.measure-toolbar .measure-inline { margin-left: auto; display: inline-flex; align-items: center; gap: 8px; }
+.measure-toolbar .measure-inline input { width: 92px; min-height: 36px; border: 1px solid var(--line); border-radius: 10px; padding: 0 10px; background: var(--bg); }
+.measure-section { padding: 0; overflow: hidden; }
+.measure-section-head { width: 100%; display: flex; align-items: center; justify-content: space-between; gap: 12px; border: 0; background: transparent; padding: 16px 18px; cursor: pointer; }
+.measure-section-head b { font-size: 15px; font-weight: 800; color: var(--ink); }
+.measure-section-head small { display: block; margin-top: 2px; color: var(--muted); font-size: 12px; font-weight: 700; }
+.measure-section-head .chev { font-style: normal; font-size: 22px; color: var(--muted); transition: transform .18s ease; }
+.measure-section-head .chev.open { transform: rotate(90deg); }
+.measure-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; padding: 0 18px 18px; }
+.measure-field { display: grid; gap: 6px; }
+.measure-field > span { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; font-size: 12.5px; font-weight: 800; color: var(--ink-2); }
+.measure-field > span em { font-style: normal; font-size: 11px; font-weight: 800; color: var(--muted); text-transform: lowercase; }
+.measure-field input { min-height: 44px; border: 1px solid var(--line); border-radius: 12px; padding: 0 12px; background: var(--surface); font-size: 15px; font-weight: 700; color: var(--ink); }
+.measure-field input:read-only { background: var(--bg); color: var(--ink-2); }
+.unit-toggle i[role="button"] { cursor: pointer; }
+@media (max-width: 680px) {
+  .measure-grid { grid-template-columns: 1fr 1fr; }
+  .measure-toolbar .measure-inline { margin-left: 0; width: 100%; justify-content: space-between; }
+}

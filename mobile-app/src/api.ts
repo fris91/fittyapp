@@ -188,6 +188,32 @@ export async function saveHealthSnapshot(token: string | undefined, payload: unk
   });
 }
 
+export type MeasurementType = "PHYSICAL_MEASUREMENT" | "BODY_COMPOSITION" | "WELLNESS";
+
+export type HealthSnapshot = {
+  id: string;
+  measurementType: MeasurementType;
+  source?: string;
+  recordedAt: string;
+  weightKg?: number;
+  heightCm?: number;
+  bmi?: number;
+  notes?: string;
+  waistCm?: number;
+  chestCm?: number;
+  bodyFatPercentage?: number;
+  muscleMassPercentage?: number;
+  [key: string]: unknown;
+};
+
+export async function getHealthHistory(token: string | undefined, type?: MeasurementType): Promise<HealthSnapshot[]> {
+  if (USE_MOCKS) {
+    return [];
+  }
+  const query = type ? `?type=${type}` : "";
+  return request<HealthSnapshot[]>(`/api/v1/health-data/history${query}`, token);
+}
+
 async function request<T>(path: string, token?: string, init: RequestInit = {}): Promise<T> {
   const response = await fetch(`${API_BASE_URL}${path}`, {
     ...init,

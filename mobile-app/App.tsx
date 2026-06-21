@@ -16,14 +16,17 @@ import {
 import { StatusBar } from "expo-status-bar";
 import { theme } from "./src/theme";
 import {
+  getHealthHistory,
   getTodaySummary,
   loginIdentity,
   registerIdentity,
   saveHealthSnapshot,
   saveMealLog,
+  type HealthSnapshot,
   type TodaySummary
 } from "./src/api";
 import { clearSession, FittySession, loadSession, saveSession, sessionFromIdentity, sessionFromLogin } from "./src/session";
+import { BodyCompositionModal, PhysicalMeasurementModal } from "./src/BodyDataScreens";
 
 type Tab = "today" | "progress" | "plans" | "coach";
 type PlansView = "overview" | "training" | "nutrition" | "recipes";
@@ -70,7 +73,6 @@ export default function App() {
   const [plansView, setPlansView] = useState<PlansView>("overview");
   const [trainingView, setTrainingView] = useState<"plan" | "exercise" | "progress">("plan");
   const [nutritionView, setNutritionView] = useState<"today" | "plan">("today");
-  const [progressState, setProgressState] = useState<AsyncState>("ready");
   const [coachState, setCoachState] = useState<AsyncState>("ready");
   const [logOpen, setLogOpen] = useState(false);
   const [logType, setLogType] = useState<LogType>("meal");
@@ -217,7 +219,7 @@ export default function App() {
         <Header name={session?.firstName || onboarding.firstName || "Fitty"} onSettings={() => setSettingsOpen(true)} />
         <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
           {tab === "today" && <TodayScreen token={session?.token.accessToken} onLog={() => setLogOpen(true)} />}
-          {tab === "progress" && <ProgressScreen state={progressState} />}
+          {tab === "progress" && <ProgressScreen token={session?.token.accessToken} />}
           {tab === "plans" && (
             <PlansScreen
               view={plansView}
@@ -527,33 +529,132 @@ function TodayScreen({ token, onLog }: { token?: string; onLog: () => void }) {
   );
 }
 
-function ProgressScreen({ state }: { state: AsyncState }) {
-  if (state === "loading") return <SkeletonStack />;
-  if (state === "error") return <StateCard title="Progress needs a refresh" text="We could not load your latest history. Try again in a moment." action="Retry" />;
-  if (state === "empty") return <StateCard title="No progress yet" text="Add your first body data entry to start a gentle trend." action="Log body data" />;
+function ProgressScreen({ token }: { token?: string }) {
+  const [physical, setPhysical] = useState<HealthSnapshot[]>([]);
+  const [composition, setComposition] = useState<HealthSnapshot[]>([]);
+  const [state, setState] = useState<AsyncState>("loading");
+  const [error, setError] = useState("");
+  const [reloadKey, setReloadKey] = useState(0);
+  const [modal, setModal] = useState<"physical" | "composition" | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    setState("loading");
+    setError("");
+    Promise.all([getHealthHistory(token, "PHYSICAL_MEASUREMENT"), getHealthHistory(token, "BODY_COMPOSITION")])
+      .then(([phys, comp]) => {
+        if (cancelled) return;
+        setPhysical(phys);
+        setComposition(comp);
+        setState("ready");
+      })
+      .catch((err) => {
+        if (cancelled) return;
+        setError(err instanceof Error ? err.message : "Could not load progress");
+        setState("error");
+      });
+    return () => { cancelled = true; };
+  }, [token, reloadKey]);
+
+  const handleSaved = () => { setModal(null); setReloadKey((k) => k + 1); };
+  const weightTrend = composition.concat(physical)
+    .filter((s) => typeof s.weightKg === "number")
+    .slice(0, 8)
+    .reverse()
+    .map((s) => s.weightKg as number);
+  const latestWeight = weightTrend.length ? weightTrend[weightTrend.length - 1] : undefined;
+  const latestComposition = composition[0];
 
   return (
     <View style={styles.stack}>
+      <View style={styles.ringGrid}>
+        <Pressable style={[styles.logType, styles.logTypeActive, { flex: 1 }]} onPress={() => setModal("physical")}>
+          <Text style={styles.logTypeTextActive}>+ Physical measurements</Text>
+        </Pressable>
+        <Pressable style={[styles.logType, styles.logTypeActive, { flex: 1 }]} onPress={() => setModal("composition")}>
+          <Text style={styles.logTypeTextActive}>+ Body composition</Text>
+        </Pressable>
+      </View>
+
       <View style={styles.card}>
-        <Text style={styles.cardKicker}>Wellness score</Text>
-        <View style={styles.rowBetween}>
-          <ProgressRing label="72" progress={72} color={theme.colors.secondary} size={110} />
-          <View style={styles.scoreCopy}>
-            <Text style={styles.cardTitle}>A steady start</Text>
-            <Text style={styles.cardText}>Based on activity, meals, body data and sleep once available.</Text>
+        <Text style={styles.cardKicker}>Latest body data</Text>
+        <View style={styles.macroRow}>
+          <MacroPill label="Weight" value={latestWeight != null ? `${latestWeight} kg` : "—"} />
+          <MacroPill label="Body fat" value={latestComposition?.bodyFatPercentage != null ? `${latestComposition.bodyFatPercentage}%` : "—"} />
+          <MacroPill label="Muscle" value={latestComposition?.muscleMassPercentage != null ? `${latestComposition.muscleMassPercentage}%` : "—"} />
+        </View>
+      </View>
+
+      {state === "loading" && <SkeletonStack />}
+      {state === "error" && (
+        <View style={styles.card}>
+          <Text style={styles.cardTitle}>Progress needs a refresh</Text>
+          <Text style={styles.cardText}>{error || "We could not load your history."}</Text>
+          <Pressable style={styles.chip} onPress={() => setReloadKey((k) => k + 1)}><Text style={styles.chipText}>Retry</Text></Pressable>
+        </View>
+      )}
+
+      {state === "ready" && (
+        <>
+          <View style={styles.card}>
+            <Text style={styles.cardKicker}>Weight trend</Text>
+            {weightTrend.length > 1 ? (
+              <View style={styles.chart}>
+                {normalizeBars(weightTrend).map((height, index) => <View key={index} style={[styles.bar, { height }]} />)}
+              </View>
+            ) : (
+              <Text style={styles.cardText}>Log at least two entries to see your weight trend.</Text>
+            )}
           </View>
-        </View>
-      </View>
-      <View style={styles.card}>
-        <Text style={styles.cardKicker}>Weight trend</Text>
-        <View style={styles.chart}>
-          {[72, 64, 69, 58, 54, 49, 45].map((height, index) => <View key={index} style={[styles.bar, { height }]} />)}
-        </View>
-        <Text style={styles.cardText}>Manual body entries will appear here.</Text>
-      </View>
-      <StateCard title="Body history" text="No body composition history has been logged yet." action="Add snapshot" soft />
+
+          <BodyHistoryCard title="Physical measurements" rows={physical}
+            empty="No tape measurements yet. Tap “+ Physical measurements”."
+            line={(s) => `${val(s.weightKg, "kg")}${s.waistCm ? ` · waist ${val(s.waistCm, "cm")}` : ""}`} />
+          <BodyHistoryCard title="Body composition" rows={composition}
+            empty="No smart-scale entries yet. Tap “+ Body composition”."
+            line={(s) => `${val(s.weightKg, "kg")}${s.bodyFatPercentage != null ? ` · fat ${s.bodyFatPercentage}%` : ""}`} />
+        </>
+      )}
+
+      {modal === "physical" && <PhysicalMeasurementModal token={token} onClose={() => setModal(null)} onSaved={handleSaved} />}
+      {modal === "composition" && <BodyCompositionModal token={token} onClose={() => setModal(null)} onSaved={handleSaved} />}
     </View>
   );
+}
+
+function BodyHistoryCard({ title, rows, empty, line }: { title: string; rows: HealthSnapshot[]; empty: string; line: (s: HealthSnapshot) => string }) {
+  return (
+    <View style={styles.card}>
+      <Text style={styles.cardKicker}>{title}</Text>
+      {rows.length === 0 ? (
+        <Text style={styles.cardText}>{empty}</Text>
+      ) : (
+        <View style={styles.stackSmall}>
+          {rows.slice(0, 6).map((s) => (
+            <View key={s.id} style={styles.exerciseRow}>
+              <View>
+                <Text style={styles.exerciseName}>{line(s)}</Text>
+                <Text style={styles.caption}>{s.source ?? "manual"}</Text>
+              </View>
+              <Text style={styles.caption}>{formatDate(s.recordedAt)}</Text>
+            </View>
+          ))}
+        </View>
+      )}
+    </View>
+  );
+}
+
+function normalizeBars(values: number[]): number[] {
+  const max = Math.max(...values);
+  const min = Math.min(...values);
+  if (max === min) return values.map(() => 70);
+  return values.map((v) => 36 + ((v - min) / (max - min)) * 64);
+}
+
+function val(value: number | undefined, unit: string) { return value != null ? `${value} ${unit}` : "—"; }
+function formatDate(iso: string) {
+  try { return new Date(iso).toLocaleDateString(); } catch { return ""; }
 }
 
 function TrainingScreen({ view, onView }: { view: "plan" | "exercise" | "progress"; onView: (view: "plan" | "exercise" | "progress") => void }) {

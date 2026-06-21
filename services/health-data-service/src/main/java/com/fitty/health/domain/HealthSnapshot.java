@@ -1,22 +1,74 @@
 package com.fitty.health.domain;
 
+import lombok.Getter;
+import lombok.Setter;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.time.Instant;
 
+/**
+ * A single body-data snapshot for a user.
+ *
+ * <p>One flat document intentionally holds every measurement kind. {@link #measurementType}
+ * records which entry screen produced it so history/trends can be filtered, while the BFF and
+ * legacy clients keep reading the flat top-level fields they always relied on
+ * (weight, body fat, muscle, steps).
+ */
+@Getter
+@Setter
 @Document("health_snapshots")
 public class HealthSnapshot {
     @Id
     private String id;
     @Indexed
     private String userId;
+
+    /** PHYSICAL_MEASUREMENT | BODY_COMPOSITION | WELLNESS. */
+    private MeasurementType measurementType;
+    /** manual | smart_scale | import | ai_assistant. */
+    private String source;
+
+    // --- Core / shared ---------------------------------------------------------------------
     private Double weightKg;
     private Double heightCm;
+    private String notes;
+
+    // --- Physical (anthropometric) measurements, centimetres -------------------------------
+    private Double neckCm;
+    private Double shouldersCm;
+    private Double chestCm;
+    private Double upperChestCm;
+    private Double waistCm;
+    private Double abdomenCm;
+    private Double hipsCm;
+    private Double glutesCm;
+    private Double rightArmCm;
+    private Double leftArmCm;
+    private Double rightForearmCm;
+    private Double leftForearmCm;
+    private Double rightThighCm;
+    private Double leftThighCm;
+    private Double rightCalfCm;
+    private Double leftCalfCm;
+    private Double wristCm;
+    private Double ankleCm;
+
+    // --- Body composition (smart scale / bioimpedance) -------------------------------------
     private Double bodyFatPercentage;
     private Double muscleMassPercentage;
-    private Double waistCm;
+    private Double skeletalMusclePercentage;
+    private Double waterPercentage;
+    private Double visceralFat;
+    private Double boneMassKg;
+    private Double proteinPercentage;
+    private Integer basalMetabolicRate;
+    private Integer metabolicAge;
+    private Double fatFreeMassKg;
+    private Double subcutaneousFatPercentage;
+
+    // --- Wellness / vitals (legacy) --------------------------------------------------------
     private Integer systolicBloodPressure;
     private Integer diastolicBloodPressure;
     private Integer heartRateBpm;
@@ -24,134 +76,6 @@ public class HealthSnapshot {
     private String mood;
     private Double sleepHours;
     private Integer steps;
-    private String notes;
+
     private Instant recordedAt;
-
-    public String getId() {
-        return id;
-    }
-
-    public void setId(String id) {
-        this.id = id;
-    }
-
-    public String getUserId() {
-        return userId;
-    }
-
-    public void setUserId(String userId) {
-        this.userId = userId;
-    }
-
-    public Double getWeightKg() {
-        return weightKg;
-    }
-
-    public void setWeightKg(Double weightKg) {
-        this.weightKg = weightKg;
-    }
-
-    public Double getHeightCm() {
-        return heightCm;
-    }
-
-    public void setHeightCm(Double heightCm) {
-        this.heightCm = heightCm;
-    }
-
-    public Double getBodyFatPercentage() {
-        return bodyFatPercentage;
-    }
-
-    public void setBodyFatPercentage(Double bodyFatPercentage) {
-        this.bodyFatPercentage = bodyFatPercentage;
-    }
-
-    public Double getMuscleMassPercentage() {
-        return muscleMassPercentage;
-    }
-
-    public void setMuscleMassPercentage(Double muscleMassPercentage) {
-        this.muscleMassPercentage = muscleMassPercentage;
-    }
-
-    public Double getWaistCm() {
-        return waistCm;
-    }
-
-    public void setWaistCm(Double waistCm) {
-        this.waistCm = waistCm;
-    }
-
-    public Integer getSystolicBloodPressure() {
-        return systolicBloodPressure;
-    }
-
-    public void setSystolicBloodPressure(Integer systolicBloodPressure) {
-        this.systolicBloodPressure = systolicBloodPressure;
-    }
-
-    public Integer getDiastolicBloodPressure() {
-        return diastolicBloodPressure;
-    }
-
-    public void setDiastolicBloodPressure(Integer diastolicBloodPressure) {
-        this.diastolicBloodPressure = diastolicBloodPressure;
-    }
-
-    public Integer getHeartRateBpm() {
-        return heartRateBpm;
-    }
-
-    public void setHeartRateBpm(Integer heartRateBpm) {
-        this.heartRateBpm = heartRateBpm;
-    }
-
-    public Integer getEnergyLevel() {
-        return energyLevel;
-    }
-
-    public void setEnergyLevel(Integer energyLevel) {
-        this.energyLevel = energyLevel;
-    }
-
-    public String getMood() {
-        return mood;
-    }
-
-    public void setMood(String mood) {
-        this.mood = mood;
-    }
-
-    public Double getSleepHours() {
-        return sleepHours;
-    }
-
-    public void setSleepHours(Double sleepHours) {
-        this.sleepHours = sleepHours;
-    }
-
-    public Integer getSteps() {
-        return steps;
-    }
-
-    public void setSteps(Integer steps) {
-        this.steps = steps;
-    }
-
-    public String getNotes() {
-        return notes;
-    }
-
-    public void setNotes(String notes) {
-        this.notes = notes;
-    }
-
-    public Instant getRecordedAt() {
-        return recordedAt;
-    }
-
-    public void setRecordedAt(Instant recordedAt) {
-        this.recordedAt = recordedAt;
-    }
 }

@@ -21,6 +21,7 @@ import {
   Users
 } from "lucide-react";
 import "./styles.css";
+import { PhysicalMeasurementsScreen, BodyCompositionScreen, BodyHistoryPanels } from "./bodyData";
 
 type Role = "FITTY_USER" | "FITTY_ADMIN";
 type Page =
@@ -687,12 +688,19 @@ function TodayScreen({ data, onWorkout }: { data: FittyData; onWorkout: () => vo
 }
 
 function ProgressScreen({ data, token, onSaved }: { data: FittyData; token: string; onSaved: () => void }) {
-  const [isBodyModalOpen, setIsBodyModalOpen] = useState(false);
+  const [bodyModal, setBodyModal] = useState<"physical" | "composition" | null>(null);
+  const [bodyRefresh, setBodyRefresh] = useState(0);
   const hasTrend = data.progress.trend.some((value) => value > 0);
+
+  function handleSaved() {
+    setBodyModal(null);
+    setBodyRefresh((value) => value + 1);
+    onSaved();
+  }
 
   return (
     <section className="screen">
-      <PageHead title="Progressi e corpo" text="Qui vive l'analisi completa: la home resta calma, i dettagli stanno qui." action={<><div className="seg"><button className="on">Settimana</button><button>Mese</button><button>Anno</button></div><button className="btn cta" onClick={() => setIsBodyModalOpen(true)}>+ Aggiungi dati corpo</button></>} />
+      <PageHead title="Progressi e corpo" text="Qui vive l'analisi completa: la home resta calma, i dettagli stanno qui." action={<><div className="seg"><button className="on">Settimana</button><button>Mese</button><button>Anno</button></div><button className="btn ghost" onClick={() => setBodyModal("physical")}>+ Misure fisiche</button><button className="btn cta" onClick={() => setBodyModal("composition")}>+ Composizione corporea</button></>} />
       <div className="grid g-4">
         <Stat icon="⚖" label="Peso" value={data.progress.weightKg > 0 ? `${data.progress.weightKg.toFixed(1)} kg` : "—"} meta="Ultimo valore registrato" />
         <Stat icon="📊" label="BMI" value={data.progress.bmi > 0 ? data.progress.bmi.toFixed(1) : "—"} meta="Calcolato da peso e altezza" />
@@ -716,136 +724,13 @@ function ProgressScreen({ data, token, onSaved }: { data: FittyData; token: stri
           <p>Combinazione di attività, sonno, nutrizione e costanza. Appare quando ci sono dati sufficienti.</p>
         </div>
       </div>
-      <div className="panel margin-top">
-        <div className="panel-head"><h3>Storico dati corpo</h3></div>
-        <div className="empty">Nessun dato corpo registrato. Usa “+ Aggiungi dati corpo” per iniziare lo storico.</div>
-      </div>
-      {isBodyModalOpen && <BodyDataModal token={token} onClose={() => setIsBodyModalOpen(false)} onSaved={() => { setIsBodyModalOpen(false); onSaved(); }} />}
+      <BodyHistoryPanels token={token} refreshKey={bodyRefresh} />
+      {bodyModal === "physical" && <PhysicalMeasurementsScreen token={token} onClose={() => setBodyModal(null)} onSaved={handleSaved} />}
+      {bodyModal === "composition" && <BodyCompositionScreen token={token} onClose={() => setBodyModal(null)} onSaved={handleSaved} />}
     </section>
   );
 }
 
-function BodyDataModal({ token, onClose, onSaved }: { token: string; onClose: () => void; onSaved: () => void }) {
-  const [weightKg, setWeightKg] = useState("");
-  const [heightCm, setHeightCm] = useState("");
-  const [bodyFatPercentage, setBodyFatPercentage] = useState("");
-  const [muscleMassPercentage, setMuscleMassPercentage] = useState("");
-  const [waistCm, setWaistCm] = useState("");
-  const [sleepHours, setSleepHours] = useState("");
-  const [steps, setSteps] = useState("");
-  const [heartRateBpm, setHeartRateBpm] = useState("");
-  const [energyLevel, setEnergyLevel] = useState(3);
-  const [mood, setMood] = useState("Bene");
-  const [notes, setNotes] = useState("");
-  const [error, setError] = useState("");
-  const [isSaving, setIsSaving] = useState(false);
-  const weight = Number(weightKg);
-  const height = Number(heightCm);
-  const bmi = weight > 0 && height > 0 ? weight / ((height / 100) * (height / 100)) : 0;
-
-  async function save(event: React.FormEvent) {
-    event.preventDefault();
-    setError("");
-    if (!weightKg) {
-      setError("Il peso è obbligatorio.");
-      return;
-    }
-    setIsSaving(true);
-    try {
-      await apiPost("/api/v1/health-data", token, {
-        weightKg: numberOrNull(weightKg),
-        heightCm: numberOrNull(heightCm),
-        bodyFatPercentage: numberOrNull(bodyFatPercentage),
-        muscleMassPercentage: numberOrNull(muscleMassPercentage),
-        waistCm: numberOrNull(waistCm),
-        sleepHours: numberOrNull(sleepHours),
-        steps: integerOrNull(steps),
-        heartRateBpm: integerOrNull(heartRateBpm),
-        energyLevel,
-        mood,
-        notes: notes.trim() || null
-      });
-      onSaved();
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Non sono riuscito a salvare i dati. Riprova tra poco.");
-    } finally {
-      setIsSaving(false);
-    }
-  }
-
-  return (
-    <div className="modal-backdrop" role="dialog" aria-modal="true" aria-label="Aggiungi dati corpo">
-      <form className="modal-card body-entry-card" onSubmit={save}>
-        <div className="body-entry-top">
-          <div><button type="button" className="link-button" onClick={onClose}>‹ Progressi</button><h3>Aggiungi dati corpo</h3><p>Oggi · inserisci i tuoi dati</p></div>
-          <div className="actions"><button type="button" className="btn ghost" onClick={onClose}>Annulla</button><button className="btn cta" disabled={isSaving}>{isSaving ? "Salvataggio..." : "Salva dato"}</button></div>
-        </div>
-
-        <div className="body-entry-grid">
-          <div className="grid">
-            <section className="panel lg tint-coral weight-entry">
-              <div className="panel-head"><span className="dot-ic tint-coral">⚖</span><h3>Peso</h3><span className="badge gray">Obbligatorio</span></div>
-              <div className="weight-row">
-                <strong>{weightKg || "0"}</strong>
-                <span className="unit-toggle"><b>kg</b><i>lb</i></span>
-                <input type="range" min="30" max="180" step="0.1" value={weightKg || "70"} onChange={(e) => setWeightKg(e.target.value)} />
-              </div>
-              <div className="stepper-row">
-                <button type="button" className="btn sm ghost" onClick={() => setWeightKg(stepDecimal(weightKg || "70", -0.1))}>-0,1</button>
-                <button type="button" className="btn sm ghost" onClick={() => setWeightKg(stepDecimal(weightKg || "70", 0.1))}>+0,1</button>
-                <span>Imposta il peso con lo slider o i pulsanti</span>
-              </div>
-            </section>
-
-            <section className="panel lg">
-              <div className="panel-head"><h3>Altre metriche</h3><span className="sm">Opzionali</span></div>
-              <div className="register-grid">
-                <label>Altezza<input type="number" min="80" step="0.1" value={heightCm} onChange={(e) => setHeightCm(e.target.value)} placeholder="cm" /></label>
-                <label>Massa grassa %<input type="number" min="0" max="80" step="0.1" value={bodyFatPercentage} onChange={(e) => setBodyFatPercentage(e.target.value)} /></label>
-                <label>Massa muscolare %<input type="number" min="0" max="100" step="0.1" value={muscleMassPercentage} onChange={(e) => setMuscleMassPercentage(e.target.value)} /></label>
-                <label>Vita<input type="number" min="30" step="0.1" value={waistCm} onChange={(e) => setWaistCm(e.target.value)} placeholder="cm" /></label>
-                <label>Frequenza a riposo<input type="number" min="30" max="220" value={heartRateBpm} onChange={(e) => setHeartRateBpm(e.target.value)} placeholder="bpm" /></label>
-                <label>Passi<input type="number" min="0" value={steps} onChange={(e) => setSteps(e.target.value)} /></label>
-                <label>Sonno<input type="number" min="0" max="24" step="0.1" value={sleepHours} onChange={(e) => setSleepHours(e.target.value)} placeholder="ore" /></label>
-              </div>
-              <div className="chips compact-chips"><span>+ Fianchi</span><span>+ Torace</span><span>+ Idratazione</span><span>+ Grasso viscerale</span></div>
-            </section>
-
-            <section className="panel lg">
-              <div className="panel-head"><h3>Come ti senti?</h3><span className="tag">Wellness</span></div>
-              <FormChoice label="Energia" items={["Bassa", "Buona", "Ottima"]} active={energyLabel(energyLevel)} />
-              <input type="range" min="1" max="5" value={energyLevel} onChange={(e) => setEnergyLevel(Number(e.target.value))} />
-              <FormChoice label="Umore" items={["Sereno", "Normale", "Stanco", "Stressato"]} active={mood} />
-              <div className="chips compact-chips">{["Sereno", "Normale", "Stanco", "Stressato"].map((item) => <span key={item} className={mood === item ? "on" : ""} onClick={() => setMood(item)}>{item}</span>)}</div>
-              <label className="form-line">Note opzionali<textarea value={notes} onChange={(e) => setNotes(e.target.value)} rows={3} placeholder="es. ho dormito bene, giornata piena..." /></label>
-            </section>
-          </div>
-
-          <aside className="grid">
-            <section className="panel lg">
-              <h3>Anteprima live</h3>
-              <div className="preview-grid">
-                <div className="panel compact tint-mint"><span className="cap">Peso</span><strong>{weightKg || "0"} kg</strong><small>si aggiorna al salvataggio</small></div>
-                <div className="panel compact"><span className="cap">BMI</span><strong>{bmi ? bmi.toFixed(1) : "-"}</strong><small>{bmi ? "calcolato da peso e altezza" : "serve altezza"}</small></div>
-              </div>
-              <div className="recalc-strip"><i /><i /><i /><i /><i className="hot" /></div>
-            </section>
-            <section className="panel lg tint-lav"><div className="panel-head"><span className="dot-ic tint-lav">✨</span><h3>Coach</h3></div><p>Ottimo: con dati costanti posso aggiornare andamento, BMI e suggerimenti senza inventare nulla.</p></section>
-            <section className="panel lg">
-              <h3>Oppure importa</h3>
-              <div className="list">
-                <InfoRow icon="G" title="Google Fit" text="Non ancora disponibile" meta="In arrivo" tone="plain" />
-                <InfoRow icon="CSV" title="Import CSV" text="Non ancora disponibile" meta="In arrivo" tone="plain" />
-              </div>
-            </section>
-          </aside>
-        </div>
-        {error && <div className="alert">{error}</div>}
-        <div className="note">Solo dati corpo e wellness. Per indicatori clinici dedicati useremo una sezione medica separata e ancora più protetta.</div>
-      </form>
-    </div>
-  );
-}
 
 function CoachScreen({ data }: { data: FittyData }) {
   return (
@@ -1052,43 +937,6 @@ async function apiGet<T>(path: string, token: string): Promise<T> {
   const response = await fetch(`${API_BASE_URL}${path}`, { headers: { Authorization: `Bearer ${token}` } });
   if (!response.ok) throw new Error(`GET ${path} failed`);
   return response.json();
-}
-
-async function apiPost<T>(path: string, token: string, payload: unknown): Promise<T> {
-  const response = await fetch(`${API_BASE_URL}${path}`, {
-    method: "POST",
-    headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
-    body: JSON.stringify(stripNulls(payload))
-  });
-  if (!response.ok) {
-    const details = await response.text().catch(() => "");
-    throw new Error(`Salvataggio non riuscito (${response.status})${details ? `: ${details.slice(0, 180)}` : ""}`);
-  }
-  return response.json();
-}
-
-function stripNulls(payload: unknown) {
-  if (!payload || typeof payload !== "object" || Array.isArray(payload)) return payload;
-  return Object.fromEntries(Object.entries(payload).filter(([, value]) => value !== null && value !== undefined && value !== ""));
-}
-
-function numberOrNull(value: string) {
-  return value.trim() ? Number(value) : null;
-}
-
-function integerOrNull(value: string) {
-  return value.trim() ? Number.parseInt(value, 10) : null;
-}
-
-function stepDecimal(value: string, delta: number) {
-  const next = (Number(value || "0") + delta).toFixed(1);
-  return String(Math.max(20, Number(next)));
-}
-
-function energyLabel(value: number) {
-  if (value <= 2) return "Bassa";
-  if (value >= 4) return "Ottima";
-  return "Buona";
 }
 
 function normalizeTrend(values: number[]) {

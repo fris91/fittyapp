@@ -1,5 +1,6 @@
 package com.fitty.health.controller;
 
+import com.fitty.health.domain.MeasurementType;
 import com.fitty.health.dto.HealthDtos.HealthSnapshotRequest;
 import com.fitty.health.dto.HealthDtos.HealthSnapshotResponse;
 import com.fitty.health.dto.HealthDtos.ProviderPlaceholder;
@@ -10,6 +11,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.http.HttpStatus;
@@ -42,9 +44,10 @@ public class HealthDataController {
 
     @GetMapping("/history")
     List<HealthSnapshotResponse> history(@RequestHeader(value = "X-User-Id", defaultValue = "local-user") String userId,
-                                         @RequestHeader(value = "X-User-Roles", defaultValue = "") String roles) {
+                                         @RequestHeader(value = "X-User-Roles", defaultValue = "") String roles,
+                                         @RequestParam(value = "type", required = false) MeasurementType type) {
         rejectAdminOnlyAccess(roles);
-        return service.history(userId);
+        return service.history(userId, type);
     }
 
     @GetMapping("/providers")
